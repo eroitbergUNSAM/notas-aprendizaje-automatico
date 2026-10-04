@@ -38,3 +38,8 @@ Más importante, no fue usada para:
 - Decidir qué contenidos incorporar y en qué orden.
 - Generar explicaciones ni escribir contenidos desde cero. Como mencioné anteriormente, sí acepté reformulaciones.
 - Lectura de bibliografía.
+
+
+## Licencia
+
+Este texto se distribuye bajo la licencia [Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es).
