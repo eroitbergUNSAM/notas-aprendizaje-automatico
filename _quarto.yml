@@ -12,7 +12,8 @@ book:
   title: "Otro texto más sobre aprendizaje automático"
   author: "Esteban Roitberg"
   date: today
-  license: "CC BY-NC-SA"
+  page-footer:
+    center: "[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es)"
   chapters:
     - index.qmd
     - 01-aprendizaje-automatico.qmd
