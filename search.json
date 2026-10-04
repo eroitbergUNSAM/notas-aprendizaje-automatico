@@ -14,7 +14,17 @@
     "href": "index.html#uso-de-inteligencia-artificial-generativa",
     "title": "Otro texto más sobre aprendizaje automático",
     "section": "Uso de inteligencia artificial generativa",
-    "text": "Uso de inteligencia artificial generativa\nMucho del texto que pueden encontrar acá fue escrito entre finales de 2019 y principios de 2021 para un curso de ciencia de datos en una academia. Por lo tanto, la versión original está libre de herramientas de inteligencia artificial generativa para texto. En esta versión de las notas, inteligencia artificial generativa fue utilizada para:\n\nLectura crítica: corrección ortográfica y gramatical, y señalamiento de imprecisiones conceptuales (incluido este ítem). Cuando sugería alguna reformulación del texto y esa reformulación me parecía mejor, la acepté.\nSugerencias de explicaciones puntuales, que revisé y edité\nAsistencia en el formato del documento con Quarto.\nGeneración de algunas imágenes.\n\nMás importante, no fue usada para:\n\nDecidir qué contenidos incorporar y en qué orden.\nGenerar explicaciones ni escribir contenidos desde cero. Como mencioné anteriormente, sí acepté reformulaciones.\nLectura de bibliografía.\n\n\n\n\n\nBishop, Christopher M, y Nasser M Nasrabadi. 2006. Pattern Recognition and Machine Learning. Vol. 4. Springer.\n\n\nHastie, Trevor, Robert Tibshirani, Jerome Friedman, et al. 2009. The Elements of Statistical Learning. Springer.\n\n\nJames, Gareth, Daniela Witten, Trevor Hastie, Robert Tibshirani, et al. 2013. An Introduction to Statistical Learning. Springer.\n\n\nSkiena, Steven S. 2017. The Data Science Design Manual. Springer.",
+    "text": "Uso de inteligencia artificial generativa\nMucho del texto que pueden encontrar acá fue escrito entre finales de 2019 y principios de 2021 para un curso de ciencia de datos en una academia. Por lo tanto, la versión original está libre de herramientas de inteligencia artificial generativa para texto. En esta versión de las notas, inteligencia artificial generativa fue utilizada para:\n\nLectura crítica: corrección ortográfica y gramatical, y señalamiento de imprecisiones conceptuales (incluido este ítem). Cuando sugería alguna reformulación del texto y esa reformulación me parecía mejor, la acepté.\nSugerencias de explicaciones puntuales, que revisé y edité\nAsistencia en el formato del documento con Quarto.\nGeneración de algunas imágenes.\n\nMás importante, no fue usada para:\n\nDecidir qué contenidos incorporar y en qué orden.\nGenerar explicaciones ni escribir contenidos desde cero. Como mencioné anteriormente, sí acepté reformulaciones.\nLectura de bibliografía.",
+    "crumbs": [
+      "Prefacio"
+    ]
+  },
+  {
+    "objectID": "index.html#licencia",
+    "href": "index.html#licencia",
+    "title": "Otro texto más sobre aprendizaje automático",
+    "section": "Licencia",
+    "text": "Licencia\nEste texto se distribuye bajo la licencia Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0).\n\n\n\n\nBishop, Christopher M, y Nasser M Nasrabadi. 2006. Pattern Recognition and Machine Learning. Vol. 4. Springer.\n\n\nHastie, Trevor, Robert Tibshirani, Jerome Friedman, et al. 2009. The Elements of Statistical Learning. Springer.\n\n\nJames, Gareth, Daniela Witten, Trevor Hastie, Robert Tibshirani, et al. 2013. An Introduction to Statistical Learning. Springer.\n\n\nSkiena, Steven S. 2017. The Data Science Design Manual. Springer.",
     "crumbs": [
       "Prefacio"
     ]
