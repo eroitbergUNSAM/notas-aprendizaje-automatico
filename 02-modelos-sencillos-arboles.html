@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2&nbsp; Modelos sencillos, pero efectivos - Parte 1 – Otro texto más sobre aprendizaje automático</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./03-modelos-sencillos-regresion-lineal.html" rel="next">
+<link href="./01-aprendizaje-automatico.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ac8c06e238fcfa0bde751453895f09d5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="estilos.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02-modelos-sencillos-arboles.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Otro texto más sobre aprendizaje automático</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-modelos-sencillos-arboles.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-modelos-sencillos-regresion-lineal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Referencias</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#árboles-de-decisión" id="toc-árboles-de-decisión" class="nav-link active" data-scroll-target="#árboles-de-decisión"><span class="header-section-number">2.1</span> Árboles de decisión</a>
+  <ul class="collapse">
+  <li><a href="#entrenamiento-de-un-árbol-para-clasificación" id="toc-entrenamiento-de-un-árbol-para-clasificación" class="nav-link" data-scroll-target="#entrenamiento-de-un-árbol-para-clasificación"><span class="header-section-number">2.1.1</span> Entrenamiento de un árbol para clasificación</a></li>
+  <li><a href="#árboles-de-decisión-para-regresión" id="toc-árboles-de-decisión-para-regresión" class="nav-link" data-scroll-target="#árboles-de-decisión-para-regresión"><span class="header-section-number">2.1.2</span> Árboles de decisión para regresión</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Este capítulo y el próximo presentan dos modelos de aprendizaje automático sencillos pero sumamente útiles. El primero de ellos es árbol de decisión, un modelo ampliamente utilizado que también sirve de base para enfoques más complejos. El segundo es la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.</p>
+<section id="árboles-de-decisión" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="árboles-de-decisión"><span class="header-section-number">2.1</span> Árboles de decisión</h2>
+<p>Un árbol de decisión es una estructura compuesta de ramas, y nodos internos y externos (hojas), tal como se muestra en la <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>. El árbol se lee de arriba hacia abajo. Dada una nueva instancia, ésta es clasificada recorriendo el árbol de decisión: en cada nodo interno, el árbol hace una pregunta a la instancia sobre alguno de sus atributos. Según la respuesta a esta pregunta, deriva a la instancia por alguna de sus ramas, donde puede ocurrir que aparezca otro nodo —otra pregunta— o que termine en una hoja (nodo externo). La hoja contiene la etiqueta que le corresponde a esa instancia, finalizando su recorrido en el árbol.</p>
+<p>Programar un árbol de decisión, con las preguntas ya definidas, es fácil. Es simplemente una combinación de estructuras de control <em>if - else</em>. Pero el aprendizaje automático no se trata de eso: se trata de técnicas para generar esas preguntas de forma automática. Vamos a ver cómo lo hacen los árboles de decisión. Los árboles de decisión pueden ser aplicados tanto a clasificación como a regresión. Empezaremos por clasificación, y luego mencionaremos qué cambia en el caso de regresión.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-arbol" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-arbol-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 236.02 204.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 200)">
+<title>arbol</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M101.19,-196C101.19,-196 48.83,-196 48.83,-196 42.83,-196 36.83,-190 36.83,-184 36.83,-184 36.83,-172 36.83,-172 36.83,-166 42.83,-160 48.83,-160 48.83,-160 101.19,-160 101.19,-160 107.19,-160 113.19,-166 113.19,-172 113.19,-172 113.19,-184 113.19,-184 113.19,-190 107.19,-196 101.19,-196"></path>
+<text text-anchor="middle" x="75.01" y="-174.4" font-family="Helvetica,sans-Serif" font-size="12.00">X₁ ≤ s₁</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#cfe0f3" stroke="#666666" stroke-width="1.1" d="M56.03,-116C56.03,-116 11.99,-116 11.99,-116 5.99,-116 -0.01,-110 -0.01,-104 -0.01,-104 -0.01,-92 -0.01,-92 -0.01,-86 5.99,-80 11.99,-80 11.99,-80 56.03,-80 56.03,-80 62.03,-80 68.03,-86 68.03,-92 68.03,-92 68.03,-104 68.03,-104 68.03,-110 62.03,-116 56.03,-116"></path>
+<text text-anchor="middle" x="34.01" y="-94.4" font-family="Helvetica,sans-Serif" font-size="12.00">Clase A</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#666666" d="M63.99,-159.74C60.93,-154.73 57.68,-149.21 54.9,-144 51.3,-137.28 47.7,-129.83 44.52,-122.95"></path>
+<polygon fill="#666666" stroke="#666666" points="46.63,-121.67 41.5,-116.32 42.17,-123.7 46.63,-121.67"></polygon>
+<text text-anchor="middle" x="63.07" y="-135" font-family="Helvetica,sans-Serif" font-size="10.00">sí &nbsp;</text>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M168.19,-116C168.19,-116 115.83,-116 115.83,-116 109.83,-116 103.83,-110 103.83,-104 103.83,-104 103.83,-92 103.83,-92 103.83,-86 109.83,-80 115.83,-80 115.83,-80 168.19,-80 168.19,-80 174.19,-80 180.19,-86 180.19,-92 180.19,-92 180.19,-104 180.19,-104 180.19,-110 174.19,-116 168.19,-116"></path>
+<text text-anchor="middle" x="142.01" y="-94.4" font-family="Helvetica,sans-Serif" font-size="12.00">X₂ ≤ s₂</text>
+</g>
+<!-- n0&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n0-&gt;n2</title>
+<path fill="none" stroke="#666666" d="M89.88,-159.69C99.51,-148.48 112.15,-133.77 122.57,-121.63"></path>
+<polygon fill="#666666" stroke="#666666" points="124.48,-123.17 127.18,-116.26 120.76,-119.98 124.48,-123.17"></polygon>
+<text text-anchor="middle" x="120.35" y="-135" font-family="Helvetica,sans-Serif" font-size="10.00"> &nbsp;no</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#f7ddb8" stroke="#666666" stroke-width="1.1" d="M112.03,-36C112.03,-36 67.99,-36 67.99,-36 61.99,-36 55.99,-30 55.99,-24 55.99,-24 55.99,-12 55.99,-12 55.99,-6 61.99,0 67.99,0 67.99,0 112.03,0 112.03,0 118.03,0 124.03,-6 124.03,-12 124.03,-12 124.03,-24 124.03,-24 124.03,-30 118.03,-36 112.03,-36"></path>
+<text text-anchor="middle" x="90.01" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00">Clase B</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#666666" d="M130.47,-79.69C123.13,-68.68 113.54,-54.29 105.54,-42.29"></path>
+<polygon fill="#666666" stroke="#666666" points="107.44,-40.73 101.52,-36.26 103.36,-43.45 107.44,-40.73"></polygon>
+<text text-anchor="middle" x="127.07" y="-55" font-family="Helvetica,sans-Serif" font-size="10.00">sí &nbsp;</text>
+</g>
+<!-- n4 -->
+<g id="node5" class="node">
+<title>n4</title>
+<path fill="#cfe0f3" stroke="#666666" stroke-width="1.1" d="M216.03,-36C216.03,-36 171.99,-36 171.99,-36 165.99,-36 159.99,-30 159.99,-24 159.99,-24 159.99,-12 159.99,-12 159.99,-6 165.99,0 171.99,0 171.99,0 216.03,0 216.03,0 222.03,0 228.03,-6 228.03,-12 228.03,-12 228.03,-24 228.03,-24 228.03,-30 222.03,-36 216.03,-36"></path>
+<text text-anchor="middle" x="194.01" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00">Clase A</text>
+</g>
+<!-- n2&#45;&gt;n4 -->
+<g id="edge4" class="edge">
+<title>n2-&gt;n4</title>
+<path fill="none" stroke="#666666" d="M153.55,-79.69C160.89,-68.68 170.48,-54.29 178.48,-42.29"></path>
+<polygon fill="#666666" stroke="#666666" points="180.66,-43.45 182.5,-36.26 176.58,-40.73 180.66,-43.45"></polygon>
+<text text-anchor="middle" x="179.35" y="-55" font-family="Helvetica,sans-Serif" font-size="10.00"> &nbsp;no</text>
+</g>
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-arbol-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;2.1: Árbol de decisión de profundidad dos. Cada nodo interno hace una pregunta sobre un atributo y deriva la instancia hacia la izquierda si la respuesta es afirmativa. Las hojas contienen la clase que el árbol asigna.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="entrenamiento-de-un-árbol-para-clasificación" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="entrenamiento-de-un-árbol-para-clasificación"><span class="header-section-number">2.1.1</span> Entrenamiento de un árbol para clasificación</h3>
+<p>Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor. Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<section id="impureza-gini" class="level4" data-number="2.1.1.1">
+<h4 data-number="2.1.1.1" class="anchored" data-anchor-id="impureza-gini"><span class="header-section-number">2.1.1.1</span> Impureza Gini</h4>
+<p>Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (<a href="#fig-recipientes" class="quarto-xref">Figura&nbsp;<span>2.2</span></a>). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si te pidieran ordenar por pureza a los recipientes, ¿cómo lo harías?</p>
+<p>La impureza Gini es un concepto que ayuda a responder esa pregunta. Ésta se calcula como</p>
+<p><span class="math display">\[IG = 1 - \sum_{j=1}^K p_j^2\]</span></p>
+<p>donde <span class="math inline">\(p_j\)</span> es la proporción de cada clase, y en total hay <span class="math inline">\(K\)</span> clases. En el caso de las pelotas de colores, el cálculo para cada recipiente es <span class="math inline">\(IG = 1 - p_{\text{verdes}}^2 - p_{\text{grises}}^2\)</span>, ya que solamente hay dos clases. Para el recipiente 1 esta cuenta da 0, para el recipiente 2 esta cuenta da 0.5 y para el recipiente 3, 0.32. En el caso del recipiente 2, toma el valor máximo de impureza para el caso de dos clases, ya que la impureza es máxima cuando todas las clases están en igual proporción. Entonces, por medio de la impureza Gini es posible cuantificar cuán puro (instancias con la misma etiqueta) es un conjunto. A más homogeneidad en las etiquetas, más puro es.</p>
+<!-- Una vez que entendimos el concepto de impureza Gini, podemos seguir un paso más. Supongamos que llevamos pelotas de un recipiente a otro. Por ejemplo, tomamos las dos pelotas grises del recipiente 3 y las ponemos en el recipiente 2. Ahora, el recipiente 3 tiene 8 verdes -pasó a ser un recipiente puro- y el recipiente 2 tiene 7 grises y 5 verdes. ¿Cómo cambió la impureza del sistema? Podemos calcular la ganancia Gini como
+
+$$\Delta IG = IG_i - IG_f$$
+
+donde $IG_f$ es la impureza Gini final e $IG_i$ es la impureza Gini inicial. La impureza inicial era $IG_i = \frac{10}{30} \times 0.00 + \frac{10}{30} \times 0.50 + \frac{10}{30} \times 0.32$, que da $IG_i = 0.27$. Notar que hicimos explícito que es un promedio ponderado. La impureza final es $IG_f = \frac{10}{30} \times 0.00+ \frac{8}{30} \times 0.00 + \frac{12}{30} \times 0.49$, que da $IG_f = 0.19$. Entonces, la ganancia Gini es
+
+$$\Delta IG = IG_i - IG_f = 0.27 - 0.19 = 0.08$$
+
+que indica que el sistema ahora es más puro. -->
+<div id="cell-fig-recipientes" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-recipientes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-recipientes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02-modelos-sencillos-arboles_files/figure-html/fig-recipientes-output-1.png" width="503" height="134" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-recipientes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;2.2: Tres recipientes con 10 pelotas cada uno: 10 verdes; 5 verdes y 5 grises; 8 verdes y 2 grises.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="entrenamiento-de-un-árbol" class="level4" data-number="2.1.1.2">
+<h4 data-number="2.1.1.2" class="anchored" data-anchor-id="entrenamiento-de-un-árbol"><span class="header-section-number">2.1.1.2</span> Entrenamiento de un árbol</h4>
+<p>El objetivo de entrenar un árbol de decisión es obtener las preguntas —las reglas de decisión— que usará para predecir sobre nuevas instancias. Hay varias formas de entrenar árboles; aquí nos concentraremos en CART (<em>Classification and Regression Trees</em>), uno de los métodos más usados.</p>
+<p>El proceso comienza generando una lista de todas las reglas de decisión posibles.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> Para el caso de atributos numéricos, una regla de decisión se genera a partir de un umbral. Por ejemplo, ¿<span class="math inline">\(X_1 \leq 0.5\)</span>? ¿<span class="math inline">\(X_2 \leq 0.75\)</span>?, etc. Luego, hay que decidir cuál es la mejor regla, en el sentido de cuál es la que mejor sirve para predecir. Acá es donde entra la función de costo que mencionamos antes: se define que la mejor pregunta es la que resulte en menor impureza Gini en los nodos que genera. Entonces, el proceso que sigue el entrenamiento de un árbol se puede resumir así:</p>
+<ol type="1">
+<li>Se calcula la impureza Gini para cada regla de decisión. Por cada una de ellas, se hace un promedio de las impurezas de los dos nodos que genera, ponderado por la proporción de instancias que cae en cada uno.</li>
+<li>Se elige la regla de decisión con menor impureza ponderada.</li>
+<li>Si se alcanzó un criterio de parada (por ejemplo, una profundidad máxima preestablecida), el proceso termina. Si no, se sigue construyendo el árbol de forma iterativa, tomando como muestra inicial las instancias de cada nodo y realizando los pasos 1 - 3 con las nuevas reglas de decisión que se puedan aplicar.</li>
+</ol>
+<p>Cuando las hojas contienen instancias de una sola clase, se dice que son hojas puras y ya no se pueden crear más ramas a partir de ellas. En cambio, si contienen instancias de varias clases, son hojas impuras. Cuantas más preguntas permitimos que haga el árbol, más profundo será, por lo que obtendremos cada vez mayor cantidad de hojas puras, a costa de un menor número de instancias en cada hoja.</p>
+<p>Esta forma de optimizar —en este caso, ir reduciendo la impureza Gini en cada nodo de decisión yendo de arriba hacia abajo (<em>top-down</em>)— se llama <em>greedy</em>. Es <em>greedy</em> porque se hace el mejor corte en cada nodo, sin mirar hacia adelante si se podría hacer un corte que no sea el mejor en ese momento pero que resulte en un mejor árbol en un corte posterior.</p>
+<!-- 
+% Para pensar. Ahora que ya sabes cómo se entrena un árbol de decisión, vuelve al gráfico con árbol de decisión para el Iris dataset y fíjate si entiende a qué se refiere con gini, samples y values. ¿Puedes reconstruir la matriz de confusión de ese clasificador a partir de la información en ese gráfico? -->
+</section>
+<section id="predicción" class="level4" data-number="2.1.1.3">
+<h4 data-number="2.1.1.3" class="anchored" data-anchor-id="predicción"><span class="header-section-number">2.1.1.3</span> Predicción</h4>
+<p>¿Cómo es el proceso de predicción con un árbol de decisión? Dijimos anteriormente que cuando queremos predecir sobre una instancia, ésta recorre el árbol hasta llegar a la hoja correspondiente. Pero la hoja no necesariamente es pura. Entonces, el árbol siempre predice la moda de las clases en esa hoja, es decir, la clase mayoritaria.</p>
+</section>
+<section id="fronteras-de-decisión" class="level4" data-number="2.1.1.4">
+<h4 data-number="2.1.1.4" class="anchored" data-anchor-id="fronteras-de-decisión"><span class="header-section-number">2.1.1.4</span> Fronteras de decisión</h4>
+<p>Como vimos en el <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase.Formalemente, podemos decir que un clasificador divide el espacio de atributos en regiones <span class="math inline">\(R_1, \dots, R_M\)</span> y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo <span class="math inline">\(X_j\)</span> —separa las instancias con <span class="math inline">\(X_j \leq s\)</span> de las que tienen <span class="math inline">\(X_j &gt; s\)</span>—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.</p>
+<p>Por ejemplo, para el árbol de la figura <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>, la frontera de decisión queda así:</p>
+<div id="cell-fig-frontera" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-frontera" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-frontera-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="02-modelos-sencillos-arboles_files/figure-html/fig-frontera-output-1.png" width="359" height="357" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-frontera-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;2.3: Regiones y frontera de decisión del árbol de la <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>. La línea continua es la frontera de decisión. La línea punteada es parte del corte de la raíz, pero no es frontera: separa dos regiones que predicen la misma clase.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<!-- ##### Apartado matemático
+
+Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictores $X$ en $\{X|X_j < s\}$ y $\{X|X_j \geq s\}$
+
+
+    \sum_{j=1}^J \sum_{i \in R_j}^J (y_i - \hat{y}_{R_j})  -->
+</section>
+</section>
+<section id="árboles-de-decisión-para-regresión" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="árboles-de-decisión-para-regresión"><span class="header-section-number">2.1.2</span> Árboles de decisión para regresión</h3>
+<p>¿Qué cambia si queremos usar un árbol para regresión? El proceso es exactamente el mismo, pero cambiando la impureza Gini, que funciona sobre categorías, por la varianza, que funciona sobre valores numéricos. Al momento de predecir, no devolvemos la moda, sino el promedio. La combinación varianza/promedio no es casual: la varianza de un nodo es exactamente el error cuadrático medio que se comete si se predice con el promedio de ese nodo, y el promedio es justamente el valor que hace mínimo ese error. Es decir, la función de costo y la regla de predicción están alineadas.</p>
+
+
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>La impureza Gini no es la única opción: otra muy usada es la entropía.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>En el caso de atributos numéricos, como solo importan los umbrales que separan las instancias de manera distinta, alcanza con probar, para cada atributo, los puntos medios entre valores observados consecutivos.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./01-aprendizaje-automatico.html" class="pagination-link" aria-label="Aprendizaje Automático">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./03-modelos-sencillos-regresion-lineal.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos - Parte 2">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

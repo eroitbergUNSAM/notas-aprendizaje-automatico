@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>1&nbsp; Aprendizaje Automático – Otro texto más sobre aprendizaje automático</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./02-modelos-sencillos-arboles.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ac8c06e238fcfa0bde751453895f09d5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="estilos.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-aprendizaje-automatico.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Otro texto más sobre aprendizaje automático</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-modelos-sencillos-arboles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-modelos-sencillos-regresion-lineal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Referencias</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#aprendizaje-supervisado" id="toc-aprendizaje-supervisado" class="nav-link active" data-scroll-target="#aprendizaje-supervisado"><span class="header-section-number">1.1</span> Aprendizaje supervisado</a>
+  <ul class="collapse">
+  <li><a href="#un-poco-de-formalismo" id="toc-un-poco-de-formalismo" class="nav-link" data-scroll-target="#un-poco-de-formalismo"><span class="header-section-number">1.1.1</span> Un poco de formalismo</a></li>
+  <li><a href="#clasificación-y-regresión" id="toc-clasificación-y-regresión" class="nav-link" data-scroll-target="#clasificación-y-regresión"><span class="header-section-number">1.1.2</span> Clasificación y regresión</a></li>
+  <li><a href="#predicción-e-inferencia" id="toc-predicción-e-inferencia" class="nav-link" data-scroll-target="#predicción-e-inferencia"><span class="header-section-number">1.1.3</span> Predicción e inferencia</a></li>
+  <li><a href="#pasando-en-limpio-la-terminología-y-la-notación" id="toc-pasando-en-limpio-la-terminología-y-la-notación" class="nav-link" data-scroll-target="#pasando-en-limpio-la-terminología-y-la-notación"><span class="header-section-number">1.1.4</span> Pasando en limpio la terminología y la notación</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-aprendizaje-automatico" class="quarto-section-identifier"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>El aprendizaje automático (<em>machine learning</em>) es una rama de la inteligencia artificial (IA) que desarrolla técnicas para que las computadoras aprendan a realizar tareas sin haber sido explícitamente programadas con ese fin. Es decir, no es necesario programar reglas <em>ad hoc</em> para cada tarea que queramos abordar, sino que existen mecanismos a partir de los cuales las computadoras pueden generar esas reglas de manera automática. Evidentemente, las computadoras no pueden hacer eso sin ningún insumo específico, y en este caso el principal insumo van a ser los datos.</p>
+<!--El desarrollo de esta rama de la inteligencia artificial está fuertemente anclado en las ciencias de la computación y en la estadística. 
+
+Esta doble paternidad se refleja tanto en la comunidad asociada a la disciplina, donde podemos encontrar profesionales de  XXX  como en las técnicas que se desarrollaron. -->
+<!-- Para entender mejor algunas definiciones que haremos, conviene tener un conjunto de datos de ejemplo en la cabeza.
+
+Existen dos grandes tipos de \textit{aprendizaje} dentro del aprendizaje automático: supervisado y no supervisado. El aprendizaje supervisado es aquel que permite modelar la relación entre algunas características medidas y alguna etiqueta asociada. Por ejemplo, para el conjunto de datos de pingüinos de Palmer, las características podrían ser la longitud y el alto del pico, y con eso intentar predecir a qué especie pertenece un pingüino (es decir, la etiqueta). 
+
+De acuerdo al tipo de etiquetas que asociamos a los datos, el modelo puede realizar dos tipos de tareas, clasificación o regresión. En clasificación, las etiquetas son categorías. Por ejemplo, la especie de pingüino. En las tareas de regresión, las etiquetas son cantidades continuas, números. Nuevamente, usando de ejemplo a los pingüinos, nos podría interesar determinar el peso de un pingüino solamente a partir de observar características asociadas al pico. -->
+<p>Existen varios tipos de aprendizaje dentro del aprendizaje automático. En este texto solamente nos concentraremos en el <em>supervisado</em> y el <em>no supervisado</em>. El aprendizaje supervisado es aquel que permite modelar la relación entre algunas características medidas y una etiqueta asociada, a partir de un conjunto de ejemplos en los que la etiqueta es conocida. De acuerdo al tipo de etiquetas que asociamos a los datos, el modelo puede realizar dos tipos de tareas: <strong>clasificación</strong> o <strong>regresión</strong>. En clasificación, las etiquetas son categorías. En las tareas de regresión, las etiquetas son cantidades numéricas.</p>
+<p>El aprendizaje no supervisado, a diferencia del aprendizaje supervisado, busca obtener relaciones y patrones en los datos sin hacer uso de etiquetas. Las dos tareas más importantes dentro del aprendizaje no supervisado son <em>clustering</em> y reducción de dimensionalidad. Las técnicas de clustering, como su nombre lo indica, identifican grupos (<em>clusters</em>), donde los elementos de cada grupo se parecen más entre sí que con los elementos de los otros grupos. Hay muchas técnicas de clustering, y cada una tiene su propia forma de entender qué es “parecerse más entre sí” (similitud). Las técnicas de reducción de dimensionalidad sirven para obtener representaciones más concisas de los datos, pasando de un espacio de alta dimensión a un espacio de baja dimensión.</p>
+<p>Vamos a empezar con el aprendizaje supervisado.</p>
+<!-- \begin{notabox}{Modelo}
+Una palabra que vamos a usar mucho y en diferentes contextos es \textit{modelo}. En general, nos referiremos a un modelo matemático: una descripción de un sistema que utiliza conceptos y lenguaje matemático, y que ayuda a estudiar los efectos de sus diferentes componentes y a hacer predicciones sobre su comportamiento. Este proceso de construir, a partir de información disponible, una herramienta para comprender o predecir el funcionamiento de un sistema se llama modelado.
+
+Una forma básica de armar un modelo sería tomar patrones y observaciones de eventos pasados, que pueden llevarnos a pensar que estos patrones se repetirán en el futuro. Modelos más sofisticados, como las leyes de la física, incorporan nociones como la causalidad, que nos ayudan a entender mejor por qué las cosas suceden. Evaluar de manera precisa el desempeño de un modelo puede ser muy difícil, pero es clave a la hora de interpretar los resultados.
+
+\end{notabox} -->
+<section id="aprendizaje-supervisado" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="aprendizaje-supervisado"><span class="header-section-number">1.1</span> Aprendizaje supervisado</h2>
+<div class="fuente">
+<p>Esta sección está basada, principalmente, en <span class="citation" data-cites="james2013introduction">(<a href="references.html#ref-james2013introduction" role="doc-biblioref"><span class="nocase">James et&nbsp;al.</span> 2013</a>)</span>.</p>
+</div>
+<p>En la sección anterior dijimos que el aprendizaje supervisado es una rama del aprendizaje automático que permite modelar la relación entre algunas características y una etiqueta asociada, a partir de un conjunto de ejemplos en los que la etiqueta es conocida. Vamos a tratar de darle un poco de forma a esa definición, y para ello conviene pensar en un proceso típico de aprendizaje supervisado, de manera ligeramente simplificada.</p>
+<p>Comenzamos con un conjunto de datos. El conjunto de datos está compuesto de diferentes características medidas sobre cierto número de instancias u observaciones. En general, una de esas características será la que queramos predecir, por lo que la llamaremos variable objetivo o etiqueta (también pueden llegar a encontrar <em>target</em> o <em>output</em>), mientras que las otras características serán las variables que usaremos para predecir, por lo que las llamaremos atributos (<em>features</em>) o variables predictoras (<em>inputs</em>).</p>
+<p>Una vez que tenemos un conjunto de datos, y sabemos cuáles son los atributos y cuál es la etiqueta, podemos <em>entrenar un modelo</em>. El modelo es una estructura flexible cuyas reglas o asociaciones entre los atributos y la etiqueta se ajustan a partir de pares atributos-etiqueta (es decir, el conjunto de datos). Esas reglas serán las que luego le permitirán predecir la etiqueta de nuevas instancias, de las cuales solamente conocemos los atributos. Si el modelo predice de manera apropiada o no es un tema muy importante, que veremos en <strong>Evaluación de modelos</strong>.</p>
+<p>El entrenamiento tiene unas características comunes a (casi) todas las familias de modelos que existen. Para ser flexibles, los modelos tienen que tener parámetros o estructuras que podamos ajustar o modificar según nuestra necesidad. Pero ese ajuste hay que hacerlo de forma automática, por lo que necesitamos dos cosas:</p>
+<ul>
+<li><p><strong>Una función de costo:</strong> para entrenar un modelo, se debe optimizar una función de costo. Esta función de costo compara las predicciones del modelo con las etiquetas. La función de costo guía el entrenamiento, es la que informa al optimizador cuán bien o mal está andando el modelo; es decir, cuán bien está prediciendo esas etiquetas.</p></li>
+<li><p><strong>Un optimizador:</strong> el optimizador es el que va modificando los parámetros del modelo para que vaya mejorando su desempeño, medido según la función de costo. Existen muchos tipos de optimizadores, algunos asociados a funciones de costo específicas, y más de una forma de optimizar una misma función de costo.</p></li>
+</ul>
+<section id="un-poco-de-formalismo" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="un-poco-de-formalismo"><span class="header-section-number">1.1.1</span> Un poco de formalismo</h3>
+<p>Al conjunto de variables predictoras se lo suele llamar <span class="math inline">\(X\)</span>. En los ejemplos pedagógicos, generalmente nos limitamos a unas pocas variables (podemos visualizar dos o tres variables como mucho), pero cosas interesantes suceden cuando son muchas. La etiqueta se suele denotar con la letra <span class="math inline">\(Y\)</span>, independientemente de si es una variable continua o categórica. Entonces, en el contexto de aprendizaje supervisado asumimos que existe una relación entre <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span> que podemos representar como</p>
+<p><span class="math display">\[
+\begin{array}{ccc}
+&amp; \text{ruido} &amp; \\
+&amp; \downarrow &amp; \\
+X &amp; \xrightarrow{\quad \textstyle f \quad} &amp; Y
+\end{array}
+\]</span></p>
+<p><span class="math inline">\(f\)</span> representa la relación que existe entre <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span>, y es precisamente lo que buscamos modelar. Esta relación es, en principio, desconocida para nosotros, y puede tomar muchas formas distintas. No es necesario ni siquiera que sea causal, ya que puede simplemente tratarse de asociaciones. Tampoco es necesario que sea determinista. Probablemente haya variables que influyen sobre <span class="math inline">\(Y\)</span> que no observamos, y que nosotros vamos a considerar como ruido en los datos.</p>
+<p>Lo mejor que podemos hacer es aproximar <span class="math inline">\(f\)</span>, y eso es lo que hace el modelo. Cuando obtenemos un modelo de <span class="math inline">\(f\)</span>, lo denotamos <span class="math inline">\(\hat{f}\)</span>, para indicar que no es la relación que existe en la naturaleza, sino la que nosotros obtuvimos a partir de los datos. Y lo que sale de <span class="math inline">\(\hat{f}\)</span> tampoco es <span class="math inline">\(Y\)</span>, sino una estimación que denotamos <span class="math inline">\(\hat{Y}\)</span>:</p>
+<p><span class="math display">\[X \xrightarrow{\quad \textstyle \hat{f} \quad} \hat{Y}\]</span></p>
+<p>Notar que a <span class="math inline">\(\hat{f}\)</span> le entra una sola cosa, los predictores. El ruido, por definición, no fue medido, por lo que no puede entrar al modelo. Por ese y otros motivos, en general <span class="math inline">\(\hat{Y}\)</span> no va a coincidir exactamente con <span class="math inline">\(Y\)</span>, por más bueno que sea el modelo.</p>
+<p>¿Cómo se relaciona lo que acabamos de ver con los conceptos de función de costo y optimizador que mencionamos anteriormente? La relación es directa:</p>
+<ul>
+<li>El optimizador produce <span class="math inline">\(\hat{f}\)</span>.</li>
+<li>La función de costo compara <span class="math inline">\(\hat{Y}\)</span> con <span class="math inline">\(Y\)</span>.</li>
+<li>Cuando decimos que el optimizador ajusta los parámetros hasta que el modelo prediga bien, y luego hablamos de aproximar <span class="math inline">\(f\)</span>, estamos diciendo lo mismo de dos formas distintas.</li>
+</ul>
+</section>
+<section id="clasificación-y-regresión" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="clasificación-y-regresión"><span class="header-section-number">1.1.2</span> Clasificación y regresión</h3>
+<p>Dijimos anteriormente que existen dos grandes tareas dentro del aprendizaje supervisado: <strong>clasificación</strong> y <strong>regresión</strong>. En clasificación, las etiquetas son categorías, mientras que en regresión son cantidades numéricas. Ahora que contamos con un poco más de contexto, ¿cuáles son los casos más sencillos que podríamos resolver? En la <a href="#fig-tareas" class="quarto-xref">Figura&nbsp;<span>1.1</span></a>, a la izquierda, se puede ver un problema de regresión con un solo predictor <span class="math inline">\(X\)</span>. <span class="math inline">\(f\)</span> es la relación que existe entre <span class="math inline">\(X\)</span> e <span class="math inline">\(Y\)</span>, que nosotros desconocemos, mientras que <span class="math inline">\(\hat{f}\)</span> es el modelo obtenido.</p>
+<p>Para clasificación, el caso con un solo predictor también es sencillo, pero es un poco más claro si vamos al caso con dos predictores, <span class="math inline">\(X_1\)</span> y <span class="math inline">\(X_2\)</span>. Cada punto en el plano es un dato medido, y el color indica su etiqueta. En este caso, lo que hace el modelo es generar una <strong>frontera de decisión</strong> que separa una clase de la otra. De manera equivalente, <em>pintamos</em> el espacio del color de cada clase, y donde cambia de color es la frontera.</p>
+<p>En resumen, clasificar es encontrar una frontera de decisión, y hacer una regresión es encontrar una curva que pase lo más cerca posible —cuantificado de alguna forma— de los datos.</p>
+<div id="cell-fig-tareas" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-tareas" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-tareas-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-aprendizaje-automatico_files/figure-html/fig-tareas-output-1.png" width="757" height="334" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tareas-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;1.1: Izquierda: problema de regresión con un solo predictor. Los puntos son los datos, la línea punteada es la relación verdadera <span class="math inline">\(f\)</span>, desconocida, y la línea continua es el modelo <span class="math inline">\(\hat{f}\)</span>. Derecha: problema de clasificación con dos predictores. El color de cada punto indica su clase, el fondo indica la clase que predice el modelo y la línea es la frontera de decisión.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="predicción-e-inferencia" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="predicción-e-inferencia"><span class="header-section-number">1.1.3</span> Predicción e inferencia</h3>
+<p>¿Cuáles son los principales usos de estos modelos? Es decir, ¿para qué queremos estimar <span class="math inline">\(f\)</span>? El primer caso de uso es la <em>predicción</em>. Una vez que obtenemos un modelo, se puede usar para predecir la etiqueta de instancias nuevas. Esto es particularmente útil cuando obtener los predictores <span class="math inline">\(X\)</span> es fácil, pero no así las etiquetas. Entonces, podemos usar el modelo <span class="math inline">\(\hat{f}\)</span> para reemplazar un proceso costoso por uno más accesible.</p>
+<p>El segundo caso es <em>inferencia</em>, cuando el interés está en comprender la relación entre las variables predictoras y la etiqueta. “¿Qué variables influyen, de qué manera, y por qué?” son preguntas asociadas a la inferencia. En este último sentido, “inferencia” no se refiere únicamente a la inferencia estadística clásica (intervalos de confianza, tests de hipótesis), sino al objetivo más general de entender el fenómeno, no solo predecirlo.</p>
+<!-- 
+\begin{notabox}{Tensión entre ciencias de la computación y estadística}
+El vínculo entre ciencias de la computación y estadística no siempre se dio de una manera armónica dentro de la comunidad. Históricamente, la estadística estuvo más asociada a la inferencia, mientras que la comunidad que desarrollaba modelos de aprendizaje automático desde las ciencias de la computación le interesaba más la predicción.
+
+A quienes les interese profundizar en las disputas entre estas dos ramas sobre el aprendizaje automático, pueden leer los textos de \cite{breiman2001statistical}, \cite{donoho2017} y \cite{efron2020prediction}. Son todos textos muy accesibles y recomendables. Tengan en cuenta los años de publicación  de los textos, y lo rápido que fue cambiando el campo. ¡No hay que sumarse a debates perimidos!
+
+Es pertinente hacer dos aclaraciones. La primera: en muchos contextos de la comunidad de inteligencia artificial, predicción e inferencia son sinónimos. Cuando un modelo hace inferencia, está prediciendo. Por eso acá, siguiendo la definición de \cite{breiman2001statistical} y \cite{james2013introduction}, aclaramos a qué nos referimos con cada una.
+
+En \cite{breiman2001statistical} se menciona una interesante discusión: ¿es posible hacer inferencia si el modelo no predice suficientemente bien? (dejamos para el capítulo sobre evaluación de modelos qué significa suficientemente bien)
+
+La segunda aclaración es que no es la única forma pensar los usos de un modelo. Por ejemplo, en \cite{efron2020prediction}... pedirle a la IA que resuma...
+\end{notabox} -->
+</section>
+<section id="pasando-en-limpio-la-terminología-y-la-notación" class="level3" data-number="1.1.4">
+<h3 data-number="1.1.4" class="anchored" data-anchor-id="pasando-en-limpio-la-terminología-y-la-notación"><span class="header-section-number">1.1.4</span> Pasando en limpio la terminología y la notación</h3>
+<p>Existen diferentes formas de llamar a lo mismo. Por ejemplo, ya vimos que podemos hablar de variable objetivo, etiqueta, target o output si consideramos anglicismos, y podemos sumar a esa lista variable de salida. A las variables que usaremos para predecir las podemos llamar atributos, variables predictoras, features, inputs y también podríamos sumar variables de entrada. En general, esperamos que quede claro del contexto qué estamos queriendo decir. También hay cierta ambigüedad con <em>modelo</em> y otra palabra que usaremos bastante, <em>algoritmo</em>. El algoritmo es el procedimiento para entrenar el modelo, y el modelo <em>entrenado</em> es lo que queda después de aplicarlo a un conjunto de datos concreto.</p>
+<p>La notación que utilizamos es la de <em>The Elements of Statistical Learning</em> de Hastie, Tibshirani y Friedman <span class="citation" data-cites="hastie2009elements">(<a href="references.html#ref-hastie2009elements" role="doc-biblioref"><span class="nocase">Hastie et&nbsp;al.</span> 2009</a>)</span>. Esta notación consiste en:</p>
+<ul>
+<li><p><span class="math inline">\(N\)</span> suele ser el número de observaciones, y <span class="math inline">\(p\)</span> el número de variables predictoras. A veces <span class="math inline">\(N\)</span> puede aparecer en minúsculas, <span class="math inline">\(n\)</span>.</p></li>
+<li><p>Un conjunto de variables predictoras es <span class="math inline">\(X\)</span>. Es un vector, sus componentes son <span class="math inline">\(X_j\)</span>.</p></li>
+<li><p><span class="math inline">\(x_{i,j}\)</span> es la observación de la variable <span class="math inline">\(j\)</span>-ésima en la instancia <span class="math inline">\(i\)</span>-ésima. En general, las observaciones se denotan con minúsculas (<em>variables en mayúscula, observaciones en minúscula</em>).</p></li>
+<li><p>Una matriz suele representarse en mayúscula y en negrita. En particular, <span class="math inline">\(\mathbf{X}\)</span> es una matriz de observaciones de variables predictoras, donde cada fila es una observación y cada columna es una variable. Por ejemplo, si tenemos <span class="math inline">\(N\)</span> observaciones y <span class="math inline">\(p\)</span> variables predictoras, entonces <span class="math inline">\(\mathbf{X}\)</span> es una matriz de <span class="math inline">\(N \times p\)</span>.</p>
+<p><span class="math display">\[ \mathbf{X} = \begin{bmatrix}
+x_{1,1} &amp; x_{1,2} &amp; \cdots &amp; x_{1,p} \\
+x_{2,1} &amp; x_{2,2} &amp; \cdots &amp; x_{2,p} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+x_{N,1} &amp; x_{N,2} &amp; \cdots &amp; x_{N,p}
+\end{bmatrix} \]</span></p></li>
+<li><p>Una variable objetivo cuantitativa es <span class="math inline">\(Y\)</span>, y una cualitativa es <span class="math inline">\(G\)</span> (para grupo). Las variables cuantitativas son números, y las cualitativas son categorías. En general, en un abuso de notación, usaremos <span class="math inline">\(Y\)</span> para todo.</p></li>
+<li><p>Los vectores se escriben sin negrita, salvo cuando tienen <span class="math inline">\(N\)</span> componentes. De esta manera, podemos distinguir un vector de <span class="math inline">\(p\)</span> componentes para la instancia <span class="math inline">\(x_i\)</span> de un vector de <span class="math inline">\(N\)</span> componentes para las observaciones <span class="math inline">\(\mathbf{x}_j\)</span> de la variable <span class="math inline">\(X_j\)</span>.</p></li>
+</ul>
+<p>Dado el último ítem, notar que la columna <span class="math inline">\(j\)</span>-ésima de <span class="math inline">\(\mathbf{X}\)</span> es el vector <span class="math inline">\(\mathbf{x}_j\)</span>, que contiene todas las observaciones de la variable <span class="math inline">\(j\)</span>-ésima. De esta manera, la matriz <span class="math inline">\(\mathbf{X}\)</span> puede escribirse como:</p>
+<p><span class="math display">\[ \mathbf{X} = \begin{bmatrix}
+\mathbf{x}_1 &amp; \mathbf{x}_2 &amp; \cdots &amp; \mathbf{x}_p
+\end{bmatrix} \]</span> cada uno con <span class="math inline">\(N\)</span> componentes.</p>
+<p>De la misma manera, la fila <span class="math inline">\(i\)</span>-ésima de <span class="math inline">\(\mathbf{X}\)</span> es una observación de todas las variables predictoras para la instancia <span class="math inline">\(i\)</span>. Como <em>todos los vectores se asumen vectores columna</em>, la fila <span class="math inline">\(i\)</span>-ésima de <span class="math inline">\(\mathbf{X}\)</span> se denota como <span class="math inline">\(x_i^T\)</span>, que es la transpuesta del vector columna <span class="math inline">\(x_i\)</span>. De esta manera, la matriz <span class="math inline">\(\mathbf{X}\)</span> puede escribirse como:</p>
+<p><span class="math display">\[ \mathbf{X} = \begin{bmatrix}
+x_1^T \\
+x_2^T \\
+\vdots \\
+x_N^T
+\end{bmatrix} \]</span></p>
+<p>Finalmente, un conjunto de datos es una colección <span class="math inline">\(D = \{(x_i, y_i)\}_{i=1}^{N}\)</span>.</p>
+<p>Si esto los confundió, no se preocupen, va a ir quedando claro con el uso. Sin embargo, no hay que minimizar la importancia de esta sección. Muchas cosas que parecen complejas son, simplemente, notación con la que no estamos familiarizados.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-hastie2009elements" class="csl-entry" role="listitem">
+<span class="nocase">Hastie, Trevor, Robert Tibshirani, Jerome Friedman, et&nbsp;al.</span> 2009. <em>The Elements of Statistical Learning</em>. Springer.
+</div>
+<div id="ref-james2013introduction" class="csl-entry" role="listitem">
+<span class="nocase">James, Gareth, Daniela Witten, Trevor Hastie, Robert Tibshirani, et&nbsp;al.</span> 2013. <em>An Introduction to Statistical Learning</em>. Springer.
+</div>
+</div>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Prefacio">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Prefacio</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./02-modelos-sencillos-arboles.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos - Parte 1">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
