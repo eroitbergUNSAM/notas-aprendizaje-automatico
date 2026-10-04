@@ -12,13 +12,14 @@ book:
   title: "Otro texto más sobre aprendizaje automático"
   author: "Esteban Roitberg"
   date: today
+  license: "CC BY-NC-SA"
   chapters:
     - index.qmd
     - 01-aprendizaje-automatico.qmd
     - 02-modelos-sencillos-arboles.qmd
     - 03-modelos-sencillos-regresion-lineal.qmd
     - references.qmd
-
+  
 format:
   html:
     theme: cosmo
