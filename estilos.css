@@ -1,0 +1,11 @@
+/* estilos.css */
+p, li {
+  text-align: justify;
+  hyphens: auto;
+}
+
+.fuente {
+  margin-left: 1cm;
+  margin-right: 1cm;
+  font-size: 0.9em;
+}

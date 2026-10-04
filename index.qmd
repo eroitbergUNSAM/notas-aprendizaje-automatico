@@ -1,0 +1,40 @@
+# Prefacio {.unnumbered}
+
+<!-- Reglas de estilo:
+1. negrita: término que se define, solo la primera vez.
+1. cursiva: extranjerismos y énfasis. 
+
+PENDIENTES:
+- ¿Hacer que la figura de la intro sobre clasificación y frontersa, y la de árboles compartan puntos?
+-->
+
+Este texto nació con el objetivo de ser una referencia introductoria en castellano sobre aprendizaje automático para los y las estudiantes de la Licenciatura en Ciencia de Datos de la Universidad Nacional de San Martín (UNSAM). En particular, que sirva como material de apoyo a quienes cursen Introducción al Aprendizaje Automático —una materia del primer año— y Aprendizaje Automático —una materia del cuarto año—. Al momento de escribir esta versión, también como apoyo a quienes cursen Fundamentos de Machine Learning de la Maestría en Inteligencia Artificial del Instituto Tecnológico de Buenos Aires (ITBA).
+
+Existe un gran número de excelentes textos sobre aprendizaje automático en inglés, y no tantos en castellano. Mis preferidos son:
+
+- *The Data Science Design Manual* [@skiena2017data]. Tal como indica el título, no es un libro de aprendizaje automático, sino de ciencia de datos. Sin embargo, da un panorama muy completo de ambas disciplinas y cómo se relacionan. 
+    
+- *An Introduction to Statistical Learning* [@james2013introduction]. Mi preferido para arrancar exclusivamente con aprendizaje automático. Las explicaciones son excelentes, se lee fácil, y tiene ejemplos de código (hay versión en R y Python) muy útiles.
+    
+- *Pattern Recognition and Machine Learning* [@bishop2006pattern]. Un libro excelente por donde se lo mire. Hace un poco más de foco en la perspectiva bayesiana de algunos temas.
+    
+- *The Elements of Statistical Learning* [@hastie2009elements]. El hermano mayor de *An Introduction*, por muchos considerado la referencia más completa del tema. Su lectura se puede hacer un poco difícil si no se cuenta con la base matemática necesaria.
+
+Todos se pueden conseguir gratuitamente, gracias a los autores, con una breve búsqueda en internet. Para quienes lean en inglés, recomiendo ir a cualquiera de ellos. Están, de alguna manera, listados en orden de dificultad, así que ante la duda recomiendo arrancar por cualquiera de los dos primeros. Una aclaración pertinente: estos libros no suelen leerse completos, sino que hay capítulos troncales y otros que se leen cuando es necesario introducirse en un tema. La mayoría aclara cuáles son los capítulos que se deben priorizar.
+
+Quienes no quieran o no puedan leer en inglés pueden utilizar este texto. Por ahora es, más que un libro, un conjunto de notas. No busca ser original ni exhaustivo, sino que su objetivo es consolidar los conceptos básicos y necesarios del aprendizaje automático. Las explicaciones tenderán a ser cortas y concisas, de forma tal de resaltar lo más importante de cada tema. Intencionalmente no tienen ejemplos con datos reales, ya que se busca complementar lo visto en clase y no reemplazarlo. La mayoría de los contenidos están organizados en dos niveles: una primera introducción apta para todo público, y una profundización donde se formalizan algunas cuestiones matemáticas. No habrá, o habrá muy pocas, referencias a código, ya que se busca consolidar conceptos independientemente de la herramienta que usemos para aplicarlos.
+
+## Uso de inteligencia artificial generativa
+
+Mucho del texto que pueden encontrar acá fue escrito entre finales de 2019 y principios de 2021 para un curso de ciencia de datos en una academia. Por lo tanto, la versión original está libre de herramientas de inteligencia artificial generativa para texto. En esta versión de las notas, inteligencia artificial generativa fue utilizada para:
+
+- Lectura crítica: corrección ortográfica y gramatical, y señalamiento de imprecisiones conceptuales (incluido este ítem). Cuando sugería alguna reformulación del texto y esa reformulación me parecía mejor, la acepté.
+- Sugerencias de explicaciones puntuales, que revisé y edité
+- Asistencia en el formato del documento con Quarto.
+- Generación de algunas imágenes.
+
+Más importante, no fue usada para:
+
+- Decidir qué contenidos incorporar y en qué orden.
+- Generar explicaciones ni escribir contenidos desde cero. Como mencioné anteriormente, sí acepté reformulaciones.
+- Lectura de bibliografía.

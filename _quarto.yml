@@ -1,0 +1,26 @@
+project:
+  type: book
+  output-dir: _book
+
+lang: es
+bibliography: refs.bib
+
+execute:
+  freeze: auto
+
+book:
+  title: "Otro texto más sobre aprendizaje automático"
+  author: "Esteban Roitberg"
+  date: today
+  chapters:
+    - index.qmd
+    - 01-aprendizaje-automatico.qmd
+    - 02-modelos-sencillos-arboles.qmd
+    - 03-modelos-sencillos-regresion-lineal.qmd
+    - references.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: estilos.css
+    toc-depth: 3
