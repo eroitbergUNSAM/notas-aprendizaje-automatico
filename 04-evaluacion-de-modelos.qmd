@@ -1,0 +1,186 @@
+# Evaluación de modelos
+
+Este capítulo presenta cómo evaluar correctamente un modelo. Es, sin lugar a dudas, el capítulo más importante de todo este conjunto de notas.
+
+Hay dos preguntas fundamentales que debemos hacernos antes de empezar a desarrollar una herramienta de aprendizaje automático:
+
+1. ¿Qué queremos medir para evaluar el desempeño del modelo? Es muy importante definir con qué métrica o métricas vamos a evaluar el desempeño del modelo. La elección de la métrica es fundamental, e idelamente debería reflejar lo más fehacientemente lo que esperamos que el modelo haga bien cuando lo usemos.
+
+1. ¿Cómo lo vamos a medir? El objetivo es que esa medida de desempeño que obtengamos sea representativa del desempeño del modelo en datos que no vio durante el entrenamiento. Para eso, hay varias técnicas y protocolos que podemos seguir.
+
+
+## Métricas de evaluación para clasificación
+
+@sec-aprendizaje-automatico.
+
+¿Cómo evaluamos los resultados de un modelo de clasificación? Vamos a suponer que estamos trabajando en un problema binario (dos clases). Podemos llamar a una clase Positiva y la otra Negativa. En general, esto implica que una clase (la positiva) es más relevante que la otra, pero por ahora es mejor pensar que es solo una convención. En ese caso, podemos evaluar qué sucede cuando el modelo hace una predicción sobre una instancia y nosotros contamos, además, con la etiqueta asociada a dicha instancia:
+
+* Un **verdadero positivo** es una instancia de la clase positiva correctamente predicha como positiva por nuestro modelo.
+* Un **falso fositivo** es una instancia que fue predicha como positiva cuando en realidad no lo era. 
+* Un **falso negativo** es una instancia que fue predicha como negativa cuando en realidad era positiva. 
+* Un **verdadero negativo** es una instancia negativa correctamente predicha como negativa.
+
+Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en una sola instancia. Pero no alcanza para evaluar el desempeño de un modelo observar una única instancia, ya que eso no nos permite hacer estadística. Cuando analizamos muchas instancias, podemos contar la ocurrencia de cada caso y agruparlos en una tabla de doble entrada, la matriz de confusión.
+
+
+|                     | Predicho: negativo | Predicho: positivo |
+|---------------------|:------------------:|:------------------:|
+| **Real: negativo**  | VNs                | FPs                |
+| **Real: positivo**  | FNs                | VPs                |
+
+: Matriz de confusión: filas = clase real, columnas = clase predicha. {#tbl-matriz-confusion}
+
+
+La matriz de confusión tiene, en principio, toda la información sobre el desempeño de un modelo clasificacdor. Pero a veces, es necesario resumirla o hacer foco sobre algunas características particular. Para ello, existen algunas métricas útiles.
+
+La **exactitud** (*accuracy*) mide la fracción de los datos correctamente clasificados. Los datos correctamente clasificados, aciertos, son los verdaderos positivos y los verdaderos negativos. Los errores son los falsos positivos y los falsos negativos. Por lo tanto, la exactitud se calcula como:
+
+$$\text{exactitud} = \frac{VPs + VNs}{VPs + VNs + FPs + FNs}$$
+
+donde en denominador es simplemente el total de instancias $N$. 
+
+Precisión: de los elementos seleccionados (predichos positivos), ¿qué fracción son relevantes (verdaderos positivos)?
+
+Exhaustividad (recall, true positive rate): de los elementos relevantes (positivos), ¿qué fracción fueron seleccionados (verdaderos positivos)?
+
+
+¿Qué pasa si te interesa una clase por sobre la otra?  Para poder tomar este tipo de decisiones y análisis, trabajamos con las métricas exhaustividad (recall) y precisión.
+Precisión hace referencia a los resultados “correctos” sobre el total de muestras seleccionadas. Es decir, los verdaderos positivos sobre los verdaderos positivos + los falsos positivos. 
+Exhaustividad hace referencia a los resultados “correctos” por sobre todos los resultados que buscamos identificar. Esta cuenta es verdaderos positivos sobre los verdaderos positivos + los falsos negativos.  
+Ambas métricas toman valores entre 0 y 1. 
+
+La situación ideal es tener una precisión y exhaustividad alta, pero esto muchas veces no se logra y es común que haya un compromiso entre una y otra. La importancia que le damos a la exhaustividad y a la precisión depende del problema en el que trabajás.
+
+Otro ejemplo que se usa frecuentemente son los filtros spam. ¿Prefieres tener un sistema que filtre la mayoría de los mails con publicidad pero cada tanto te envíe a la bandeja de entrada un mail spam? ¿o consideras mejor que descarte el 100% de los mails con publicidad pero cada tanto elimine un mail que no era spam? ¿Qué otro caso se te ocurre en el que haya un compromiso entre la precisión y la exhaustividad?
+
+Nota: existe mucha terminología para referirse a los mismos conceptos. Por ejemplo, en algunos lugares a los Falsos Positivos y Falsos Negativos es común llamarlos errores de Tipo 1 y de Tipo 2, respectivamente. Sensibilidad es otra acepción de exhaustividad usada en epidemiología, mientras que otros conceptos como especificidad también se desprenden de la matriz de confusión.
+
+Finalmente, los/as Data Scientists usamos una métrica que combina la precisión y la exhaustividad de forma tal de mantener un compromiso entre ellas: F-score.  Como mencionamos, un modelo muy preciso es poco exhaustivo, y viceversa. 
+El F-Score, entonces, es una métrica que combina ambas métricas de forma tal de no aumentar mucho una a costa de la otra. Su fórmula es:
+
+Si precisión o recall son bajas, cercanas a cero, también lo será el F-Score. Mientras que si las dos son altas, cercanas a uno, también lo será el F-Score. 
+
+
+### Clasificación multiclase
+
+### Problemas desbalanceados
+
+El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales.
+
+
+
+## Métricas de evaluación para regresión
+
+Supongamos que solamente tenemos un atributo $X$; entonces, proponemos que la relación $f$ entre ese atributo y la variable a predecir $Y$ tiene la siguiente forma:
+
+$$ f(X) = \beta_0 + \beta_1 X $$
+
+Entrenar una regresión lineal consiste en encontrar el $\beta_0$ y el $\beta_1$ que hagan que la curva - una recta en este caso - mejor se aproxime a los datos. A $\beta_1$ se lo suele conocer como pendiente y a $\beta_0$ como ordenada al origen, pero para nosotros serán *coeficientes* o *parámetros* de la regresión lineal.
+
+Para encontrar los mejores coeficientes necesitamos, como siempre, una función de costo y una forma de optimizarla. La función de costo más usada da nombre al método: cuadrados mínimos. Para optimizarla existen varias técnicas, algunas exactas y otras aproximadas; acá vamos a empezar por la solución exacta.
+
+La función de costo debe cuantificar cuán bien la curva obtenida aproxima a los datos. Vamos a usar la **suma de los residuos al cuadrado** (RSS, por sus siglas en inglés). Para una instancia $i$, el residuo es la diferencia entre el valor observado $y_i$ y la predicción del modelo $\hat{y}_i$. Es decir, el residuo es $e_i = y_i - \hat{y}_i$. La suma de los residuos al cuadrado es la suma sobre todas las instancias
+
+$$RSS = e^2_1 + e^2_2 + ... + e^2_N$$
+$$RSS = (y_1 - \hat{y}_1)^2 + (y_2 - \hat{y}_2)^2 + ... + (y_N - \hat{y}_N)^2$$
+
+Entonces, cuanto mejores las predicciones, más chico el $RSS$, ya que los residuos son más chicos. De manera más compacta, podemos escribir
+
+$$RSS = \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2 $$
+
+Pero, ¿qué son las predicciones $\hat{y}_i$? Recordemos que contamos con una expresión explícita para las predicciones, $\hat{y}_i = \beta_0 + \beta_1 x_i$ (notar que reemplazamos el valor de $X$ por el valor observado para esa instancia, $x_i$), así que podemos escribir el $RSS$ como 
+
+$$RSS = \sum^{N}_{i = 1} (y_i - (\beta_0 + \beta_1 x_i))^2 $$
+
+Es importante asegurarse de entender bien esta expresión antes de continuar. ¿De qué variables depende? Los pares $(x_i, y_i)$ son valores medidos, es decir, números. No son variables de la expresión. El $RSS$ es función únicamente de los coeficientes del modelo, $\beta_0$ y $\beta_1$. Es decir, es $RSS(\beta_0, \beta_1)$, y esos coeficientes es lo único que podemos modificar para cambiar el $RSS$ y, a su vez, el modelo.
+
+Pero lo que buscamos es el modelo que mejor aproxime a los datos, dada esta función de costo. La función de costo toma valores más chicos a medida que el modelo mejor aproxima a los datos, por lo que lo que tenemos es un **problema de minimización**. Para obtener el mínimo, basta con tomar las derivadas parciales, igualar a cero y despejar:
+
+$$ \frac{\partial RSS}{\partial \beta_0} = 0  $$
+$$ \frac{\partial RSS}{\partial \beta_1} = 0  $$
+
+cuya solución es
+
+$$ \hat{\beta}_1 = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{N} (x_i - \bar{x})^2}$$
+$$ \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$$
+
+donde $\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i$ y $\bar{y} = \frac{1}{N} \sum_{i=1}^{N} y_i$. Entonces, el modelo entrenado es $\hat{f}(X) = \hat{\beta}_0 + \hat{\beta}_1 X$. 
+
+
+## Protocolos de evaluación
+
+Es raro que tengamos un solo atributo; en general son varios, que es precisamente lo que hace más interesantes a los problemas. La regresión lineal se adapta fácilmente a estas situaciones. Si tenemos $p$ variables, podemos escribir
+
+$$f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2  + ... + \beta_p X_p$$
+
+De esta forma, debemos encontrar un coeficiente $\beta_j$ para cada atributo $X_j$.
+
+Muchas veces, lo van a encontrar escrito de manera más compacta así:
+$$ f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
+
+Pero se puede resumir aún más, usando notación vectorial. Si a $X$ le agregamos un $1$ en el primer lugar, y llamamos $\beta = (\beta_0, \beta_1,..., \beta_p)$, la regresión lineal es simplemente
+
+$$f(X) = X^T \beta$$
+
+donde, por las definiciones que hicimos antes, tanto $X$ como $\beta$ son vectores de tamaño $p+1$. La función de costo a minimizar es la misma, la suma de los residuos al cuadrado:
+
+$$RSS =  \sum^{N}_{i = 1} (y_i - x_i^T \beta)^2 $$
+
+Podemos aprovechar la notación del primer capítulo y compactar aún más esta expresión. Para eso, a la matriz $\mathbf{X}$ le agregamos una primera columna de unos, por lo que pasa a ser de $N \times (p+1)$. Utilizando notación matricial, podemos reescribir la suma de los residuos al cuadrado como:
+
+$$ RSS (\beta) = (\mathbf{y} - \mathbf{X} \beta)^T (\mathbf{y} - \mathbf{X} \beta) $$
+
+donde es explícita la dependencia de la función de costo respecto de los parámetros $\beta$.
+
+El proceso para obtener los coeficientes es el mismo. Si diferenciamos respecto de $\beta$, obtenemos la primera derivada:
+
+$$\frac{\partial RSS}{\partial \beta} = -2 \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta)$$
+
+
+y, diferenciando nuevamente, la segunda derivada, que en este caso es una matriz:
+
+$$\frac{\partial^2 RSS}{\partial \beta \, \partial \beta^T} = 2 \mathbf{X}^T \mathbf{X}$$
+
+Si $\mathbf{X}$ tiene rango completo por columnas (es decir, si ningún atributo es combinación lineal de los demás), entonces $\mathbf{X}^T \mathbf{X}$ es definida positiva, lo que implica que la función de costo es convexa y tiene un mínimo que podemos obtener igualando la primera derivada a cero (ecuaciones normales):
+
+$$\mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta) = 0  $$
+
+cuya solución es:
+
+$$\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
+
+De esta forma, las predicciones $\hat{\mathbf{y}}$ se obtienen como:
+
+$$\hat{\mathbf{y}} = \mathbf{X} \hat{\beta} = \mathbf{X} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
+
+Desde un punto de vista operativo, ya está. Obtuvimos un estimador de los coeficientes $\hat{\beta}$ y una $\hat{f}(X) = X^T\hat{\beta}$ que nos sirven para hacer predicciones, y para eso no hace falta prácticamente ninguna hipótesis sobre los datos, más allá de que $\mathbf{X}$ tenga rango completo por columnas. Los supuestos que suelen asociarse a la regresión lineal entran en juego cuando queremos hacer inferencia sobre los coeficientes.
+
+
+La importancia de evaluar correctamente
+Evaluar correctamente el desempeño de los modelos es una parte fundamental en el desarrollo de un modelo predictivo. ¡Por eso  analizar y aprender distintas métricas es tan útil Pero para que esto funcione, es necesario diseñar un sistema de evaluación que te permita visualizar fácilmente las distintas métricas y el desempeño de tu modelo. 
+En este programa utilizarás la librería Scikit-Learn para calcular las métricas que aprendiste y Matplotlib y Seaborn para visualizarlas. En resumen, el sistema va a consistir en un bloque de código -puede ser un conjunto de celdas- que devuelva información útil para evaluar el funcionamiento de tu modelo.
+Aquí van 4 recomendaciones para identificar un buen sistema de evaluación:
+Es simple de ejecutar con un (o pocos) comando único. Esto es importante ya que facilita la iteración en la evaluación y mejora del modelo.
+Devuelve un set de métricas relevantes y gráficos. ¿Está funcionando mejor que antes?
+Incluye distribuciones de errores y no solamente resultados binarios. No nos dice únicamente si es correcto o incorrecto, si no qué tan cerca estuvimos (los gráficos son una gran herramienta para esto).
+Devuelve una matriz de confusión.
+
+Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando.
+
+
+Optimización de hiperparámetros
+Los modelos de Aprendizaje Automático tienen parámetros e hiperparámetros:
+Los Parámetros hacen referencia a las variables que se ajustan automáticamente durante el proceso de entrenamiento. Esta es la parte en el que el modelo “aprende solo”. 
+Los hiperparámetros son valores que ajustamos y decidimos los/as Data Scientists. 
+Cada modelo cuenta con parámetros e hiperparámetros distintos. Los principales hiperparámetros de kNN y árboles de decisiones son la cantidad de vecinos y la profundidad del árbol, respectivamente. Estos valores tenemos que elegirlos nosotros/as, como Data Scientists. 
+Para pensar. Cuanto más profundo sea un árbol ¿el modelo va a tender al Overfitting o al Underfitting? ¿y con la cantidad de vecinos en kNN?
+Si estos valores los decidimos nosotros/as: ¿cómo sabemos cuál es el hiperparámetro más eficiente? ¿Con cuál empezamos? 
+Cada modelo tiene un valor recomendado -también, una vez más, depende del problema-. Para ir ajustándolo y llegar al valor esperado hay varias técnicas, pero todas incluyen un proceso iterativo en el cual probamos distintos valores. 
+En el caso que tengas que elegir un único hiperparámetro, una forma sencilla es hacerlo mediante lo que se conoce como una Curva de Validación: 
+En el eje x, cuentas con la complejidad del modelo: en el caso de los árboles, la complejidad está directamente asociada a su profundidad. Un modelo poco profundo es simple, mientras que a medida que aumenta la profundidad el modelo se hace más complejo. 
+En el eje y, va el desempeño del modelo. 
+Cuando hacemos estas curvas para los conjuntos de entrenamiento y testeo, se suele obtener algo parecido a la siguiente figura:
+
+
+
+Esta curva de validación está idealizada, pero rescata los aspectos más importantes: los modelos simples tienden a desempeñarse peor de lo que podrían (underfitting); mientras que modelos complejos tienden a sobreajustar, es decir, hay una gran distancia entre el desempeño en el conjunto de entrenamiento y el conjunto de testeo. En el medio, un compromiso entre ambos, el mejor modelo.
