@@ -64,7 +64,7 @@ Si precisión o exhaustividad son bajas, cercanas a cero, también lo será el F
 
 1. La exactitud se define de la misma manera (total de aciertos sobre total de errores y aciertos).
 
-1. La precisión y la exhaustividad se calculan por clase, considerando esa clase como positiva y todo el resto como negativa. Para resumirlas en un único valor global hay tres opciones habituales:
+1. La precisión, exhaustividad y F-score se calculan por clase, considerando esa clase como positiva y todo el resto como negativa. Para resumirlas en un único valor global hay tres opciones habituales:
     * *macro*: promedio simple de las métricas de cada clase.
     * *weighted*: promedio ponderado por la cantidad de instancias de cada clase.
     * *micro*: se suman los VP, FP y FN de todas las clases y se calcula la métrica una sola vez con esos totales.
