@@ -4,19 +4,16 @@ Este capítulo presenta cómo evaluar correctamente un modelo. Es, sin lugar a d
 
 Hay dos preguntas fundamentales que debemos hacernos antes de empezar a desarrollar una herramienta de aprendizaje automático:
 
-1. ¿Qué queremos medir para evaluar el desempeño del modelo? Es muy importante definir con qué métrica o métricas vamos a evaluar el desempeño del modelo. La elección de la métrica es fundamental, e idelamente debería reflejar lo más fehacientemente lo que esperamos que el modelo haga bien cuando lo usemos.
+1. ¿Qué queremos medir para evaluar el desempeño del modelo? Es muy importante definir con qué métrica o métricas vamos a evaluar. Su elección es fundamental, e idealmente debería reflejar lo más fehacientemente lo que esperamos que el modelo haga bien cuando lo usemos.
 
 1. ¿Cómo lo vamos a medir? El objetivo es que esa medida de desempeño que obtengamos sea representativa del desempeño del modelo en datos que no vio durante el entrenamiento. Para eso, hay varias técnicas y protocolos que podemos seguir.
 
-
 ## Métricas de evaluación para clasificación
 
-@sec-aprendizaje-automatico.
-
-¿Cómo evaluamos los resultados de un modelo de clasificación? Vamos a suponer que estamos trabajando en un problema binario (dos clases). Podemos llamar a una clase Positiva y la otra Negativa. En general, esto implica que una clase (la positiva) es más relevante que la otra, pero por ahora es mejor pensar que es solo una convención. En ese caso, podemos evaluar qué sucede cuando el modelo hace una predicción sobre una instancia y nosotros contamos, además, con la etiqueta asociada a dicha instancia:
+¿Cómo evaluamos los resultados de un modelo de clasificación? Vamos a suponer que estamos trabajando en un problema binario (dos clases). Podemos llamar a una clase positiva y a la otra negativa. En general, esto implica que una clase (la positiva) es más relevante que la otra, pero por ahora es mejor pensar que es solo una convención. En ese caso, podemos evaluar qué sucede cuando el modelo hace una predicción sobre una instancia y nosotros contamos, además, con la etiqueta asociada a dicha instancia:
 
 * Un **verdadero positivo** es una instancia de la clase positiva correctamente predicha como positiva por nuestro modelo.
-* Un **falso fositivo** es una instancia que fue predicha como positiva cuando en realidad no lo era. 
+* Un **falso positivo** es una instancia que fue predicha como positiva cuando en realidad no lo era. 
 * Un **falso negativo** es una instancia que fue predicha como negativa cuando en realidad era positiva. 
 * Un **verdadero negativo** es una instancia negativa correctamente predicha como negativa.
 
@@ -25,51 +22,59 @@ Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en u
 
 |                     | Predicho: negativo | Predicho: positivo |
 |---------------------|:------------------:|:------------------:|
-| **Real: negativo**  | VNs                | FPs                |
-| **Real: positivo**  | FNs                | VPs                |
+| **Real: negativo**  | VN                 | FP                 |
+| **Real: positivo**  | FN                 | VP                 |
 
-: Matriz de confusión: filas = clase real, columnas = clase predicha. {#tbl-matriz-confusion}
+: Matriz de confusión: filas = clase real, columnas = clase predicha. Notar que $VP + FN = P$ (el total de instancias positivas en todo nuestro conjunto de datos) y $VN + FP = Q$ (el total de instancias negativas en todo nuestro conjunto de datos). La suma de todos los elementos de la matriz da $N$ (el total de instancias). {#tbl-matriz-confusion}
 
-
-La matriz de confusión tiene, en principio, toda la información sobre el desempeño de un modelo clasificacdor. Pero a veces, es necesario resumirla o hacer foco sobre algunas características particular. Para ello, existen algunas métricas útiles.
+La matriz de confusión tiene, en principio, toda la información sobre el desempeño de un modelo clasificador. Pero a veces, es necesario resumirla o hacer foco sobre algunas características particulares. Para ello, existen algunas métricas útiles.
 
 La **exactitud** (*accuracy*) mide la fracción de los datos correctamente clasificados. Los datos correctamente clasificados, aciertos, son los verdaderos positivos y los verdaderos negativos. Los errores son los falsos positivos y los falsos negativos. Por lo tanto, la exactitud se calcula como:
 
-$$\text{exactitud} = \frac{VPs + VNs}{VPs + VNs + FPs + FNs}$$
+$$\text{exactitud} = \frac{VP + VN}{VP + VN + FP + FN}$$
 
-donde en denominador es simplemente el total de instancias $N$. 
+donde el denominador es simplemente el total de instancias $N$. 
 
-Precisión: de los elementos seleccionados (predichos positivos), ¿qué fracción son relevantes (verdaderos positivos)?
+La **precisión** nos indica, de los elementos seleccionados (predichos positivos), qué fracción son relevantes (verdaderos positivos):
 
-Exhaustividad (recall, true positive rate): de los elementos relevantes (positivos), ¿qué fracción fueron seleccionados (verdaderos positivos)?
+$$ \text{precisión} = \frac{VP}{VP+FP}$$
 
+La **exhaustividad** (*recall* o *true positive rate*) nos indica de los elementos relevantes (positivos) qué fracción fueron seleccionados (verdaderos positivos):
 
-¿Qué pasa si te interesa una clase por sobre la otra?  Para poder tomar este tipo de decisiones y análisis, trabajamos con las métricas exhaustividad (recall) y precisión.
-Precisión hace referencia a los resultados “correctos” sobre el total de muestras seleccionadas. Es decir, los verdaderos positivos sobre los verdaderos positivos + los falsos positivos. 
-Exhaustividad hace referencia a los resultados “correctos” por sobre todos los resultados que buscamos identificar. Esta cuenta es verdaderos positivos sobre los verdaderos positivos + los falsos negativos.  
-Ambas métricas toman valores entre 0 y 1. 
+$$ \text{exhaustividad} = \frac{VP}{VP+FN}$$
 
-La situación ideal es tener una precisión y exhaustividad alta, pero esto muchas veces no se logra y es común que haya un compromiso entre una y otra. La importancia que le damos a la exhaustividad y a la precisión depende del problema en el que trabajás.
+donde el denominador es $P$, el total de instancias positivas. 
 
-Otro ejemplo que se usa frecuentemente son los filtros spam. ¿Prefieres tener un sistema que filtre la mayoría de los mails con publicidad pero cada tanto te envíe a la bandeja de entrada un mail spam? ¿o consideras mejor que descarte el 100% de los mails con publicidad pero cada tanto elimine un mail que no era spam? ¿Qué otro caso se te ocurre en el que haya un compromiso entre la precisión y la exhaustividad?
+Todas las métricas mencionadas hasta ahora toman valores entre cero y uno, y cuanto más alto el valor, mejor. La situación ideal es tener una precisión y exhaustividad alta, pero esto muchas veces no se logra y es común que haya un compromiso entre una y otra. Es decir, modelos exhaustivos tienden a no ser muy precisos y viceversa. La importancia que le damos a la exhaustividad y a la precisión depende del problema en el que trabajes.
 
-Nota: existe mucha terminología para referirse a los mismos conceptos. Por ejemplo, en algunos lugares a los Falsos Positivos y Falsos Negativos es común llamarlos errores de Tipo 1 y de Tipo 2, respectivamente. Sensibilidad es otra acepción de exhaustividad usada en epidemiología, mientras que otros conceptos como especificidad también se desprenden de la matriz de confusión.
+Existe una métrica que combina la precisión y la exhaustividad de forma tal de mantener un compromiso entre ellas, el  **F-score**.  Esta métrica es la media armónica de ambas, y su fórmula es:
 
-Finalmente, los/as Data Scientists usamos una métrica que combina la precisión y la exhaustividad de forma tal de mantener un compromiso entre ellas: F-score.  Como mencionamos, un modelo muy preciso es poco exhaustivo, y viceversa. 
-El F-Score, entonces, es una métrica que combina ambas métricas de forma tal de no aumentar mucho una a costa de la otra. Su fórmula es:
+$$\text{F-score} = 2\frac{\text{precisión} \times \text{exhaustividad}}{\text{precisión} + \text{exhaustividad}}$$
 
-Si precisión o recall son bajas, cercanas a cero, también lo será el F-Score. Mientras que si las dos son altas, cercanas a uno, también lo será el F-Score. 
+Si precisión o exhaustividad son bajas, cercanas a cero, también lo será el F-score. Mientras que si las dos son altas, cercanas a uno, también lo será el F-score. 
+
+**Nota**: existe mucha terminología para referirse a los mismos conceptos. Por ejemplo, en algunos ámbitos a los falsos positivos y falsos negativos es común llamarlos errores de tipo 1 y de tipo 2, respectivamente. Sensibilidad es otra forma de llamar a la exhaustividad usada en epidemiología, mientras que otros conceptos como especificidad también se desprenden de la matriz de confusión.
 
 
 ### Clasificación multiclase
 
+¿Qué cambia cuando, en lugar de un problema binario, tenemos un problema multiclase? 
+
+1. La matriz de confusión sigue siendo una herramienta válida y sumamente útil para observar el comportamiento del modelo.
+
+1. La exactitud se define de la misma manera (total de aciertos sobre total de errores y aciertos).
+
+1. La precisión y la exhaustividad se calculan por clase, considerando esa clase como positiva y todo el resto como negativa. Para resumirlas en un único valor global hay tres opciones habituales:
+    * *macro*: promedio simple de las métricas de cada clase.
+    * *weighted*: promedio ponderado por la cantidad de instancias de cada clase.
+    * *micro*: se suman los VP, FP y FN de todas las clases y se calcula la métrica una sola vez con esos totales.
+
+
 ### Problemas desbalanceados
 
-El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales.
+El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales. Un ejercicio que a veces conviene hacer es preguntarse, para cada métrica, qué ocurriría si cambiara el balance de clases del conjunto de datos con el que estoy trabajando. ¿Cambiaría la métrica obtenida? Volveremos sobre esto más adelante.
 
-
-
-## Métricas de evaluación para regresión
+<!-- ## Métricas de evaluación para regresión
 
 Supongamos que solamente tenemos un atributo $X$; entonces, proponemos que la relación $f$ entre ese atributo y la variable a predecir $Y$ tiene la siguiente forma:
 
@@ -183,4 +188,4 @@ Cuando hacemos estas curvas para los conjuntos de entrenamiento y testeo, se sue
 
 
 
-Esta curva de validación está idealizada, pero rescata los aspectos más importantes: los modelos simples tienden a desempeñarse peor de lo que podrían (underfitting); mientras que modelos complejos tienden a sobreajustar, es decir, hay una gran distancia entre el desempeño en el conjunto de entrenamiento y el conjunto de testeo. En el medio, un compromiso entre ambos, el mejor modelo.
+Esta curva de validación está idealizada, pero rescata los aspectos más importantes: los modelos simples tienden a desempeñarse peor de lo que podrían (underfitting); mientras que modelos complejos tienden a sobreajustar, es decir, hay una gran distancia entre el desempeño en el conjunto de entrenamiento y el conjunto de testeo. En el medio, un compromiso entre ambos, el mejor modelo. -->
