@@ -298,22 +298,18 @@ Figura&nbsp;2.1: Árbol de decisión de profundidad dos. Cada nodo interno hace 
 </div>
 <section id="entrenamiento-de-un-árbol-para-clasificación" class="level3" data-number="2.1.1">
 <h3 data-number="2.1.1" class="anchored" data-anchor-id="entrenamiento-de-un-árbol-para-clasificación"><span class="header-section-number">2.1.1</span> Entrenamiento de un árbol para clasificación</h3>
-<p>Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor. Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <section id="impureza-gini" class="level4" data-number="2.1.1.1">
 <h4 data-number="2.1.1.1" class="anchored" data-anchor-id="impureza-gini"><span class="header-section-number">2.1.1.1</span> Impureza Gini</h4>
 <p>Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (<a href="#fig-recipientes" class="quarto-xref">Figura&nbsp;<span>2.2</span></a>). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si te pidieran ordenar por pureza a los recipientes, ¿cómo lo harías?</p>
-<p>La impureza Gini es un concepto que ayuda a responder esa pregunta. Ésta se calcula como</p>
+<p>La <strong>impureza Gini</strong> es un concepto que ayuda a responder esa pregunta. Ésta se calcula como</p>
 <p><span class="math display">\[IG = 1 - \sum_{j=1}^K p_j^2\]</span></p>
 <p>donde <span class="math inline">\(p_j\)</span> es la proporción de cada clase, y en total hay <span class="math inline">\(K\)</span> clases. En el caso de las pelotas de colores, el cálculo para cada recipiente es <span class="math inline">\(IG = 1 - p_{\text{verdes}}^2 - p_{\text{grises}}^2\)</span>, ya que solamente hay dos clases. Para el recipiente 1 esta cuenta da 0, para el recipiente 2 esta cuenta da 0.5 y para el recipiente 3, 0.32. En el caso del recipiente 2, toma el valor máximo de impureza para el caso de dos clases, ya que la impureza es máxima cuando todas las clases están en igual proporción. Entonces, por medio de la impureza Gini es posible cuantificar cuán puro (instancias con la misma etiqueta) es un conjunto. A más homogeneidad en las etiquetas, más puro es.</p>
-<!-- Una vez que entendimos el concepto de impureza Gini, podemos seguir un paso más. Supongamos que llevamos pelotas de un recipiente a otro. Por ejemplo, tomamos las dos pelotas grises del recipiente 3 y las ponemos en el recipiente 2. Ahora, el recipiente 3 tiene 8 verdes -pasó a ser un recipiente puro- y el recipiente 2 tiene 7 grises y 5 verdes. ¿Cómo cambió la impureza del sistema? Podemos calcular la ganancia Gini como
-
-$$\Delta IG = IG_i - IG_f$$
-
-donde $IG_f$ es la impureza Gini final e $IG_i$ es la impureza Gini inicial. La impureza inicial era $IG_i = \frac{10}{30} \times 0.00 + \frac{10}{30} \times 0.50 + \frac{10}{30} \times 0.32$, que da $IG_i = 0.27$. Notar que hicimos explícito que es un promedio ponderado. La impureza final es $IG_f = \frac{10}{30} \times 0.00+ \frac{8}{30} \times 0.00 + \frac{12}{30} \times 0.49$, que da $IG_f = 0.19$. Entonces, la ganancia Gini es
-
-$$\Delta IG = IG_i - IG_f = 0.27 - 0.19 = 0.08$$
-
-que indica que el sistema ahora es más puro. -->
+<p>Una vez que entendimos el concepto de impureza Gini, podemos seguir un paso más. Supongamos que llevamos pelotas de un recipiente a otro. Por ejemplo, tomamos las dos pelotas grises del recipiente 3 y las ponemos en el recipiente 2. Ahora, el recipiente 3 tiene 8 verdes —pasó a ser un recipiente puro— y el recipiente 2 tiene 7 grises y 5 verdes. ¿Cómo cambió la impureza del sistema? Podemos calcular la <strong>ganancia Gini</strong> como</p>
+<p><span class="math display">\[\Delta IG = IG_i - IG_f\]</span></p>
+<p>donde <span class="math inline">\(IG_f\)</span> es la impureza Gini final e <span class="math inline">\(IG_i\)</span> es la impureza Gini inicial. La impureza inicial era <span class="math inline">\(IG_i = \frac{10}{30} \times 0.00 + \frac{10}{30} \times 0.50 + \frac{10}{30} \times 0.32\)</span>, que da <span class="math inline">\(IG_i = 0.27\)</span>. Notar que hicimos explícito que es un promedio ponderado. La impureza final es <span class="math inline">\(IG_f = \frac{10}{30} \times 0.00+ \frac{8}{30} \times 0.00 + \frac{12}{30} \times 0.49\)</span>, que da <span class="math inline">\(IG_f = 0.19\)</span>. Entonces, la ganancia Gini es</p>
+<p><span class="math display">\[\Delta IG = IG_i - IG_f = 0.27 - 0.19 = 0.08\]</span></p>
+<p>que indica que el sistema ahora es más puro. En los árboles no vamos a mover instancias de un grupo a otro, sino a separarlas en grupos cada vez más puros mediante <em>cortes</em> sobre el espacio de atributos, como veremos a continuación.</p>
 <div id="cell-fig-recipientes" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div id="fig-recipientes" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -332,16 +328,14 @@ Figura&nbsp;2.2: Tres recipientes con 10 pelotas cada uno: 10 verdes; 5 verdes y
 <section id="entrenamiento-de-un-árbol" class="level4" data-number="2.1.1.2">
 <h4 data-number="2.1.1.2" class="anchored" data-anchor-id="entrenamiento-de-un-árbol"><span class="header-section-number">2.1.1.2</span> Entrenamiento de un árbol</h4>
 <p>El objetivo de entrenar un árbol de decisión es obtener las preguntas —las reglas de decisión— que usará para predecir sobre nuevas instancias. Hay varias formas de entrenar árboles; aquí nos concentraremos en CART (<em>Classification and Regression Trees</em>), uno de los métodos más usados.</p>
-<p>El proceso comienza generando una lista de todas las reglas de decisión posibles.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> Para el caso de atributos numéricos, una regla de decisión se genera a partir de un umbral. Por ejemplo, ¿<span class="math inline">\(X_1 \leq 0.5\)</span>? ¿<span class="math inline">\(X_2 \leq 0.75\)</span>?, etc. Luego, hay que decidir cuál es la mejor regla, en el sentido de cuál es la que mejor sirve para predecir. Acá es donde entra la función de costo que mencionamos antes: se define que la mejor pregunta es la que resulte en menor impureza Gini en los nodos que genera. Entonces, el proceso que sigue el entrenamiento de un árbol se puede resumir así:</p>
+<p>El proceso comienza generando una lista de todas las reglas de decisión posibles.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> Para el caso de atributos numéricos, una regla de decisión se genera a partir de un umbral. Por ejemplo, ¿<span class="math inline">\(X_1 \leq 0.5\)</span>? ¿<span class="math inline">\(X_2 \leq 0.75\)</span>?, etc. Luego, hay que decidir cuál es la mejor regla, en el sentido de cuál es la que mejor sirve para predecir. Acá es donde entra la función de costo que mencionamos antes: se define que la mejor pregunta es la que resulte en menor impureza Gini en los nodos que genera (alternativamente, la que resulte en una mayor ganancia Gini). Entonces, el proceso que sigue el entrenamiento de un árbol se puede resumir así:</p>
 <ol type="1">
 <li>Se calcula la impureza Gini para cada regla de decisión. Por cada una de ellas, se hace un promedio de las impurezas de los dos nodos que genera, ponderado por la proporción de instancias que cae en cada uno.</li>
-<li>Se elige la regla de decisión con menor impureza ponderada.</li>
+<li>Se elige la regla de decisión con menor impureza ponderada (mayor ganancia Gini).</li>
 <li>Si se alcanzó un criterio de parada (por ejemplo, una profundidad máxima preestablecida), el proceso termina. Si no, se sigue construyendo el árbol de forma iterativa, tomando como muestra inicial las instancias de cada nodo y realizando los pasos 1 - 3 con las nuevas reglas de decisión que se puedan aplicar.</li>
 </ol>
 <p>Cuando las hojas contienen instancias de una sola clase, se dice que son hojas puras y ya no se pueden crear más ramas a partir de ellas. En cambio, si contienen instancias de varias clases, son hojas impuras. Cuantas más preguntas permitimos que haga el árbol, más profundo será, por lo que obtendremos cada vez mayor cantidad de hojas puras, a costa de un menor número de instancias en cada hoja.</p>
 <p>Esta forma de optimizar —en este caso, ir reduciendo la impureza Gini en cada nodo de decisión yendo de arriba hacia abajo (<em>top-down</em>)— se llama <em>greedy</em>. Es <em>greedy</em> porque se hace el mejor corte en cada nodo, sin mirar hacia adelante si se podría hacer un corte que no sea el mejor en ese momento pero que resulte en un mejor árbol en un corte posterior.</p>
-<!-- 
-% Para pensar. Ahora que ya sabes cómo se entrena un árbol de decisión, vuelve al gráfico con árbol de decisión para el Iris dataset y fíjate si entiende a qué se refiere con gini, samples y values. ¿Puedes reconstruir la matriz de confusión de ese clasificador a partir de la información en ese gráfico? -->
 </section>
 <section id="predicción" class="level4" data-number="2.1.1.3">
 <h4 data-number="2.1.1.3" class="anchored" data-anchor-id="predicción"><span class="header-section-number">2.1.1.3</span> Predicción</h4>
@@ -349,8 +343,8 @@ Figura&nbsp;2.2: Tres recipientes con 10 pelotas cada uno: 10 verdes; 5 verdes y
 </section>
 <section id="fronteras-de-decisión" class="level4" data-number="2.1.1.4">
 <h4 data-number="2.1.1.4" class="anchored" data-anchor-id="fronteras-de-decisión"><span class="header-section-number">2.1.1.4</span> Fronteras de decisión</h4>
-<p>Como vimos en el <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase.Formalemente, podemos decir que un clasificador divide el espacio de atributos en regiones <span class="math inline">\(R_1, \dots, R_M\)</span> y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo <span class="math inline">\(X_j\)</span> —separa las instancias con <span class="math inline">\(X_j \leq s\)</span> de las que tienen <span class="math inline">\(X_j &gt; s\)</span>—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.</p>
-<p>Por ejemplo, para el árbol de la figura <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>, la frontera de decisión queda así:</p>
+<p>Como vimos en el <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase. Formalmente, podemos decir que un clasificador divide el espacio de atributos en regiones <span class="math inline">\(R_1, \dots, R_M\)</span> y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo <span class="math inline">\(X_j\)</span> —separa las instancias con <span class="math inline">\(X_j \leq s\)</span> de las que tienen <span class="math inline">\(X_j &gt; s\)</span>—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.</p>
+<p>Por ejemplo, para el árbol de la <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>, la frontera de decisión queda así:</p>
 <div id="cell-fig-frontera" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div id="fig-frontera" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -365,17 +359,17 @@ Figura&nbsp;2.3: Regiones y frontera de decisión del árbol de la <a href="#fig
 </div>
 </div>
 </div>
-<!-- ##### Apartado matemático
-
-Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictores $X$ en $\{X|X_j < s\}$ y $\{X|X_j \geq s\}$
-
-
-    \sum_{j=1}^J \sum_{i \in R_j}^J (y_i - \hat{y}_{R_j})  -->
 </section>
 </section>
 <section id="árboles-de-decisión-para-regresión" class="level3" data-number="2.1.2">
 <h3 data-number="2.1.2" class="anchored" data-anchor-id="árboles-de-decisión-para-regresión"><span class="header-section-number">2.1.2</span> Árboles de decisión para regresión</h3>
 <p>¿Qué cambia si queremos usar un árbol para regresión? El proceso es exactamente el mismo, pero cambiando la impureza Gini, que funciona sobre categorías, por la varianza, que funciona sobre valores numéricos. Al momento de predecir, no devolvemos la moda, sino el promedio. La combinación varianza/promedio no es casual: la varianza de un nodo es exactamente el error cuadrático medio que se comete si se predice con el promedio de ese nodo, y el promedio es justamente el valor que hace mínimo ese error. Es decir, la función de costo y la regla de predicción están alineadas.</p>
+<!-- ##### Apartado matemático
+
+Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictores $X$ en $\{X|X_j \leq s\}$ y $\{X|X_j > s\}$
+
+
+    \sum_{j=1}^J \sum_{i \in R_j}^J (y_i - \hat{y}_{R_j})  -->
 
 
 </section>
@@ -383,8 +377,9 @@ Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictor
 <section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr>
 <ol>
-<li id="fn1"><p>La impureza Gini no es la única opción: otra muy usada es la entropía.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>En el caso de atributos numéricos, como solo importan los umbrales que separan las instancias de manera distinta, alcanza con probar, para cada atributo, los puntos medios entre valores observados consecutivos.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>Este marco es una simplificación: no todos los modelos encajan exactamente en él, pero sirve para entender la mayoría.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>La impureza Gini no es la única opción: otra muy usada es la entropía.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>En el caso de atributos numéricos, como solo importan los umbrales que separan las instancias de manera distinta, alcanza con probar, para cada atributo, los puntos medios entre valores observados consecutivos.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
