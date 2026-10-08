@@ -34,19 +34,19 @@ digraph arbol {
 
 ### Entrenamiento de un árbol para clasificación
 
-Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor. Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.^[La impureza Gini no es la única opción: otra muy usada es la entropía.]
+Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor.^[Este marco es una simplificación: no todos los modelos encajan exactamente en él, pero sirve para entender la mayoría.] Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.^[La impureza Gini no es la única opción: otra muy usada es la entropía.]
 
 #### Impureza Gini
 
 Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (@fig-recipientes). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si te pidieran ordenar por pureza a los recipientes, ¿cómo lo harías?
 
-La impureza Gini es un concepto que ayuda a responder esa pregunta. Ésta se calcula como 
+La **impureza Gini** es un concepto que ayuda a responder esa pregunta. Ésta se calcula como 
 
 $$IG = 1 - \sum_{j=1}^K p_j^2$$
 
 donde $p_j$ es la proporción de cada clase, y en total hay $K$ clases. En el caso de las pelotas de colores, el cálculo para cada recipiente es $IG = 1 - p_{\text{verdes}}^2 - p_{\text{grises}}^2$, ya que solamente hay dos clases. Para el recipiente 1 esta cuenta da 0, para el recipiente 2 esta cuenta da 0.5 y para el recipiente 3, 0.32. En el caso del recipiente 2, toma el valor máximo de impureza para el caso de dos clases, ya que la impureza es máxima cuando todas las clases están en igual proporción. Entonces, por medio de la impureza Gini es posible cuantificar cuán puro (instancias con la misma etiqueta) es un conjunto. A más homogeneidad en las etiquetas, más puro es.
 
-<!-- Una vez que entendimos el concepto de impureza Gini, podemos seguir un paso más. Supongamos que llevamos pelotas de un recipiente a otro. Por ejemplo, tomamos las dos pelotas grises del recipiente 3 y las ponemos en el recipiente 2. Ahora, el recipiente 3 tiene 8 verdes -pasó a ser un recipiente puro- y el recipiente 2 tiene 7 grises y 5 verdes. ¿Cómo cambió la impureza del sistema? Podemos calcular la ganancia Gini como
+Una vez que entendimos el concepto de impureza Gini, podemos seguir un paso más. Supongamos que llevamos pelotas de un recipiente a otro. Por ejemplo, tomamos las dos pelotas grises del recipiente 3 y las ponemos en el recipiente 2. Ahora, el recipiente 3 tiene 8 verdes —pasó a ser un recipiente puro— y el recipiente 2 tiene 7 grises y 5 verdes. ¿Cómo cambió la impureza del sistema? Podemos calcular la **ganancia Gini** como
 
 $$\Delta IG = IG_i - IG_f$$
 
@@ -54,7 +54,7 @@ donde $IG_f$ es la impureza Gini final e $IG_i$ es la impureza Gini inicial. La 
 
 $$\Delta IG = IG_i - IG_f = 0.27 - 0.19 = 0.08$$
 
-que indica que el sistema ahora es más puro. -->
+que indica que el sistema ahora es más puro. En los árboles no vamos a mover instancias de un grupo a otro, sino a separarlas en grupos cada vez más puros mediante *cortes* sobre el espacio de atributos, como veremos a continuación.
 
 ```{python}
 #| label: fig-recipientes
@@ -106,18 +106,15 @@ plt.show()
 
 El objetivo de entrenar un árbol de decisión es obtener las preguntas —las reglas de decisión— que usará para predecir sobre nuevas instancias. Hay varias formas de entrenar árboles; aquí nos concentraremos en CART (*Classification and Regression Trees*), uno de los métodos más usados. 
 
-El proceso comienza generando una lista de todas las reglas de decisión posibles.^[En el caso de atributos numéricos, como solo importan los umbrales que separan las instancias de manera distinta, alcanza con probar, para cada atributo, los puntos medios entre valores observados consecutivos.] Para el caso de atributos numéricos, una regla de decisión se genera a partir de un umbral. Por ejemplo, ¿$X_1 \leq 0.5$? ¿$X_2 \leq 0.75$?, etc. Luego, hay que decidir cuál es la mejor regla, en el sentido de cuál es la que mejor sirve para predecir. Acá es donde entra la función de costo que mencionamos antes: se define que la mejor pregunta es la que resulte en menor impureza Gini en los nodos que genera. Entonces, el proceso que sigue el entrenamiento de un árbol se puede resumir así:
+El proceso comienza generando una lista de todas las reglas de decisión posibles.^[En el caso de atributos numéricos, como solo importan los umbrales que separan las instancias de manera distinta, alcanza con probar, para cada atributo, los puntos medios entre valores observados consecutivos.] Para el caso de atributos numéricos, una regla de decisión se genera a partir de un umbral. Por ejemplo, ¿$X_1 \leq 0.5$? ¿$X_2 \leq 0.75$?, etc. Luego, hay que decidir cuál es la mejor regla, en el sentido de cuál es la que mejor sirve para predecir. Acá es donde entra la función de costo que mencionamos antes: se define que la mejor pregunta es la que resulte en menor impureza Gini en los nodos que genera (alternativamente, la que resulte en una mayor ganancia Gini). Entonces, el proceso que sigue el entrenamiento de un árbol se puede resumir así:
 
 1. Se calcula la impureza Gini para cada regla de decisión. Por cada una de ellas, se hace un promedio de las impurezas de los dos nodos que genera, ponderado por la proporción de instancias que cae en cada uno.
-1. Se elige la regla de decisión con menor impureza ponderada.
+1. Se elige la regla de decisión con menor impureza ponderada (mayor ganancia Gini).
 1. Si se alcanzó un criterio de parada (por ejemplo, una profundidad máxima preestablecida), el proceso termina. Si no, se sigue construyendo el árbol de forma iterativa, tomando como muestra inicial las instancias de cada nodo y realizando los pasos 1 - 3 con las nuevas reglas de decisión que se puedan aplicar.
 
 Cuando las hojas contienen instancias de una sola clase, se dice que son hojas puras y ya no se pueden crear más ramas a partir de ellas. En cambio, si contienen instancias de varias clases, son hojas impuras. Cuantas más preguntas permitimos que haga el árbol, más profundo será, por lo que obtendremos cada vez mayor cantidad de hojas puras, a costa de un menor número de instancias en cada hoja. 
 
 Esta forma de optimizar —en este caso, ir reduciendo la impureza Gini en cada nodo de decisión yendo de arriba hacia abajo (*top-down*)— se llama *greedy*. Es *greedy* porque se hace el mejor corte en cada nodo, sin mirar hacia adelante si se podría hacer un corte que no sea el mejor en ese momento pero que resulte en un mejor árbol en un corte posterior. 
-
-<!-- 
-% Para pensar. Ahora que ya sabes cómo se entrena un árbol de decisión, vuelve al gráfico con árbol de decisión para el Iris dataset y fíjate si entiende a qué se refiere con gini, samples y values. ¿Puedes reconstruir la matriz de confusión de ese clasificador a partir de la información en ese gráfico? -->
 
 #### Predicción
 
@@ -125,9 +122,9 @@ Esta forma de optimizar —en este caso, ir reduciendo la impureza Gini en cada 
 
 #### Fronteras de decisión
 
-Como vimos en el @sec-aprendizaje-automatico, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase.Formalemente, podemos decir que un clasificador divide el espacio de atributos en regiones $R_1, \dots, R_M$ y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo $X_j$ —separa las instancias con $X_j \leq s$ de las que tienen $X_j > s$—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.
+Como vimos en el @sec-aprendizaje-automatico, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase. Formalmente, podemos decir que un clasificador divide el espacio de atributos en regiones $R_1, \dots, R_M$ y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo $X_j$ —separa las instancias con $X_j \leq s$ de las que tienen $X_j > s$—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.
 
-Por ejemplo, para el árbol de la figura @fig-arbol, la frontera de decisión queda así:
+Por ejemplo, para el árbol de la @fig-arbol, la frontera de decisión queda así:
 
 ```{python}
 #| label: fig-frontera
@@ -173,14 +170,16 @@ plt.show()
 ```
 
 
+### Árboles de decisión para regresión
+
+¿Qué cambia si queremos usar un árbol para regresión? El proceso es exactamente el mismo, pero cambiando la impureza Gini, que funciona sobre categorías, por la varianza, que funciona sobre valores numéricos. Al momento de predecir, no devolvemos la moda, sino el promedio. La combinación varianza/promedio no es casual: la varianza de un nodo es exactamente el error cuadrático medio que se comete si se predice con el promedio de ese nodo, y el promedio es justamente el valor que hace mínimo ese error. Es decir, la función de costo y la regla de predicción están alineadas.
+
+
+
 <!-- ##### Apartado matemático
 
-Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictores $X$ en $\{X|X_j < s\}$ y $\{X|X_j \geq s\}$
+Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictores $X$ en $\{X|X_j \leq s\}$ y $\{X|X_j > s\}$
 
 
     \sum_{j=1}^J \sum_{i \in R_j}^J (y_i - \hat{y}_{R_j})  -->
 
-
-### Árboles de decisión para regresión
-
-¿Qué cambia si queremos usar un árbol para regresión? El proceso es exactamente el mismo, pero cambiando la impureza Gini, que funciona sobre categorías, por la varianza, que funciona sobre valores numéricos. Al momento de predecir, no devolvemos la moda, sino el promedio. La combinación varianza/promedio no es casual: la varianza de un nodo es exactamente el error cuadrático medio que se comete si se predice con el promedio de ese nodo, y el promedio es justamente el valor que hace mínimo ese error. Es decir, la función de costo y la regla de predicción están alineadas.
