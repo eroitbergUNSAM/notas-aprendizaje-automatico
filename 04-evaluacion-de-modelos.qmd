@@ -76,89 +76,34 @@ El balance de clases es la proporción que hay de cada clase objetivo en un conj
 
 <!-- ## Métricas de evaluación para regresión
 
-Supongamos que solamente tenemos un atributo $X$; entonces, proponemos que la relación $f$ entre ese atributo y la variable a predecir $Y$ tiene la siguiente forma:
-
-$$ f(X) = \beta_0 + \beta_1 X $$
-
-Entrenar una regresión lineal consiste en encontrar el $\beta_0$ y el $\beta_1$ que hagan que la curva - una recta en este caso - mejor se aproxime a los datos. A $\beta_1$ se lo suele conocer como pendiente y a $\beta_0$ como ordenada al origen, pero para nosotros serán *coeficientes* o *parámetros* de la regresión lineal.
-
-Para encontrar los mejores coeficientes necesitamos, como siempre, una función de costo y una forma de optimizarla. La función de costo más usada da nombre al método: cuadrados mínimos. Para optimizarla existen varias técnicas, algunas exactas y otras aproximadas; acá vamos a empezar por la solución exacta.
-
-La función de costo debe cuantificar cuán bien la curva obtenida aproxima a los datos. Vamos a usar la **suma de los residuos al cuadrado** (RSS, por sus siglas en inglés). Para una instancia $i$, el residuo es la diferencia entre el valor observado $y_i$ y la predicción del modelo $\hat{y}_i$. Es decir, el residuo es $e_i = y_i - \hat{y}_i$. La suma de los residuos al cuadrado es la suma sobre todas las instancias
-
-$$RSS = e^2_1 + e^2_2 + ... + e^2_N$$
-$$RSS = (y_1 - \hat{y}_1)^2 + (y_2 - \hat{y}_2)^2 + ... + (y_N - \hat{y}_N)^2$$
-
-Entonces, cuanto mejores las predicciones, más chico el $RSS$, ya que los residuos son más chicos. De manera más compacta, podemos escribir
+escribir
 
 $$RSS = \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2 $$
 
-Pero, ¿qué son las predicciones $\hat{y}_i$? Recordemos que contamos con una expresión explícita para las predicciones, $\hat{y}_i = \beta_0 + \beta_1 x_i$ (notar que reemplazamos el valor de $X$ por el valor observado para esa instancia, $x_i$), así que podemos escribir el $RSS$ como 
-
-$$RSS = \sum^{N}_{i = 1} (y_i - (\beta_0 + \beta_1 x_i))^2 $$
-
-Es importante asegurarse de entender bien esta expresión antes de continuar. ¿De qué variables depende? Los pares $(x_i, y_i)$ son valores medidos, es decir, números. No son variables de la expresión. El $RSS$ es función únicamente de los coeficientes del modelo, $\beta_0$ y $\beta_1$. Es decir, es $RSS(\beta_0, \beta_1)$, y esos coeficientes es lo único que podemos modificar para cambiar el $RSS$ y, a su vez, el modelo.
-
-Pero lo que buscamos es el modelo que mejor aproxime a los datos, dada esta función de costo. La función de costo toma valores más chicos a medida que el modelo mejor aproxima a los datos, por lo que lo que tenemos es un **problema de minimización**. Para obtener el mínimo, basta con tomar las derivadas parciales, igualar a cero y despejar:
-
-$$ \frac{\partial RSS}{\partial \beta_0} = 0  $$
-$$ \frac{\partial RSS}{\partial \beta_1} = 0  $$
-
-cuya solución es
-
-$$ \hat{\beta}_1 = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{N} (x_i - \bar{x})^2}$$
-$$ \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$$
-
-donde $\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i$ y $\bar{y} = \frac{1}{N} \sum_{i=1}^{N} y_i$. Entonces, el modelo entrenado es $\hat{f}(X) = \hat{\beta}_0 + \hat{\beta}_1 X$. 
 
 
 ## Protocolos de evaluación
 
-Es raro que tengamos un solo atributo; en general son varios, que es precisamente lo que hace más interesantes a los problemas. La regresión lineal se adapta fácilmente a estas situaciones. Si tenemos $p$ variables, podemos escribir
-
-$$f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2  + ... + \beta_p X_p$$
-
-De esta forma, debemos encontrar un coeficiente $\beta_j$ para cada atributo $X_j$.
-
-Muchas veces, lo van a encontrar escrito de manera más compacta así:
-$$ f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
-
-Pero se puede resumir aún más, usando notación vectorial. Si a $X$ le agregamos un $1$ en el primer lugar, y llamamos $\beta = (\beta_0, \beta_1,..., \beta_p)$, la regresión lineal es simplemente
-
-$$f(X) = X^T \beta$$
-
-donde, por las definiciones que hicimos antes, tanto $X$ como $\beta$ son vectores de tamaño $p+1$. La función de costo a minimizar es la misma, la suma de los residuos al cuadrado:
-
-$$RSS =  \sum^{N}_{i = 1} (y_i - x_i^T \beta)^2 $$
-
-Podemos aprovechar la notación del primer capítulo y compactar aún más esta expresión. Para eso, a la matriz $\mathbf{X}$ le agregamos una primera columna de unos, por lo que pasa a ser de $N \times (p+1)$. Utilizando notación matricial, podemos reescribir la suma de los residuos al cuadrado como:
-
-$$ RSS (\beta) = (\mathbf{y} - \mathbf{X} \beta)^T (\mathbf{y} - \mathbf{X} \beta) $$
-
-donde es explícita la dependencia de la función de costo respecto de los parámetros $\beta$.
-
-El proceso para obtener los coeficientes es el mismo. Si diferenciamos respecto de $\beta$, obtenemos la primera derivada:
-
-$$\frac{\partial RSS}{\partial \beta} = -2 \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta)$$
+Model selection
+model assesment
 
 
-y, diferenciando nuevamente, la segunda derivada, que en este caso es una matriz:
+### Train-test split
 
-$$\frac{\partial^2 RSS}{\partial \beta \, \partial \beta^T} = 2 \mathbf{X}^T \mathbf{X}$$
+porque no es suficietne
 
-Si $\mathbf{X}$ tiene rango completo por columnas (es decir, si ningún atributo es combinación lineal de los demás), entonces $\mathbf{X}^T \mathbf{X}$ es definida positiva, lo que implica que la función de costo es convexa y tiene un mínimo que podemos obtener igualando la primera derivada a cero (ecuaciones normales):
 
-$$\mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta) = 0  $$
+### Validación cruzada
 
-cuya solución es:
 
-$$\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
 
-De esta forma, las predicciones $\hat{\mathbf{y}}$ se obtienen como:
+### Hiperparámetros
 
-$$\hat{\mathbf{y}} = \mathbf{X} \hat{\beta} = \mathbf{X} (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
+¿Qué es comparar distintos modelos?
+Se podría pensar que es comparar una árbol de decisión contra una regresión logística (otro modelo de clasificaicón)
 
-Desde un punto de vista operativo, ya está. Obtuvimos un estimador de los coeficientes $\hat{\beta}$ y una $\hat{f}(X) = X^T\hat{\beta}$ que nos sirven para hacer predicciones, y para eso no hace falta prácticamente ninguna hipótesis sobre los datos, más allá de que $\mathbf{X}$ tenga rango completo por columnas. Los supuestos que suelen asociarse a la regresión lineal entran en juego cuando queremos hacer inferencia sobre los coeficientes.
+pero podemos considerar que dos árboles de distinta profundidad son dos modelos distintos.
+
 
 
 La importancia de evaluar correctamente
@@ -168,6 +113,7 @@ Aquí van 4 recomendaciones para identificar un buen sistema de evaluación:
 Es simple de ejecutar con un (o pocos) comando único. Esto es importante ya que facilita la iteración en la evaluación y mejora del modelo.
 Devuelve un set de métricas relevantes y gráficos. ¿Está funcionando mejor que antes?
 Incluye distribuciones de errores y no solamente resultados binarios. No nos dice únicamente si es correcto o incorrecto, si no qué tan cerca estuvimos (los gráficos son una gran herramienta para esto).
+
 Devuelve una matriz de confusión.
 
 Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando.
