@@ -105,6 +105,10 @@ Se podría pensar que es comparar una árbol de decisión contra una regresión 
 pero podemos considerar que dos árboles de distinta profundidad son dos modelos distintos.
 
 
+o árboles de una misma profundidad pero entrenado ssobre un conjunto de atributos distintos.
+
+Los aspectos que pueden llevar a que un modelo sea distinto a otro son muchas, prácticamente cada decisión que tomamos impacta en el modelo y genera un modelo distinto.
+
 
 La importancia de evaluar correctamente
 Evaluar correctamente el desempeño de los modelos es una parte fundamental en el desarrollo de un modelo predictivo. ¡Por eso  analizar y aprender distintas métricas es tan útil Pero para que esto funcione, es necesario diseñar un sistema de evaluación que te permita visualizar fácilmente las distintas métricas y el desempeño de tu modelo. 
