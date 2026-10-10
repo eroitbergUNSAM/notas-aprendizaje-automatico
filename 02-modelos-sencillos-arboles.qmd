@@ -38,7 +38,7 @@ Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesi
 
 #### Impureza Gini
 
-Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (@fig-recipientes). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si te pidieran ordenar por pureza a los recipientes, ¿cómo lo harías?
+Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (@fig-recipientes). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si les pidieran ordenar por pureza a los recipientes, ¿cómo lo harían?
 
 La **impureza Gini** es un concepto que ayuda a responder esa pregunta. Ésta se calcula como 
 

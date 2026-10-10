@@ -45,7 +45,7 @@ $$ \text{exhaustividad} = \frac{VP}{VP+FN}$$
 
 donde el denominador es $P$, el total de instancias positivas. 
 
-Todas las métricas mencionadas hasta ahora toman valores entre cero y uno, y cuanto más alto el valor, mejor. La situación ideal es tener una precisión y exhaustividad alta, pero esto muchas veces no se logra y es común que haya un compromiso entre una y otra. Es decir, modelos exhaustivos tienden a no ser muy precisos y viceversa. La importancia que le damos a la exhaustividad y a la precisión depende del problema en el que trabajes.
+Todas las métricas mencionadas hasta ahora toman valores entre cero y uno, y cuanto más alto el valor, mejor. La situación ideal es tener una precisión y exhaustividad alta, pero esto muchas veces no se logra y es común que haya un compromiso entre una y otra. Es decir, modelos exhaustivos tienden a no ser muy precisos y viceversa. La importancia que le damos a la exhaustividad y a la precisión depende del problema en el que trabajemos.
 
 Existe una métrica que combina la precisión y la exhaustividad de forma tal de mantener un compromiso entre ellas, el  **F-score**.  Esta métrica es la media armónica de ambas, y su fórmula es:
 
@@ -72,19 +72,19 @@ Si precisión o exhaustividad son bajas, cercanas a cero, también lo será el F
 
 ### Problemas desbalanceados
 
-El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales. Un ejercicio que a veces conviene hacer es preguntarse, para cada métrica, qué ocurriría si cambiara el balance de clases del conjunto de datos con el que estoy trabajando. ¿Cambiaría la métrica obtenida? Si la métrica es sensible al balance de clases, entonces conviene usarla con precaución. Volveremos sobre esto más adelante.
+El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales. Un ejercicio que a veces conviene hacer es preguntarse, para cada métrica, qué ocurriría si cambiara el balance de clases del conjunto de datos con el que estamos trabajando. ¿Cambiaría la métrica obtenida? Si la métrica es sensible al balance de clases, entonces conviene usarla con precaución. Volveremos sobre esto más adelante.
 
 ## Métricas de evaluación para regresión
 
 En clasificación comparamos una etiqueta medida contra una etiqueta predicha. Las etiquetas pueden coincidir o no, lo que nos da aciertos y errores. En regresión, en cambio, lo que obtenemos es una predicción numérica que debemos comparar contra otro número. La situación, entonces, es más sutil, porque no es inmediato cuándo la predicción está dentro de lo razonable y cuándo no. 
 
-El comienzo natural para empezar a evaluar un modelo de regresión es partir de los errores, $\epsilon_i = y_i - \hat{y}$, también llamados *residuos*. Éste es el error por instancia. En algunos casos, nuestro regresor sobreestimará el valor de la predicción, por lo que el error será positivo, mientras que en otros casos subestimará, por lo que el error será negativo. Para obtener una métrica del desempeño del modelo, podemos calcular un promedio de los errores sobre cada instancia. Pero como los errores pueden ser positivos o negativos, si sumamos sin tener en cuenta esto, puede ocurrir que los errores se compensen, y la métrica no refleje el desempeño del regresor. Entonces, una opción es promediar los errores para obtener el **error cuadrático medio** (MSE, por sus siglas en inglés):
+El comienzo natural es evaluar un modelo de regresión a partir de los errores, $e_i = y_i - \hat{y}_i$, también llamados *residuos*. Éste es el error por instancia. En algunos casos, nuestro regresor sobreestimará el valor de la predicción, por lo que el error será negativo, mientras que en otros casos subestimará, por lo que el error será positivo. Para obtener una métrica del desempeño del modelo, podemos calcular un promedio de los errores sobre cada instancia. Pero como los errores pueden ser positivos o negativos, si sumamos sin tener en cuenta esto, puede ocurrir que los errores se compensen, y la métrica no refleje el desempeño del regresor. Entonces, una opción es promediar los errores al cuadrado para obtener el **error cuadrático medio** (MSE, por sus siglas en inglés):
 
 $$MSE = \frac{1}{N} \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2$$
 
-que, si ya leyeron el @sec-regesion-lineal, es simplemente $MSE = \frac{1}{N} RSS$.
+que, si ya leyeron el @sec-regresion-lineal, es simplemente $MSE = \frac{1}{N} RSS$.
 
-Otra opción es sumar los valores absolutos de los errores sobre cada instancia y luego promediar para obtener el error promedio. Esto nos da como resultado el **error absoluto promedio** (MAE):
+Otra opción es sumar los valores absolutos de los errores sobre cada instancia y luego promediar para obtener el error promedio. Esto nos da como resultado el **error absoluto medio** (MAE):
 
 $$MAE = \frac{1}{N} \sum^{N}_{i = 1} |y_i - \hat{y}_i|$$
 
@@ -92,17 +92,17 @@ La diferencia entre el MSE y el MAE es que, al estar en el MSE el error elevado 
 
 $$RMSE = \sqrt{MSE}$$
 
-Otra mética sumamente útil pero un poco más compleja es el **coeficiente de determinación**, $R^2$: 
+Otra métrica sumamente útil pero un poco más compleja es el **coeficiente de determinación**, $R^2$: 
 
 $$R^2 = 1 - \frac{RSS}{TSS}$$
 
-donde $TSS = \sum^{N}_{i = 1} (y_i - \bar{y})$. Es decir, también lo podríamos escribir como
+donde $TSS = \sum^{N}_{i = 1} (y_i - \bar{y})^2$. Es decir, también lo podríamos escribir como
 
-$$R^2 = 1 - \frac{ \sum^{N}_{i = 1} (y_i - \hat{y}_i)}{ \sum^{N}_{i = 1} (y_i - \bar{y})}$$
+$$R^2 = 1 - \frac{ \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2}{ \sum^{N}_{i = 1} (y_i - \bar{y})^2}$$
 
-¿Qué significa? El $R^2$ hace un cociente entre el error obtenido por el modelo, $RSS$, y el error que habríamos obtenido si predijeramos con el promedio de las etiquetas ($\bar{y}$), $TSS$. Si el cociente $\frac{RSS}{TSS}$ es menor que uno, nuestro modelo es mejor que el promedio, por lo que da un $R^2$ mayor que cero. Caso contrario, nuestro modelo es peor que el promedio, por lo $\frac{RSS}{TSS}$ es mayor que uno y el $R^2$ da negativo.
+¿Qué significa? El $R^2$ hace un cociente entre el error obtenido por el modelo, $RSS$, y el error que habríamos obtenido si predijéramos con el promedio de las etiquetas ($\bar{y}$), $TSS$. Si el cociente $\frac{RSS}{TSS}$ es menor que uno, nuestro modelo es mejor que el promedio, por lo que da un $R^2$ mayor que cero. Caso contrario, nuestro modelo es peor que el promedio, por lo que $\frac{RSS}{TSS}$ es mayor que uno y el $R^2$ da negativo. El caso límite, $R^2 = 0$, ocurre cuando el modelo es exactamente igual de bueno que predecir con el promedio.
 
-El nombre, $R^2$, es confuso. No es, salvo excepciones, una magnitud al cuadrado. De hecho, en el caso más general, es una métrica que es cómo máximo uno pero puede tomar valores negativos de manera no acotada. Si bien tiene muchas más sutilezas que el MSE, RMSE o MAE, es una métrica muy útil que conviene tener en cuenta en cualquier problema de regresión.
+El nombre, $R^2$, es confuso. No es, salvo excepciones, una magnitud al cuadrado. De hecho, en el caso más general, es una métrica que es como máximo uno pero puede tomar valores negativos de manera no acotada. Si bien tiene muchas más sutilezas que el MSE, RMSE o MAE, es una métrica muy útil que conviene tener en cuenta en cualquier problema de regresión.
 
 
 <!-- stas métricas son métricas de error; es decir, a más bajo MAE, MSE o RMSE, mejor regresor. En el caso ideal, los errores serán 0. Las métricas que vimos para clasificación son métricas que miden aciertos, buen desempeño, por lo que ocurre lo contrario: cuanto más altas (caso ideal: 1), mejor clasificador. Se puede convertir una métrica de desempeño en una métrica de error y viceversa. ¿Se te ocurre cómo?  -->
@@ -112,46 +112,219 @@ El nombre, $R^2$, es confuso. No es, salvo excepciones, una magnitud al cuadrado
 
 Evaluar correctamente un modelo puede ser un proceso complejo. Además de elegir correctamente la o las métricas, debemos aplicar un protocolo de evaluación apropiado para asegurarnos que medimos correctamente y podemos abordar algunas de las siguientes situaciones y preguntas típicas:
 
-1. ¿Cuál es el desempeño esperado del modelo en datos nuevos?¿Cómo nos aseguramos que el modelo **generaliza**?
-1. ¿Cómo elijo entre varios modelos diferentes el de mejor desempeño? Este problema se conoce como **selección de modelos**.
-1. Si obtenés un desempeño de, por ejemplo, de 0.8 en exactitud o $R^2$, ¿es bueno, malo, regular?¿Cómo respondemos esa pregunta? 
+1. ¿Cuál es el desempeño esperado del modelo en datos nuevos? ¿Cómo nos aseguramos que el modelo **generaliza**?
+1. ¿Cómo elegimos entre varios modelos diferentes el de mejor desempeño? Este problema se conoce como **selección de modelos**.
+1. Si obtenemos un desempeño de, por ejemplo, 0.8 en exactitud o $R^2$, ¿es bueno, malo, regular? ¿Cómo respondemos esa pregunta? 
 
-Pero, ¿por qué nos preocupa que un modelo no generalice? Hay algo intuitivo que surge rápidamente cuando empezamos a trabajar con modelos. Los modelos son, en general, muy flexibles, y los conjuntos de datos son acotados. Entonces, es común que un modelo muy flexible se ajuste a características particulares de los datos con los que fue entrenado sin lograr aprender patrones característicos de la población que esos datos quieren representar. Este fenómeno se conoce como **sobreajuste**. 
+Pero, ¿por qué nos preocupa que un modelo no generalice? Hay algo intuitivo que surge rápidamente cuando empezamos a trabajar con modelos. Los modelos son, en general, muy flexibles, y los conjuntos de datos son acotados. Entonces, es común que un modelo muy flexible se ajuste a características particulares de los datos con los que fue entrenado sin lograr aprender patrones característicos de la población que esos datos quieren representar. Este fenómeno se conoce como **sobreajuste**. Contamos con tres herramientas fundamentales para detectar el sobreajuste y abordar las preguntas planteadas:
 
-Contamos con tres herramientas fundamentales para abordar estas preguntas:
-1. División entre *entrenamiento* y *testeo*.
+1. División entre *entrenamiento* y *prueba*.
 1. Validación cruzada.
-1. Modelo de referencia (*benchmark*).
+1. Modelo o desempeño de referencia (*benchmark*).
 
-Vamos a ver cada una de ellas y luego vamos a dar un protocolo general que sirva para la mayoría de las situaciones.
+Vamos a ver las dos primeras, el protocolo general que las combina y, finalmente, cómo usar un modelo de referencia.
 
-### División entre *entrenamiento* y *testeo*
+### División entre *entrenamiento* y *prueba*
 
-El *train-test split* es la primera herramienta, tal vez las más intuitiva, que empezamos a 
+El *train-test split*^[En estas notas intento siempre usar terminología en castellano. Pero en este caso es mucho más usado el nombre en inglés.] es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (*train*), y la otra para evaluar el modelo (prueba o *test*). De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.
 
-porque no es suficietne
+Pero esta división no es suficiente, como veremos a continuación.
 
+```{dot}
+//| label: fig-train-test
+//| fig-cap: "División del conjunto de datos en entrenamiento y prueba. Una parte de las instancias se usa para entrenar el modelo y el resto se reserva para evaluarlo."
+
+digraph division {
+    graph [bgcolor="transparent"]
+    node  [shape=plaintext, fontname="Helvetica", fontsize=12]
+
+    // anchos 320/80 = proporción 80/20
+    datos [label=<
+      <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" COLOR="#666666">
+        <TR>
+          <TD WIDTH="320" HEIGHT="40" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">Entrenamiento</TD>
+          <TD WIDTH="80"  HEIGHT="40" FIXEDSIZE="TRUE" BGCOLOR="#f7ddb8">Prueba</TD>
+        </TR>
+      </TABLE>
+    >]
+}
+```
+
+**Terminología.** Como en todo el aprendizaje automático, la terminología abunda. Al conjunto de entrenamiento obtenido luego de un *train-test split* se lo suele llamar conjunto de desarrollo, por motivos que quedarán claros en las próximas secciones.
 
 ### Validación cruzada
 
-Los aspectos que pueden llevar a que un modelo sea distinto a otro son muchas, prácticamente cada decisión que tomamos impacta en el modelo y genera un modelo distinto.
+La división entre entrenamiento (desarrollo) y prueba no es suficiente para obtener un modelo correctamente evaluado. Cuando desarrollamos un modelo, generalmente hacemos muchas pruebas y tomamos muchas decisiones, y cada una de ellas implica una nueva evaluación. Si solamente tenemos un conjunto de prueba, evaluar múltiples veces sobre él y quedarnos con el de mejor desempeño produce un sobreajuste a ese conjunto, por lo que obtenemos una estimación inflada del desempeño. Además, cada evaluación nos da una única estimación, sin una idea de su dispersión. Supongamos que queremos comparar dos modelos, A y B. Evaluamos el modelo A y nos da 0.79 bajo alguna métrica de desempeño. Hacemos lo mismo con el modelo B y nos da 0.81. ¿Es mejor el modelo B? Una única estimación no es suficiente para afirmarlo.^[Esto refiere a *mejor* desde un punto de vista estadístico. Una pregunta distinta es si esta diferencia es relevante desde el punto de vista de la aplicación del modelo.]
+
+La técnica que nos ayuda a no depender de una única separación de los datos y, además, nos sirve para comparar modelos es la validación cruzada. 
+
+Existen varias técnicas de validación cruzada. La más conocida es la validación cruzada de k-pliegues o de *k-folds*. En este caso, solo hay que elegir $k$, el número de grupos en los cuales se va a dividir el conjunto de desarrollo. El procedimiento es sencillo:
+
+1. Separamos el conjunto de desarrollo en $k$ *folds*.
+
+1. Luego, repetimos $k$ veces el siguiente procedimiento:
+    1. Elegimos un *fold* como conjunto de validación y los restantes ($k-1$) como conjunto de entrenamiento.
+    1. Entrenamos el modelo con el conjunto de entrenamiento y evaluamos el modelo en el de validación.
+    1. Guardamos el resultado de la evaluación.
+
+De esta forma, obtenemos $k$ evaluaciones del modelo. Entonces, en lugar de contar con una única evaluación, como en *train-test split*, contamos con varias. Esto hace que no dependamos de un corte particular de los datos, y obtengamos así una estimación de la dispersión esperada del desempeño del modelo. Por eso, a partir de la validación cruzada podemos (y debemos) reportar tanto el desempeño medio esperado como su dispersión (por ejemplo, la desviación estándar sobre los *folds*).
+
+Esta estimación de la dispersión es también la que nos permitirá comparar modelos. Por ejemplo:
+
+1. Evaluamos un modelo A y un modelo B mediante validación cruzada. Obtenemos $0.79 \pm 0.01$ y $0.81 \pm 0.01$, respectivamente. El modelo B es probablemente mejor que el A.
+
+1. Evaluamos un modelo A y un modelo B mediante validación cruzada. Obtenemos $0.79 \pm 0.05$ y $0.81 \pm 0.04$, respectivamente. Difícil asegurar en este caso que el modelo B es mejor que el A.^[La forma correcta de hacer estas comparaciones es hacer algún test estadístico pareado, pero excede el alcance de estas notas.]
+
+```{dot}
+//| label: fig-validacion-cruzada
+//| fig-cap: "Validación cruzada con 5 *folds*. El conjunto de desarrollo se divide en 5 partes. En cada iteración, una parte distinta se usa para validar (V) y las 4 restantes para entrenar (E)."
+
+digraph validacion_cruzada {
+    graph [bgcolor="transparent"]
+    node  [shape=plaintext, fontname="Helvetica", fontsize=12]
+
+    // E = entrenamiento, V = validación; la columna de etiquetas no lleva borde
+    folds [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#666666">
+        <TR>
+          <TD BORDER="0" WIDTH="90" HEIGHT="30" FIXEDSIZE="TRUE" ALIGN="LEFT">Iteración 1</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#e3d5ee">V</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+        </TR>
+        <TR>
+          <TD BORDER="0" WIDTH="90" HEIGHT="30" FIXEDSIZE="TRUE" ALIGN="LEFT">Iteración 2</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#e3d5ee">V</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+        </TR>
+        <TR>
+          <TD BORDER="0" WIDTH="90" HEIGHT="30" FIXEDSIZE="TRUE" ALIGN="LEFT">Iteración 3</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#e3d5ee">V</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+        </TR>
+        <TR>
+          <TD BORDER="0" WIDTH="90" HEIGHT="30" FIXEDSIZE="TRUE" ALIGN="LEFT">Iteración 4</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#e3d5ee">V</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+        </TR>
+        <TR>
+          <TD BORDER="0" WIDTH="90" HEIGHT="30" FIXEDSIZE="TRUE" ALIGN="LEFT">Iteración 5</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#cfe0f3">E</TD>
+          <TD WIDTH="80" HEIGHT="30" FIXEDSIZE="TRUE" BGCOLOR="#e3d5ee">V</TD>
+        </TR>
+      </TABLE>
+    >]
+}
+```
+
+#### Comparación de modelos
+
+¿Qué es comparar distintos modelos? En un principio, se podría pensar que es comparar un árbol de decisión contra una regresión logística (otro modelo de clasificación que veremos más adelante). Pero también podemos considerar que dos árboles de distinta profundidad son dos modelos distintos. O dos árboles de una misma profundidad, pero entrenados sobre conjuntos de atributos distintos.
+
+Parte de esta ambigüedad se debe a un uso bastante laxo de la palabra *modelo*, que usamos para referirnos a cosas distintas. Conviene distinguir tres niveles:
+
+1. La **familia** de modelos: por ejemplo, los árboles de decisión en general.
+1. La **configuración**: una familia junto con todas las decisiones que tomamos antes de entrenar, por ejemplo, un árbol de decisión de profundidad 3 entrenado sobre ciertos atributos.
+1. El **modelo entrenado**: el resultado de aplicar una configuración a un conjunto de datos concreto, por ejemplo, un árbol con sus reglas de decisión y umbrales ya definidos.
+
+Entre las decisiones que definen una configuración, hay unas que tienen nombre propio. Los modelos de aprendizaje automático tienen parámetros e hiperparámetros. Los **parámetros** son los valores que se ajustan automáticamente durante el entrenamiento (en un árbol, las reglas de decisión con sus umbrales). Es la parte en la que el modelo *aprende solo*. Los **hiperparámetros**, en cambio, son valores que decidimos nosotros antes de entrenar y que controlan la flexibilidad del modelo, como la profundidad máxima de un árbol. Pero no son las únicas decisiones: qué atributos usamos o cómo preprocesamos los datos también cambian la configuración. En definitiva, cualquier decisión que cambie cómo se entrena define un modelo distinto.
+
+Cuando comparamos modelos mediante validación cruzada, lo que comparamos son configuraciones. En cada *fold* se entrena un modelo distinto, con parámetros distintos, así que lo que evaluamos no es un árbol entrenado en particular, sino qué tan bien funciona una configuración cuando se la entrena con datos similares. Volveremos sobre esto en secciones posteriores.
 
 
-#### Hiperparámetros
+### Protocolo recomendado
 
-¿Qué es comparar distintos modelos?
-Se podría pensar que es comparar una árbol de decisión contra una regresión logística (otro modelo de clasificaicón)
+¿Cómo combinamos entonces estas herramientas? ¿Cuál es la forma típica de entrenar y evaluar modelos?
 
-pero podemos considerar que dos árboles de distinta profundidad son dos modelos distintos.
+**Nomenclatura para los conjuntos de datos:** en la división inicial, usaremos desarrollo y prueba (*test*). Dentro de la validación cruzada, cada iteración separa el conjunto de desarrollo en entrenamiento (*train*) y validación (*validation*).
+
+1. Dividir los datos en conjuntos de desarrollo y prueba. A partir de acá, el conjunto de prueba queda *guardado* para la evaluación final.
+
+1. Evaluar una o varias configuraciones mediante validación cruzada sobre el conjunto de desarrollo. Aunque haya una sola configuración, la validación cruzada nos da una estimación del desempeño y de su dispersión.
+
+1. En caso de haber comparado varias configuraciones, elegir la mejor **según el desempeño en validación cruzada**, teniendo en cuenta su dispersión.
+
+1. Entrenar la configuración elegida con todo el conjunto de desarrollo.
+
+1. Evaluar el desempeño de ese modelo en el conjunto de prueba. Esta evaluación se hace una única vez: si, a partir de su resultado, volvemos atrás a modificar el modelo, el conjunto de prueba pasa a funcionar como un conjunto de validación más y su estimación deja de ser confiable.
+
+De esta forma, nos aseguramos varias cosas:
+
+1. El uso de validación cruzada nos permite comparar las distintas configuraciones teniendo en cuenta la dispersión esperada en el desempeño. Además, nos da una evaluación más robusta que una única división de los datos.
+
+1. La evaluación final en prueba es independiente de todo el proceso de desarrollo. ¿Por qué es necesaria? Porque siempre que elegimos un modelo después de muchas comparaciones, corremos el riesgo de sobreestimar su desempeño (en este caso, el de validación cruzada). Una última evaluación, entonces, nos da una estimación que no está afectada por esa selección y, por lo tanto, una mejor idea del desempeño esperado del modelo en datos nuevos.
+
+```{dot}
+//| label: fig-protocolo
+//| fig-cap: "Protocolo recomendado. El conjunto de prueba se separa al principio y solo se usa en la evaluación final. Las configuraciones se comparan mediante validación cruzada sobre el conjunto de desarrollo, y la mejor se vuelve a entrenar con todo el conjunto de desarrollo antes de evaluarla en prueba. Adaptado de la documentación de scikit-learn [@scikit-learn]."
+
+digraph protocolo {
+    graph [splines=ortho, ranksep=0.45, nodesep=0.5, bgcolor="transparent"]
+    node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12,
+           fillcolor="white", color="#666666", penwidth=1.1, margin="0.18,0.10"]
+    edge  [color="#666666", arrowsize=0.7]
+
+    configuraciones [label="Configuraciones"]
+    datos           [label="Conjunto de datos"]
+    validacion      [label="Validación cruzada"]
+    desarrollo      [label="Desarrollo", fillcolor="#cfe0f3"]
+    prueba          [label="Prueba", fillcolor="#f7ddb8"]
+    mejor           [label="Mejor configuración"]
+    entrenado       [label="Modelo entrenado\ncon todo el desarrollo"]
+    evaluacion      [label="Evaluación final"]
+
+    // filas de la figura; las aristas invisibles fijan el orden de izquierda a derecha
+    { rank=same; configuraciones -> datos [style=invis] }
+    { rank=same; validacion -> desarrollo [dir=back]; desarrollo -> prueba [style=invis] }
+    { rank=same; mejor -> entrenado }
+
+    configuraciones -> validacion
+    datos -> desarrollo
+    datos -> prueba
+    validacion -> mejor
+    desarrollo -> entrenado
+    entrenado -> evaluacion
+    prueba -> evaluacion
+}
+```
+
+Planteado el protocolo, queda una última pregunta. ¿Cómo sabemos que el desempeño obtenido es bueno, regular o malo?
+
+### Modelo o desempeño de referencia
+
+Sin un contexto, el resultado de la evaluación de un modelo nos dice poco, salvo cuando obtenemos los extremos de la métrica (el peor o el mejor caso posible). En el resto de los casos, debemos comparar el valor obtenido contra algún valor de referencia. Algunas opciones son:
+
+- Si ya hay trabajo hecho en el área, la referencia puede ser el mejor modelo disponible o el más usado.
+- Si no hay resultados previos, la referencia puede ser un modelo sencillo. ¿Cuánto mejor es un modelo sumamente complejo frente a un árbol de decisión sencillo?
+- Un modelo trivial, que no usa los atributos. En clasificación, por ejemplo, predecir siempre la clase mayoritaria. ¿Anda muy mal? ¿Cuánto depende esto de la prevalencia de cada clase? En regresión, el equivalente es predecir siempre el promedio, que es justamente la referencia que usa el $R^2$.
+
+Para que la comparación tenga sentido, el modelo de referencia tiene que evaluarse con la misma métrica, los mismos datos y el mismo protocolo que nuestro modelo.
+
+También hay que tener en cuenta qué sirve para la aplicación. En algunos casos, la misma aplicación —el *negocio*— nos puede informar qué es un desempeño razonable y qué no.
 
 
-o árboles de una misma profundidad pero entrenado ssobre un conjunto de atributos distintos.
+<!-- 
+#### ¿Separación al azar?
 
 
+La característica más importante que debe cumplir la separación entre los conjuntos de entrenamiento, validación y desempeño es que las instancias sean independientes entre sí. Esto se suele lograr con una separación al azar. Pero no siempre es el caso.
 
-La importancia de evaluar correctamente
-Evaluar correctamente el desempeño de los modelos es una parte fundamental en el desarrollo de un modelo predictivo. ¡Por eso  analizar y aprender distintas métricas es tan útil Pero para que esto funcione, es necesario diseñar un sistema de evaluación que te permita visualizar fácilmente las distintas métricas y el desempeño de tu modelo. 
-En este programa utilizarás la librería Scikit-Learn para calcular las métricas que aprendiste y Matplotlib y Seaborn para visualizarlas. En resumen, el sistema va a consistir en un bloque de código -puede ser un conjunto de celdas- que devuelva información útil para evaluar el funcionamiento de tu modelo.
+#### Sistemas de evaluación
+
 Aquí van 4 recomendaciones para identificar un buen sistema de evaluación:
 Es simple de ejecutar con un (o pocos) comando único. Esto es importante ya que facilita la iteración en la evaluación y mejora del modelo.
 Devuelve un set de métricas relevantes y gráficos. ¿Está funcionando mejor que antes?
@@ -160,21 +333,3 @@ Incluye distribuciones de errores y no solamente resultados binarios. No nos dic
 Devuelve una matriz de confusión.
 
 Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando.
-
-
-Optimización de hiperparámetros
-Los modelos de Aprendizaje Automático tienen parámetros e hiperparámetros:
-Los Parámetros hacen referencia a las variables que se ajustan automáticamente durante el proceso de entrenamiento. Esta es la parte en el que el modelo “aprende solo”. 
-Los hiperparámetros son valores que ajustamos y decidimos los/as Data Scientists. 
-Cada modelo cuenta con parámetros e hiperparámetros distintos. Los principales hiperparámetros de kNN y árboles de decisiones son la cantidad de vecinos y la profundidad del árbol, respectivamente. Estos valores tenemos que elegirlos nosotros/as, como Data Scientists. 
-Para pensar. Cuanto más profundo sea un árbol ¿el modelo va a tender al Overfitting o al Underfitting? ¿y con la cantidad de vecinos en kNN?
-Si estos valores los decidimos nosotros/as: ¿cómo sabemos cuál es el hiperparámetro más eficiente? ¿Con cuál empezamos? 
-Cada modelo tiene un valor recomendado -también, una vez más, depende del problema-. Para ir ajustándolo y llegar al valor esperado hay varias técnicas, pero todas incluyen un proceso iterativo en el cual probamos distintos valores. 
-En el caso que tengas que elegir un único hiperparámetro, una forma sencilla es hacerlo mediante lo que se conoce como una Curva de Validación: 
-En el eje x, cuentas con la complejidad del modelo: en el caso de los árboles, la complejidad está directamente asociada a su profundidad. Un modelo poco profundo es simple, mientras que a medida que aumenta la profundidad el modelo se hace más complejo. 
-En el eje y, va el desempeño del modelo. 
-Cuando hacemos estas curvas para los conjuntos de entrenamiento y testeo, se suele obtener algo parecido a la siguiente figura:
-
-
-
-Esta curva de validación está idealizada, pero rescata los aspectos más importantes: los modelos simples tienden a desempeñarse peor de lo que podrían (underfitting); mientras que modelos complejos tienden a sobreajustar, es decir, hay una gran distancia entre el desempeño en el conjunto de entrenamiento y el conjunto de testeo. En el medio, un compromiso entre ambos, el mejor modelo. -->
