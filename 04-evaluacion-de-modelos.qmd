@@ -133,6 +133,8 @@ Pero esta división no es suficiente, como veremos a continuación.
 ```{dot}
 //| label: fig-train-test
 //| fig-cap: "División del conjunto de datos en entrenamiento y prueba. Una parte de las instancias se usa para entrenar el modelo y el resto se reserva para evaluarlo."
+//| fig-width: 7
+//| fig-height: 0.8
 
 digraph division {
     graph [bgcolor="transparent"]
@@ -178,6 +180,8 @@ Esta estimación de la dispersión es también la que nos permitirá comparar mo
 ```{dot}
 //| label: fig-validacion-cruzada
 //| fig-cap: "Validación cruzada con 5 *folds*. El conjunto de desarrollo se divide en 5 partes. En cada iteración, una parte distinta se usa para validar (V) y las 4 restantes para entrenar (E)."
+//| fig-width: 7
+//| fig-height: 2.2
 
 digraph validacion_cruzada {
     graph [bgcolor="transparent"]
@@ -316,10 +320,7 @@ Para que la comparación tenga sentido, el modelo de referencia tiene que evalua
 
 También hay que tener en cuenta qué sirve para la aplicación. En algunos casos, la misma aplicación —el *negocio*— nos puede informar qué es un desempeño razonable y qué no.
 
-
-<!-- 
-#### ¿Separación al azar?
-
+<!-- #### ¿Separación al azar?
 
 La característica más importante que debe cumplir la separación entre los conjuntos de entrenamiento, validación y desempeño es que las instancias sean independientes entre sí. Esto se suele lograr con una separación al azar. Pero no siempre es el caso.
 
@@ -332,4 +333,4 @@ Incluye distribuciones de errores y no solamente resultados binarios. No nos dic
 
 Devuelve una matriz de confusión.
 
-Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando.
+Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando. -->
