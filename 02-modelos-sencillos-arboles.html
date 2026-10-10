@@ -169,6 +169,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./04-evaluacion-de-modelos.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Referencias</span></a>
   </div>
@@ -301,7 +307,7 @@ Figura&nbsp;2.1: Árbol de decisión de profundidad dos. Cada nodo interno hace 
 <p>Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <section id="impureza-gini" class="level4" data-number="2.1.1.1">
 <h4 data-number="2.1.1.1" class="anchored" data-anchor-id="impureza-gini"><span class="header-section-number">2.1.1.1</span> Impureza Gini</h4>
-<p>Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (<a href="#fig-recipientes" class="quarto-xref">Figura&nbsp;<span>2.2</span></a>). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si te pidieran ordenar por pureza a los recipientes, ¿cómo lo harías?</p>
+<p>Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (<a href="#fig-recipientes" class="quarto-xref">Figura&nbsp;<span>2.2</span></a>). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si les pidieran ordenar por pureza a los recipientes, ¿cómo lo harían?</p>
 <p>La <strong>impureza Gini</strong> es un concepto que ayuda a responder esa pregunta. Ésta se calcula como</p>
 <p><span class="math display">\[IG = 1 - \sum_{j=1}^K p_j^2\]</span></p>
 <p>donde <span class="math inline">\(p_j\)</span> es la proporción de cada clase, y en total hay <span class="math inline">\(K\)</span> clases. En el caso de las pelotas de colores, el cálculo para cada recipiente es <span class="math inline">\(IG = 1 - p_{\text{verdes}}^2 - p_{\text{grises}}^2\)</span>, ya que solamente hay dos clases. Para el recipiente 1 esta cuenta da 0, para el recipiente 2 esta cuenta da 0.5 y para el recipiente 3, 0.32. En el caso del recipiente 2, toma el valor máximo de impureza para el caso de dos clases, ya que la impureza es máxima cuando todas las clases están en igual proporción. Entonces, por medio de la impureza Gini es posible cuantificar cuán puro (instancias con la misma etiqueta) es un conjunto. A más homogeneidad en las etiquetas, más puro es.</p>

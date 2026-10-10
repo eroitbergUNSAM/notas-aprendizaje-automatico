@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Evaluación de modelos – Otro texto más sobre aprendizaje automático</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./03-modelos-sencillos-regresion-lineal.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ac8c06e238fcfa0bde751453895f09d5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="estilos.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-evaluacion-de-modelos.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Otro texto más sobre aprendizaje automático</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-modelos-sencillos-arboles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-modelos-sencillos-regresion-lineal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-evaluacion-de-modelos.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Referencias</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#métricas-de-evaluación-para-clasificación" id="toc-métricas-de-evaluación-para-clasificación" class="nav-link active" data-scroll-target="#métricas-de-evaluación-para-clasificación"><span class="header-section-number">4.1</span> Métricas de evaluación para clasificación</a>
+  <ul class="collapse">
+  <li><a href="#clasificación-multiclase" id="toc-clasificación-multiclase" class="nav-link" data-scroll-target="#clasificación-multiclase"><span class="header-section-number">4.1.1</span> Clasificación multiclase</a></li>
+  <li><a href="#problemas-desbalanceados" id="toc-problemas-desbalanceados" class="nav-link" data-scroll-target="#problemas-desbalanceados"><span class="header-section-number">4.1.2</span> Problemas desbalanceados</a></li>
+  </ul></li>
+  <li><a href="#métricas-de-evaluación-para-regresión" id="toc-métricas-de-evaluación-para-regresión" class="nav-link" data-scroll-target="#métricas-de-evaluación-para-regresión"><span class="header-section-number">4.2</span> Métricas de evaluación para regresión</a></li>
+  <li><a href="#protocolos-de-evaluación" id="toc-protocolos-de-evaluación" class="nav-link" data-scroll-target="#protocolos-de-evaluación"><span class="header-section-number">4.3</span> Protocolos de evaluación</a>
+  <ul class="collapse">
+  <li><a href="#división-entre-entrenamiento-y-prueba" id="toc-división-entre-entrenamiento-y-prueba" class="nav-link" data-scroll-target="#división-entre-entrenamiento-y-prueba"><span class="header-section-number">4.3.1</span> División entre <em>entrenamiento</em> y <em>prueba</em></a></li>
+  <li><a href="#validación-cruzada" id="toc-validación-cruzada" class="nav-link" data-scroll-target="#validación-cruzada"><span class="header-section-number">4.3.2</span> Validación cruzada</a></li>
+  <li><a href="#protocolo-recomendado" id="toc-protocolo-recomendado" class="nav-link" data-scroll-target="#protocolo-recomendado"><span class="header-section-number">4.3.3</span> Protocolo recomendado</a></li>
+  <li><a href="#modelo-o-desempeño-de-referencia" id="toc-modelo-o-desempeño-de-referencia" class="nav-link" data-scroll-target="#modelo-o-desempeño-de-referencia"><span class="header-section-number">4.3.4</span> Modelo o desempeño de referencia</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Este capítulo presenta cómo evaluar correctamente un modelo. Es, sin lugar a dudas, el capítulo más importante de todo este conjunto de notas.</p>
+<p>Hay dos preguntas fundamentales que debemos hacernos antes de empezar a desarrollar una herramienta de aprendizaje automático:</p>
+<ol type="1">
+<li><p>¿Qué queremos medir para evaluar el desempeño del modelo? Es muy importante definir con qué métrica o métricas vamos a evaluar. Su elección es fundamental, e idealmente debería reflejar lo más fehacientemente lo que esperamos que el modelo haga bien cuando lo usemos.</p></li>
+<li><p>¿Cómo lo vamos a medir? El objetivo es que esa medida de desempeño que obtengamos sea representativa del desempeño del modelo en datos que no vio durante el entrenamiento. Para eso, hay varias técnicas y protocolos que podemos seguir.</p></li>
+</ol>
+<section id="métricas-de-evaluación-para-clasificación" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="métricas-de-evaluación-para-clasificación"><span class="header-section-number">4.1</span> Métricas de evaluación para clasificación</h2>
+<p>¿Cómo evaluamos los resultados de un modelo de clasificación? Vamos a suponer que estamos trabajando en un problema binario (dos clases). Podemos llamar a una clase positiva y a la otra negativa. En general, esto implica que una clase (la positiva) es más relevante que la otra, pero por ahora es mejor pensar que es solo una convención. En ese caso, podemos evaluar qué sucede cuando el modelo hace una predicción sobre una instancia y nosotros contamos, además, con la etiqueta asociada a dicha instancia:</p>
+<ul>
+<li>Un <strong>verdadero positivo</strong> es una instancia de la clase positiva correctamente predicha como positiva por nuestro modelo.</li>
+<li>Un <strong>falso positivo</strong> es una instancia que fue predicha como positiva cuando en realidad no lo era.</li>
+<li>Un <strong>falso negativo</strong> es una instancia que fue predicha como negativa cuando en realidad era positiva.</li>
+<li>Un <strong>verdadero negativo</strong> es una instancia negativa correctamente predicha como negativa.</li>
+</ul>
+<p>Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en una sola instancia. Pero no alcanza para evaluar el desempeño de un modelo observar una única instancia, ya que eso no nos permite hacer estadística. Cuando analizamos muchas instancias, podemos contar la ocurrencia de cada caso y agruparlos en una tabla de doble entrada, la matriz de confusión.</p>
+<div id="tbl-matriz-confusion" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-matriz-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;4.1: Matriz de confusión: filas = clase real, columnas = clase predicha. Notar que <span class="math inline">\(VP + FN = P\)</span> (el total de instancias positivas en todo nuestro conjunto de datos) y <span class="math inline">\(VN + FP = Q\)</span> (el total de instancias negativas en todo nuestro conjunto de datos). La suma de todos los elementos de la matriz da <span class="math inline">\(N\)</span> (el total de instancias).
+</figcaption>
+<div aria-describedby="tbl-matriz-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: center;">Predicho: negativo</th>
+<th style="text-align: center;">Predicho: positivo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Real: negativo</strong></td>
+<td style="text-align: center;">VN</td>
+<td style="text-align: center;">FP</td>
+</tr>
+<tr class="even">
+<td><strong>Real: positivo</strong></td>
+<td style="text-align: center;">FN</td>
+<td style="text-align: center;">VP</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>La matriz de confusión tiene, en principio, toda la información sobre el desempeño de un modelo clasificador. Pero a veces, es necesario resumirla o hacer foco sobre algunas características particulares. Para ello, existen algunas métricas útiles.</p>
+<p>La <strong>exactitud</strong> (<em>accuracy</em>) mide la fracción de los datos correctamente clasificados. Los datos correctamente clasificados, aciertos, son los verdaderos positivos y los verdaderos negativos. Los errores son los falsos positivos y los falsos negativos. Por lo tanto, la exactitud se calcula como:</p>
+<p><span class="math display">\[\text{exactitud} = \frac{VP + VN}{VP + VN + FP + FN}\]</span></p>
+<p>donde el denominador es simplemente el total de instancias <span class="math inline">\(N\)</span>.</p>
+<p>La <strong>precisión</strong> nos indica, de los elementos seleccionados (predichos positivos), qué fracción son relevantes (verdaderos positivos):</p>
+<p><span class="math display">\[ \text{precisión} = \frac{VP}{VP+FP}\]</span></p>
+<p>La <strong>exhaustividad</strong> (<em>recall</em> o <em>true positive rate</em>) nos indica de los elementos relevantes (positivos) qué fracción fueron seleccionados (verdaderos positivos):</p>
+<p><span class="math display">\[ \text{exhaustividad} = \frac{VP}{VP+FN}\]</span></p>
+<p>donde el denominador es <span class="math inline">\(P\)</span>, el total de instancias positivas.</p>
+<p>Todas las métricas mencionadas hasta ahora toman valores entre cero y uno, y cuanto más alto el valor, mejor. La situación ideal es tener una precisión y exhaustividad alta, pero esto muchas veces no se logra y es común que haya un compromiso entre una y otra. Es decir, modelos exhaustivos tienden a no ser muy precisos y viceversa. La importancia que le damos a la exhaustividad y a la precisión depende del problema en el que trabajemos.</p>
+<p>Existe una métrica que combina la precisión y la exhaustividad de forma tal de mantener un compromiso entre ellas, el <strong>F-score</strong>. Esta métrica es la media armónica de ambas, y su fórmula es:</p>
+<p><span class="math display">\[\text{F-score} = 2\frac{\text{precisión} \times \text{exhaustividad}}{\text{precisión} + \text{exhaustividad}}\]</span></p>
+<p>Si precisión o exhaustividad son bajas, cercanas a cero, también lo será el F-score. Mientras que si las dos son altas, cercanas a uno, también lo será el F-score.</p>
+<p><strong>Nota</strong>: existe mucha terminología para referirse a los mismos conceptos. Por ejemplo, en algunos ámbitos a los falsos positivos y falsos negativos es común llamarlos errores de tipo 1 y de tipo 2, respectivamente. Sensibilidad es otra forma de llamar a la exhaustividad usada en epidemiología, mientras que otros conceptos como especificidad también se desprenden de la matriz de confusión.</p>
+<section id="clasificación-multiclase" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="clasificación-multiclase"><span class="header-section-number">4.1.1</span> Clasificación multiclase</h3>
+<p>¿Qué cambia cuando, en lugar de un problema binario, tenemos un problema multiclase?</p>
+<ol type="1">
+<li><p>La matriz de confusión sigue siendo una herramienta válida y sumamente útil para observar el comportamiento del modelo.</p></li>
+<li><p>La exactitud se define de la misma manera (total de aciertos sobre total de errores y aciertos).</p></li>
+<li><p>La precisión, exhaustividad y F-score se calculan por clase, considerando esa clase como positiva y todo el resto como negativa. Para resumirlas en un único valor global hay tres opciones habituales:</p>
+<ul>
+<li><em>macro</em>: promedio simple de las métricas de cada clase.</li>
+<li><em>weighted</em>: promedio ponderado por la cantidad de instancias de cada clase.</li>
+<li><em>micro</em>: se suman los VP, FP y FN de todas las clases y se calcula la métrica una sola vez con esos totales.</li>
+</ul></li>
+</ol>
+</section>
+<section id="problemas-desbalanceados" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="problemas-desbalanceados"><span class="header-section-number">4.1.2</span> Problemas desbalanceados</h3>
+<p>El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de <span class="math inline">\(\frac{1}{K}\)</span>, donde <span class="math inline">\(K\)</span> es el número de clases totales. Un ejercicio que a veces conviene hacer es preguntarse, para cada métrica, qué ocurriría si cambiara el balance de clases del conjunto de datos con el que estamos trabajando. ¿Cambiaría la métrica obtenida? Si la métrica es sensible al balance de clases, entonces conviene usarla con precaución. Volveremos sobre esto más adelante.</p>
+</section>
+</section>
+<section id="métricas-de-evaluación-para-regresión" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="métricas-de-evaluación-para-regresión"><span class="header-section-number">4.2</span> Métricas de evaluación para regresión</h2>
+<p>En clasificación comparamos una etiqueta medida contra una etiqueta predicha. Las etiquetas pueden coincidir o no, lo que nos da aciertos y errores. En regresión, en cambio, lo que obtenemos es una predicción numérica que debemos comparar contra otro número. La situación, entonces, es más sutil, porque no es inmediato cuándo la predicción está dentro de lo razonable y cuándo no.</p>
+<p>El comienzo natural es evaluar un modelo de regresión a partir de los errores, <span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>, también llamados <em>residuos</em>. Éste es el error por instancia. En algunos casos, nuestro regresor sobreestimará el valor de la predicción, por lo que el error será negativo, mientras que en otros casos subestimará, por lo que el error será positivo. Para obtener una métrica del desempeño del modelo, podemos calcular un promedio de los errores sobre cada instancia. Pero como los errores pueden ser positivos o negativos, si sumamos sin tener en cuenta esto, puede ocurrir que los errores se compensen, y la métrica no refleje el desempeño del regresor. Entonces, una opción es promediar los errores al cuadrado para obtener el <strong>error cuadrático medio</strong> (MSE, por sus siglas en inglés):</p>
+<p><span class="math display">\[MSE = \frac{1}{N} \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2\]</span></p>
+<p>que, si ya leyeron el <a href="03-modelos-sencillos-regresion-lineal.html" class="quarto-xref"><span>Capítulo 3</span></a>, es simplemente <span class="math inline">\(MSE = \frac{1}{N} RSS\)</span>.</p>
+<p>Otra opción es sumar los valores absolutos de los errores sobre cada instancia y luego promediar para obtener el error promedio. Esto nos da como resultado el <strong>error absoluto medio</strong> (MAE):</p>
+<p><span class="math display">\[MAE = \frac{1}{N} \sum^{N}_{i = 1} |y_i - \hat{y}_i|\]</span></p>
+<p>La diferencia entre el MSE y el MAE es que, al estar en el MSE el error elevado al cuadrado, penaliza más fuertemente los errores grandes. MSE, además, no tiene la misma magnitud ni unidades que la variable, ya que está elevado al cuadrado. Por eso, se suele utilizar la <strong>raíz del error cuadrático medio</strong> (RMSE):</p>
+<p><span class="math display">\[RMSE = \sqrt{MSE}\]</span></p>
+<p>Otra métrica sumamente útil pero un poco más compleja es el <strong>coeficiente de determinación</strong>, <span class="math inline">\(R^2\)</span>:</p>
+<p><span class="math display">\[R^2 = 1 - \frac{RSS}{TSS}\]</span></p>
+<p>donde <span class="math inline">\(TSS = \sum^{N}_{i = 1} (y_i - \bar{y})^2\)</span>. Es decir, también lo podríamos escribir como</p>
+<p><span class="math display">\[R^2 = 1 - \frac{ \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2}{ \sum^{N}_{i = 1} (y_i - \bar{y})^2}\]</span></p>
+<p>¿Qué significa? El <span class="math inline">\(R^2\)</span> hace un cociente entre el error obtenido por el modelo, <span class="math inline">\(RSS\)</span>, y el error que habríamos obtenido si predijéramos con el promedio de las etiquetas (<span class="math inline">\(\bar{y}\)</span>), <span class="math inline">\(TSS\)</span>. Si el cociente <span class="math inline">\(\frac{RSS}{TSS}\)</span> es menor que uno, nuestro modelo es mejor que el promedio, por lo que da un <span class="math inline">\(R^2\)</span> mayor que cero. Caso contrario, nuestro modelo es peor que el promedio, por lo que <span class="math inline">\(\frac{RSS}{TSS}\)</span> es mayor que uno y el <span class="math inline">\(R^2\)</span> da negativo. El caso límite, <span class="math inline">\(R^2 = 0\)</span>, ocurre cuando el modelo es exactamente igual de bueno que predecir con el promedio.</p>
+<p>El nombre, <span class="math inline">\(R^2\)</span>, es confuso. No es, salvo excepciones, una magnitud al cuadrado. De hecho, en el caso más general, es una métrica que es como máximo uno pero puede tomar valores negativos de manera no acotada. Si bien tiene muchas más sutilezas que el MSE, RMSE o MAE, es una métrica muy útil que conviene tener en cuenta en cualquier problema de regresión.</p>
+<!-- stas métricas son métricas de error; es decir, a más bajo MAE, MSE o RMSE, mejor regresor. En el caso ideal, los errores serán 0. Las métricas que vimos para clasificación son métricas que miden aciertos, buen desempeño, por lo que ocurre lo contrario: cuanto más altas (caso ideal: 1), mejor clasificador. Se puede convertir una métrica de desempeño en una métrica de error y viceversa. ¿Se te ocurre cómo?  -->
+</section>
+<section id="protocolos-de-evaluación" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="protocolos-de-evaluación"><span class="header-section-number">4.3</span> Protocolos de evaluación</h2>
+<p>Evaluar correctamente un modelo puede ser un proceso complejo. Además de elegir correctamente la o las métricas, debemos aplicar un protocolo de evaluación apropiado para asegurarnos que medimos correctamente y podemos abordar algunas de las siguientes situaciones y preguntas típicas:</p>
+<ol type="1">
+<li>¿Cuál es el desempeño esperado del modelo en datos nuevos? ¿Cómo nos aseguramos que el modelo <strong>generaliza</strong>?</li>
+<li>¿Cómo elegimos entre varios modelos diferentes el de mejor desempeño? Este problema se conoce como <strong>selección de modelos</strong>.</li>
+<li>Si obtenemos un desempeño de, por ejemplo, 0.8 en exactitud o <span class="math inline">\(R^2\)</span>, ¿es bueno, malo, regular? ¿Cómo respondemos esa pregunta?</li>
+</ol>
+<p>Pero, ¿por qué nos preocupa que un modelo no generalice? Hay algo intuitivo que surge rápidamente cuando empezamos a trabajar con modelos. Los modelos son, en general, muy flexibles, y los conjuntos de datos son acotados. Entonces, es común que un modelo muy flexible se ajuste a características particulares de los datos con los que fue entrenado sin lograr aprender patrones característicos de la población que esos datos quieren representar. Este fenómeno se conoce como <strong>sobreajuste</strong>. Contamos con tres herramientas fundamentales para detectar el sobreajuste y abordar las preguntas planteadas:</p>
+<ol type="1">
+<li>División entre <em>entrenamiento</em> y <em>prueba</em>.</li>
+<li>Validación cruzada.</li>
+<li>Modelo o desempeño de referencia (<em>benchmark</em>).</li>
+</ol>
+<p>Vamos a ver las dos primeras, el protocolo general que las combina y, finalmente, cómo usar un modelo de referencia.</p>
+<section id="división-entre-entrenamiento-y-prueba" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="división-entre-entrenamiento-y-prueba"><span class="header-section-number">4.3.1</span> División entre <em>entrenamiento</em> y <em>prueba</em></h3>
+<p>El <em>train-test split</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (<em>train</em>), y la otra para evaluar el modelo (prueba o <em>test</em>). De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.</p>
+<p>Pero esta división no es suficiente, como veremos a continuación.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-train-test" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-train-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 426.00 58.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 54)">
+<title>division</title>
+<!-- datos -->
+<g id="node1" class="node">
+<title>datos</title>
+<polygon fill="#cfe0f3" stroke="transparent" points="9,-5 9,-45 329,-45 329,-5 9,-5"></polygon>
+<text text-anchor="start" x="129.98" y="-21.4" font-family="Helvetica,sans-Serif" font-size="12.00">Entrenamiento</text>
+<polygon fill="#f7ddb8" stroke="transparent" points="329,-5 329,-45 409,-45 409,-5 329,-5"></polygon>
+<text text-anchor="start" x="349.65" y="-21.4" font-family="Helvetica,sans-Serif" font-size="12.00">Prueba</text>
+<polygon fill="none" stroke="#666666" points="8,-4 8,-46 410,-46 410,-4 8,-4"></polygon>
+</g>
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-train-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;4.1: División del conjunto de datos en entrenamiento y prueba. Una parte de las instancias se usa para entrenar el modelo y el resto se reserva para evaluarlo.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Terminología.</strong> Como en todo el aprendizaje automático, la terminología abunda. Al conjunto de entrenamiento obtenido luego de un <em>train-test split</em> se lo suele llamar conjunto de desarrollo, por motivos que quedarán claros en las próximas secciones.</p>
+</section>
+<section id="validación-cruzada" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="validación-cruzada"><span class="header-section-number">4.3.2</span> Validación cruzada</h3>
+<p>La división entre entrenamiento (desarrollo) y prueba no es suficiente para obtener un modelo correctamente evaluado. Cuando desarrollamos un modelo, generalmente hacemos muchas pruebas y tomamos muchas decisiones, y cada una de ellas implica una nueva evaluación. Si solamente tenemos un conjunto de prueba, evaluar múltiples veces sobre él y quedarnos con el de mejor desempeño produce un sobreajuste a ese conjunto, por lo que obtenemos una estimación inflada del desempeño. Además, cada evaluación nos da una única estimación, sin una idea de su dispersión. Supongamos que queremos comparar dos modelos, A y B. Evaluamos el modelo A y nos da 0.79 bajo alguna métrica de desempeño. Hacemos lo mismo con el modelo B y nos da 0.81. ¿Es mejor el modelo B? Una única estimación no es suficiente para afirmarlo.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>La técnica que nos ayuda a no depender de una única separación de los datos y, además, nos sirve para comparar modelos es la validación cruzada.</p>
+<p>Existen varias técnicas de validación cruzada. La más conocida es la validación cruzada de k-pliegues o de <em>k-folds</em>. En este caso, solo hay que elegir <span class="math inline">\(k\)</span>, el número de grupos en los cuales se va a dividir el conjunto de desarrollo. El procedimiento es sencillo:</p>
+<ol type="1">
+<li><p>Separamos el conjunto de desarrollo en <span class="math inline">\(k\)</span> <em>folds</em>.</p></li>
+<li><p>Luego, repetimos <span class="math inline">\(k\)</span> veces el siguiente procedimiento:</p>
+<ol type="1">
+<li>Elegimos un <em>fold</em> como conjunto de validación y los restantes (<span class="math inline">\(k-1\)</span>) como conjunto de entrenamiento.</li>
+<li>Entrenamos el modelo con el conjunto de entrenamiento y evaluamos el modelo en el de validación.</li>
+<li>Guardamos el resultado de la evaluación.</li>
+</ol></li>
+</ol>
+<p>De esta forma, obtenemos <span class="math inline">\(k\)</span> evaluaciones del modelo. Entonces, en lugar de contar con una única evaluación, como en <em>train-test split</em>, contamos con varias. Esto hace que no dependamos de un corte particular de los datos, y obtengamos así una estimación de la dispersión esperada del desempeño del modelo. Por eso, a partir de la validación cruzada podemos (y debemos) reportar tanto el desempeño medio esperado como su dispersión (por ejemplo, la desviación estándar sobre los <em>folds</em>).</p>
+<p>Esta estimación de la dispersión es también la que nos permitirá comparar modelos. Por ejemplo:</p>
+<ol type="1">
+<li><p>Evaluamos un modelo A y un modelo B mediante validación cruzada. Obtenemos <span class="math inline">\(0.79 \pm 0.01\)</span> y <span class="math inline">\(0.81 \pm 0.01\)</span>, respectivamente. El modelo B es probablemente mejor que el A.</p></li>
+<li><p>Evaluamos un modelo A y un modelo B mediante validación cruzada. Obtenemos <span class="math inline">\(0.79 \pm 0.05\)</span> y <span class="math inline">\(0.81 \pm 0.04\)</span>, respectivamente. Difícil asegurar en este caso que el modelo B es mejor que el A.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p></li>
+</ol>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-validacion-cruzada" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-validacion-cruzada-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 514.00 166.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 162)">
+<title>validacion_cruzada</title>
+<!-- folds -->
+<g id="node1" class="node">
+<title>folds</title>
+<text text-anchor="start" x="8" y="-135.4" font-family="Helvetica,sans-Serif" font-size="12.00">Iteración 1</text>
+<polygon fill="#e3d5ee" stroke="transparent" points="98,-124 98,-154 178,-154 178,-124 98,-124"></polygon>
+<polygon fill="none" stroke="#666666" points="98,-124 98,-154 178,-154 178,-124 98,-124"></polygon>
+<text text-anchor="start" x="134" y="-135.4" font-family="Helvetica,sans-Serif" font-size="12.00">V</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="178,-124 178,-154 258,-154 258,-124 178,-124"></polygon>
+<polygon fill="none" stroke="#666666" points="178,-124 178,-154 258,-154 258,-124 178,-124"></polygon>
+<text text-anchor="start" x="214" y="-135.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="258,-124 258,-154 338,-154 338,-124 258,-124"></polygon>
+<polygon fill="none" stroke="#666666" points="258,-124 258,-154 338,-154 338,-124 258,-124"></polygon>
+<text text-anchor="start" x="294" y="-135.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="338,-124 338,-154 418,-154 418,-124 338,-124"></polygon>
+<polygon fill="none" stroke="#666666" points="338,-124 338,-154 418,-154 418,-124 338,-124"></polygon>
+<text text-anchor="start" x="374" y="-135.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="418,-124 418,-154 498,-154 498,-124 418,-124"></polygon>
+<polygon fill="none" stroke="#666666" points="418,-124 418,-154 498,-154 498,-124 418,-124"></polygon>
+<text text-anchor="start" x="454" y="-135.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<text text-anchor="start" x="8" y="-105.4" font-family="Helvetica,sans-Serif" font-size="12.00">Iteración 2</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="98,-94 98,-124 178,-124 178,-94 98,-94"></polygon>
+<polygon fill="none" stroke="#666666" points="98,-94 98,-124 178,-124 178,-94 98,-94"></polygon>
+<text text-anchor="start" x="134" y="-105.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#e3d5ee" stroke="transparent" points="178,-94 178,-124 258,-124 258,-94 178,-94"></polygon>
+<polygon fill="none" stroke="#666666" points="178,-94 178,-124 258,-124 258,-94 178,-94"></polygon>
+<text text-anchor="start" x="214" y="-105.4" font-family="Helvetica,sans-Serif" font-size="12.00">V</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="258,-94 258,-124 338,-124 338,-94 258,-94"></polygon>
+<polygon fill="none" stroke="#666666" points="258,-94 258,-124 338,-124 338,-94 258,-94"></polygon>
+<text text-anchor="start" x="294" y="-105.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="338,-94 338,-124 418,-124 418,-94 338,-94"></polygon>
+<polygon fill="none" stroke="#666666" points="338,-94 338,-124 418,-124 418,-94 338,-94"></polygon>
+<text text-anchor="start" x="374" y="-105.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="418,-94 418,-124 498,-124 498,-94 418,-94"></polygon>
+<polygon fill="none" stroke="#666666" points="418,-94 418,-124 498,-124 498,-94 418,-94"></polygon>
+<text text-anchor="start" x="454" y="-105.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<text text-anchor="start" x="8" y="-75.4" font-family="Helvetica,sans-Serif" font-size="12.00">Iteración 3</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="98,-64 98,-94 178,-94 178,-64 98,-64"></polygon>
+<polygon fill="none" stroke="#666666" points="98,-64 98,-94 178,-94 178,-64 98,-64"></polygon>
+<text text-anchor="start" x="134" y="-75.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="178,-64 178,-94 258,-94 258,-64 178,-64"></polygon>
+<polygon fill="none" stroke="#666666" points="178,-64 178,-94 258,-94 258,-64 178,-64"></polygon>
+<text text-anchor="start" x="214" y="-75.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#e3d5ee" stroke="transparent" points="258,-64 258,-94 338,-94 338,-64 258,-64"></polygon>
+<polygon fill="none" stroke="#666666" points="258,-64 258,-94 338,-94 338,-64 258,-64"></polygon>
+<text text-anchor="start" x="294" y="-75.4" font-family="Helvetica,sans-Serif" font-size="12.00">V</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="338,-64 338,-94 418,-94 418,-64 338,-64"></polygon>
+<polygon fill="none" stroke="#666666" points="338,-64 338,-94 418,-94 418,-64 338,-64"></polygon>
+<text text-anchor="start" x="374" y="-75.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="418,-64 418,-94 498,-94 498,-64 418,-64"></polygon>
+<polygon fill="none" stroke="#666666" points="418,-64 418,-94 498,-94 498,-64 418,-64"></polygon>
+<text text-anchor="start" x="454" y="-75.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<text text-anchor="start" x="8" y="-45.4" font-family="Helvetica,sans-Serif" font-size="12.00">Iteración 4</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="98,-34 98,-64 178,-64 178,-34 98,-34"></polygon>
+<polygon fill="none" stroke="#666666" points="98,-34 98,-64 178,-64 178,-34 98,-34"></polygon>
+<text text-anchor="start" x="134" y="-45.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="178,-34 178,-64 258,-64 258,-34 178,-34"></polygon>
+<polygon fill="none" stroke="#666666" points="178,-34 178,-64 258,-64 258,-34 178,-34"></polygon>
+<text text-anchor="start" x="214" y="-45.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="258,-34 258,-64 338,-64 338,-34 258,-34"></polygon>
+<polygon fill="none" stroke="#666666" points="258,-34 258,-64 338,-64 338,-34 258,-34"></polygon>
+<text text-anchor="start" x="294" y="-45.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#e3d5ee" stroke="transparent" points="338,-34 338,-64 418,-64 418,-34 338,-34"></polygon>
+<polygon fill="none" stroke="#666666" points="338,-34 338,-64 418,-64 418,-34 338,-34"></polygon>
+<text text-anchor="start" x="374" y="-45.4" font-family="Helvetica,sans-Serif" font-size="12.00">V</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="418,-34 418,-64 498,-64 498,-34 418,-34"></polygon>
+<polygon fill="none" stroke="#666666" points="418,-34 418,-64 498,-64 498,-34 418,-34"></polygon>
+<text text-anchor="start" x="454" y="-45.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<text text-anchor="start" x="8" y="-15.4" font-family="Helvetica,sans-Serif" font-size="12.00">Iteración 5</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="98,-4 98,-34 178,-34 178,-4 98,-4"></polygon>
+<polygon fill="none" stroke="#666666" points="98,-4 98,-34 178,-34 178,-4 98,-4"></polygon>
+<text text-anchor="start" x="134" y="-15.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="178,-4 178,-34 258,-34 258,-4 178,-4"></polygon>
+<polygon fill="none" stroke="#666666" points="178,-4 178,-34 258,-34 258,-4 178,-4"></polygon>
+<text text-anchor="start" x="214" y="-15.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="258,-4 258,-34 338,-34 338,-4 258,-4"></polygon>
+<polygon fill="none" stroke="#666666" points="258,-4 258,-34 338,-34 338,-4 258,-4"></polygon>
+<text text-anchor="start" x="294" y="-15.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#cfe0f3" stroke="transparent" points="338,-4 338,-34 418,-34 418,-4 338,-4"></polygon>
+<polygon fill="none" stroke="#666666" points="338,-4 338,-34 418,-34 418,-4 338,-4"></polygon>
+<text text-anchor="start" x="374" y="-15.4" font-family="Helvetica,sans-Serif" font-size="12.00">E</text>
+<polygon fill="#e3d5ee" stroke="transparent" points="418,-4 418,-34 498,-34 498,-4 418,-4"></polygon>
+<polygon fill="none" stroke="#666666" points="418,-4 418,-34 498,-34 498,-4 418,-4"></polygon>
+<text text-anchor="start" x="454" y="-15.4" font-family="Helvetica,sans-Serif" font-size="12.00">V</text>
+</g>
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-validacion-cruzada-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;4.2: Validación cruzada con 5 <em>folds</em>. El conjunto de desarrollo se divide en 5 partes. En cada iteración, una parte distinta se usa para validar (V) y las 4 restantes para entrenar (E).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="comparación-de-modelos" class="level4" data-number="4.3.2.1">
+<h4 data-number="4.3.2.1" class="anchored" data-anchor-id="comparación-de-modelos"><span class="header-section-number">4.3.2.1</span> Comparación de modelos</h4>
+<p>¿Qué es comparar distintos modelos? En un principio, se podría pensar que es comparar un árbol de decisión contra una regresión logística (otro modelo de clasificación que veremos más adelante). Pero también podemos considerar que dos árboles de distinta profundidad son dos modelos distintos. O dos árboles de una misma profundidad, pero entrenados sobre conjuntos de atributos distintos.</p>
+<p>Parte de esta ambigüedad se debe a un uso bastante laxo de la palabra <em>modelo</em>, que usamos para referirnos a cosas distintas. Conviene distinguir tres niveles:</p>
+<ol type="1">
+<li>La <strong>familia</strong> de modelos: por ejemplo, los árboles de decisión en general.</li>
+<li>La <strong>configuración</strong>: una familia junto con todas las decisiones que tomamos antes de entrenar, por ejemplo, un árbol de decisión de profundidad 3 entrenado sobre ciertos atributos.</li>
+<li>El <strong>modelo entrenado</strong>: el resultado de aplicar una configuración a un conjunto de datos concreto, por ejemplo, un árbol con sus reglas de decisión y umbrales ya definidos.</li>
+</ol>
+<p>Entre las decisiones que definen una configuración, hay unas que tienen nombre propio. Los modelos de aprendizaje automático tienen parámetros e hiperparámetros. Los <strong>parámetros</strong> son los valores que se ajustan automáticamente durante el entrenamiento (en un árbol, las reglas de decisión con sus umbrales). Es la parte en la que el modelo <em>aprende solo</em>. Los <strong>hiperparámetros</strong>, en cambio, son valores que decidimos nosotros antes de entrenar y que controlan la flexibilidad del modelo, como la profundidad máxima de un árbol. Pero no son las únicas decisiones: qué atributos usamos o cómo preprocesamos los datos también cambian la configuración. En definitiva, cualquier decisión que cambie cómo se entrena define un modelo distinto.</p>
+<p>Cuando comparamos modelos mediante validación cruzada, lo que comparamos son configuraciones. En cada <em>fold</em> se entrena un modelo distinto, con parámetros distintos, así que lo que evaluamos no es un árbol entrenado en particular, sino qué tan bien funciona una configuración cuando se la entrena con datos similares. Volveremos sobre esto en secciones posteriores.</p>
+</section>
+</section>
+<section id="protocolo-recomendado" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="protocolo-recomendado"><span class="header-section-number">4.3.3</span> Protocolo recomendado</h3>
+<p>¿Cómo combinamos entonces estas herramientas? ¿Cuál es la forma típica de entrenar y evaluar modelos?</p>
+<p><strong>Nomenclatura para los conjuntos de datos:</strong> en la división inicial, usaremos desarrollo y prueba (<em>test</em>). Dentro de la validación cruzada, cada iteración separa el conjunto de desarrollo en entrenamiento (<em>train</em>) y validación (<em>validation</em>).</p>
+<ol type="1">
+<li><p>Dividir los datos en conjuntos de desarrollo y prueba. A partir de acá, el conjunto de prueba queda <em>guardado</em> para la evaluación final.</p></li>
+<li><p>Evaluar una o varias configuraciones mediante validación cruzada sobre el conjunto de desarrollo. Aunque haya una sola configuración, la validación cruzada nos da una estimación del desempeño y de su dispersión.</p></li>
+<li><p>En caso de haber comparado varias configuraciones, elegir la mejor <strong>según el desempeño en validación cruzada</strong>, teniendo en cuenta su dispersión.</p></li>
+<li><p>Entrenar la configuración elegida con todo el conjunto de desarrollo.</p></li>
+<li><p>Evaluar el desempeño de ese modelo en el conjunto de prueba. Esta evaluación se hace una única vez: si, a partir de su resultado, volvemos atrás a modificar el modelo, el conjunto de prueba pasa a funcionar como un conjunto de validación más y su estimación deja de ser confiable.</p></li>
+</ol>
+<p>De esta forma, nos aseguramos varias cosas:</p>
+<ol type="1">
+<li><p>El uso de validación cruzada nos permite comparar las distintas configuraciones teniendo en cuenta la dispersión esperada en el desempeño. Además, nos da una evaluación más robusta que una única división de los datos.</p></li>
+<li><p>La evaluación final en prueba es independiente de todo el proceso de desarrollo. ¿Por qué es necesaria? Porque siempre que elegimos un modelo después de muchas comparaciones, corremos el riesgo de sobreestimar su desempeño (en este caso, el de validación cruzada). Una última evaluación, entonces, nos da una estimación que no está afectada por esa selección y, por lo tanto, una mejor idea del desempeño esperado del modelo en datos nuevos.</p></li>
+</ol>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-protocolo" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-protocolo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 386.70 254.80" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 250.8)">
+<title>protocolo</title>
+<!-- configuraciones -->
+<g id="node1" class="node">
+<title>configuraciones</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M134.58,-246.8C134.58,-246.8 46.14,-246.8 46.14,-246.8 40.14,-246.8 34.14,-240.8 34.14,-234.8 34.14,-234.8 34.14,-222.8 34.14,-222.8 34.14,-216.8 40.14,-210.8 46.14,-210.8 46.14,-210.8 134.58,-210.8 134.58,-210.8 140.58,-210.8 146.58,-216.8 146.58,-222.8 146.58,-222.8 146.58,-234.8 146.58,-234.8 146.58,-240.8 140.58,-246.8 134.58,-246.8"></path>
+<text text-anchor="middle" x="90.36" y="-225.2" font-family="Helvetica,sans-Serif" font-size="12.00">Configuraciones</text>
+</g>
+<!-- datos -->
+<g id="node2" class="node">
+<title>datos</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M294.26,-246.8C294.26,-246.8 194.45,-246.8 194.45,-246.8 188.45,-246.8 182.45,-240.8 182.45,-234.8 182.45,-234.8 182.45,-222.8 182.45,-222.8 182.45,-216.8 188.45,-210.8 194.45,-210.8 194.45,-210.8 294.26,-210.8 294.26,-210.8 300.26,-210.8 306.26,-216.8 306.26,-222.8 306.26,-222.8 306.26,-234.8 306.26,-234.8 306.26,-240.8 300.26,-246.8 294.26,-246.8"></path>
+<text text-anchor="middle" x="244.36" y="-225.2" font-family="Helvetica,sans-Serif" font-size="12.00">Conjunto de datos</text>
+</g>
+<!-- configuraciones&#45;&gt;datos -->
+<!-- validacion -->
+<g id="node3" class="node">
+<title>validacion</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M142.25,-178.8C142.25,-178.8 38.47,-178.8 38.47,-178.8 32.47,-178.8 26.47,-172.8 26.47,-166.8 26.47,-166.8 26.47,-154.8 26.47,-154.8 26.47,-148.8 32.47,-142.8 38.47,-142.8 38.47,-142.8 142.25,-142.8 142.25,-142.8 148.25,-142.8 154.25,-148.8 154.25,-154.8 154.25,-154.8 154.25,-166.8 154.25,-166.8 154.25,-172.8 148.25,-178.8 142.25,-178.8"></path>
+<text text-anchor="middle" x="90.36" y="-157.2" font-family="Helvetica,sans-Serif" font-size="12.00">Validación cruzada</text>
+</g>
+<!-- configuraciones&#45;&gt;validacion -->
+<g id="edge5" class="edge">
+<title>configuraciones-&gt;validacion</title>
+<path fill="none" stroke="#666666" d="M90.36,-210.58C90.36,-210.58 90.36,-186.07 90.36,-186.07"></path>
+<polygon fill="#666666" stroke="#666666" points="92.81,-186.07 90.36,-179.07 87.91,-186.07 92.81,-186.07"></polygon>
+</g>
+<!-- desarrollo -->
+<g id="node4" class="node">
+<title>desarrollo</title>
+<path fill="#cfe0f3" stroke="#666666" stroke-width="1.1" d="M265.54,-178.8C265.54,-178.8 209.17,-178.8 209.17,-178.8 203.17,-178.8 197.17,-172.8 197.17,-166.8 197.17,-166.8 197.17,-154.8 197.17,-154.8 197.17,-148.8 203.17,-142.8 209.17,-142.8 209.17,-142.8 265.54,-142.8 265.54,-142.8 271.54,-142.8 277.54,-148.8 277.54,-154.8 277.54,-154.8 277.54,-166.8 277.54,-166.8 277.54,-172.8 271.54,-178.8 265.54,-178.8"></path>
+<text text-anchor="middle" x="237.36" y="-157.2" font-family="Helvetica,sans-Serif" font-size="12.00">Desarrollo</text>
+</g>
+<!-- datos&#45;&gt;desarrollo -->
+<g id="edge6" class="edge">
+<title>datos-&gt;desarrollo</title>
+<path fill="none" stroke="#666666" d="M237.36,-210.58C237.36,-210.58 237.36,-186.07 237.36,-186.07"></path>
+<polygon fill="#666666" stroke="#666666" points="239.81,-186.07 237.36,-179.07 234.91,-186.07 239.81,-186.07"></polygon>
+</g>
+<!-- prueba -->
+<g id="node5" class="node">
+<title>prueba</title>
+<path fill="#f7ddb8" stroke="#666666" stroke-width="1.1" d="M366.55,-178.8C366.55,-178.8 326.16,-178.8 326.16,-178.8 320.16,-178.8 314.16,-172.8 314.16,-166.8 314.16,-166.8 314.16,-154.8 314.16,-154.8 314.16,-148.8 320.16,-142.8 326.16,-142.8 326.16,-142.8 366.55,-142.8 366.55,-142.8 372.55,-142.8 378.55,-148.8 378.55,-154.8 378.55,-154.8 378.55,-166.8 378.55,-166.8 378.55,-172.8 372.55,-178.8 366.55,-178.8"></path>
+<text text-anchor="middle" x="346.36" y="-157.2" font-family="Helvetica,sans-Serif" font-size="12.00">Prueba</text>
+</g>
+<!-- datos&#45;&gt;prueba -->
+<g id="edge7" class="edge">
+<title>datos-&gt;prueba</title>
+<path fill="none" stroke="#666666" d="M291.88,-210.64C291.88,-192.09 291.88,-166 291.88,-166 291.88,-166 307.04,-166 307.04,-166"></path>
+<polygon fill="#666666" stroke="#666666" points="307.04,-168.45 314.04,-166 307.04,-163.55 307.04,-168.45"></polygon>
+</g>
+<!-- validacion&#45;&gt;desarrollo -->
+<g id="edge2" class="edge">
+<title>validacion-&gt;desarrollo</title>
+<path fill="none" stroke="#666666" d="M161.41,-160C161.41,-160 196.8,-160 196.8,-160"></path>
+<polygon fill="#666666" stroke="#666666" points="161.41,-157.55 154.41,-160 161.41,-162.45 161.41,-157.55"></polygon>
+</g>
+<!-- mejor -->
+<g id="node6" class="node">
+<title>mejor</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M118.57,-107.4C118.57,-107.4 12.14,-107.4 12.14,-107.4 6.14,-107.4 0.14,-101.4 0.14,-95.4 0.14,-95.4 0.14,-83.4 0.14,-83.4 0.14,-77.4 6.14,-71.4 12.14,-71.4 12.14,-71.4 118.57,-71.4 118.57,-71.4 124.57,-71.4 130.57,-77.4 130.57,-83.4 130.57,-83.4 130.57,-95.4 130.57,-95.4 130.57,-101.4 124.57,-107.4 118.57,-107.4"></path>
+<text text-anchor="middle" x="65.36" y="-85.8" font-family="Helvetica,sans-Serif" font-size="12.00">Mejor configuración</text>
+</g>
+<!-- validacion&#45;&gt;mejor -->
+<g id="edge8" class="edge">
+<title>validacion-&gt;mejor</title>
+<path fill="none" stroke="#666666" d="M78.69,-142.78C78.69,-142.78 78.69,-114.66 78.69,-114.66"></path>
+<polygon fill="#666666" stroke="#666666" points="81.14,-114.66 78.69,-107.66 76.24,-114.66 81.14,-114.66"></polygon>
+</g>
+<!-- desarrollo&#45;&gt;prueba -->
+<!-- entrenado -->
+<g id="node7" class="node">
+<title>entrenado</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M295.59,-110.7C295.59,-110.7 179.12,-110.7 179.12,-110.7 173.12,-110.7 167.12,-104.7 167.12,-98.7 167.12,-98.7 167.12,-80.1 167.12,-80.1 167.12,-74.1 173.12,-68.1 179.12,-68.1 179.12,-68.1 295.59,-68.1 295.59,-68.1 301.59,-68.1 307.59,-74.1 307.59,-80.1 307.59,-80.1 307.59,-98.7 307.59,-98.7 307.59,-104.7 301.59,-110.7 295.59,-110.7"></path>
+<text text-anchor="middle" x="237.36" y="-93" font-family="Helvetica,sans-Serif" font-size="12.00">Modelo entrenado</text>
+<text text-anchor="middle" x="237.36" y="-78.6" font-family="Helvetica,sans-Serif" font-size="12.00">con todo el desarrollo</text>
+</g>
+<!-- desarrollo&#45;&gt;entrenado -->
+<g id="edge9" class="edge">
+<title>desarrollo-&gt;entrenado</title>
+<path fill="none" stroke="#666666" d="M237.36,-142.78C237.36,-142.78 237.36,-117.71 237.36,-117.71"></path>
+<polygon fill="#666666" stroke="#666666" points="239.81,-117.71 237.36,-110.71 234.91,-117.71 239.81,-117.71"></polygon>
+</g>
+<!-- evaluacion -->
+<g id="node8" class="node">
+<title>evaluacion</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M342.4,-36C342.4,-36 256.31,-36 256.31,-36 250.31,-36 244.31,-30 244.31,-24 244.31,-24 244.31,-12 244.31,-12 244.31,-6 250.31,0 256.31,0 256.31,0 342.4,0 342.4,0 348.4,0 354.4,-6 354.4,-12 354.4,-12 354.4,-24 354.4,-24 354.4,-30 348.4,-36 342.4,-36"></path>
+<text text-anchor="middle" x="299.36" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00">Evaluación final</text>
+</g>
+<!-- prueba&#45;&gt;evaluacion -->
+<g id="edge11" class="edge">
+<title>prueba-&gt;evaluacion</title>
+<path fill="none" stroke="#666666" d="M334.19,-142.71C334.19,-142.71 334.19,-43.39 334.19,-43.39"></path>
+<polygon fill="#666666" stroke="#666666" points="336.64,-43.39 334.19,-36.39 331.74,-43.39 336.64,-43.39"></polygon>
+</g>
+<!-- mejor&#45;&gt;entrenado -->
+<g id="edge4" class="edge">
+<title>mejor-&gt;entrenado</title>
+<path fill="none" stroke="#666666" d="M130.87,-89C130.87,-89 159.87,-89 159.87,-89"></path>
+<polygon fill="#666666" stroke="#666666" points="159.87,-91.45 166.87,-89 159.87,-86.55 159.87,-91.45"></polygon>
+</g>
+<!-- entrenado&#45;&gt;evaluacion -->
+<g id="edge10" class="edge">
+<title>entrenado-&gt;evaluacion</title>
+<path fill="none" stroke="#666666" d="M276.03,-67.98C276.03,-67.98 276.03,-43.03 276.03,-43.03"></path>
+<polygon fill="#666666" stroke="#666666" points="278.48,-43.03 276.03,-36.03 273.58,-43.03 278.48,-43.03"></polygon>
+</g>
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-protocolo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;4.3: Protocolo recomendado. El conjunto de prueba se separa al principio y solo se usa en la evaluación final. Las configuraciones se comparan mediante validación cruzada sobre el conjunto de desarrollo, y la mejor se vuelve a entrenar con todo el conjunto de desarrollo antes de evaluarla en prueba. Adaptado de la documentación de scikit-learn <span class="citation" data-cites="scikit-learn">(<a href="references.html#ref-scikit-learn" role="doc-biblioref">Pedregosa et&nbsp;al. 2011</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Planteado el protocolo, queda una última pregunta. ¿Cómo sabemos que el desempeño obtenido es bueno, regular o malo?</p>
+</section>
+<section id="modelo-o-desempeño-de-referencia" class="level3" data-number="4.3.4">
+<h3 data-number="4.3.4" class="anchored" data-anchor-id="modelo-o-desempeño-de-referencia"><span class="header-section-number">4.3.4</span> Modelo o desempeño de referencia</h3>
+<p>Sin un contexto, el resultado de la evaluación de un modelo nos dice poco, salvo cuando obtenemos los extremos de la métrica (el peor o el mejor caso posible). En el resto de los casos, debemos comparar el valor obtenido contra algún valor de referencia. Algunas opciones son:</p>
+<ul>
+<li>Si ya hay trabajo hecho en el área, la referencia puede ser el mejor modelo disponible o el más usado.</li>
+<li>Si no hay resultados previos, la referencia puede ser un modelo sencillo. ¿Cuánto mejor es un modelo sumamente complejo frente a un árbol de decisión sencillo?</li>
+<li>Un modelo trivial, que no usa los atributos. En clasificación, por ejemplo, predecir siempre la clase mayoritaria. ¿Anda muy mal? ¿Cuánto depende esto de la prevalencia de cada clase? En regresión, el equivalente es predecir siempre el promedio, que es justamente la referencia que usa el <span class="math inline">\(R^2\)</span>.</li>
+</ul>
+<p>Para que la comparación tenga sentido, el modelo de referencia tiene que evaluarse con la misma métrica, los mismos datos y el mismo protocolo que nuestro modelo.</p>
+<p>También hay que tener en cuenta qué sirve para la aplicación. En algunos casos, la misma aplicación —el <em>negocio</em>— nos puede informar qué es un desempeño razonable y qué no.</p>
+<p>&lt;!– #### ¿Separación al azar?</p>
+<p>La característica más importante que debe cumplir la separación entre los conjuntos de entrenamiento, validación y desempeño es que las instancias sean independientes entre sí. Esto se suele lograr con una separación al azar. Pero no siempre es el caso.</p>
+<section id="sistemas-de-evaluación" class="level4" data-number="4.3.4.1">
+<h4 data-number="4.3.4.1" class="anchored" data-anchor-id="sistemas-de-evaluación"><span class="header-section-number">4.3.4.1</span> Sistemas de evaluación</h4>
+<p>Aquí van 4 recomendaciones para identificar un buen sistema de evaluación: Es simple de ejecutar con un (o pocos) comando único. Esto es importante ya que facilita la iteración en la evaluación y mejora del modelo. Devuelve un set de métricas relevantes y gráficos. ¿Está funcionando mejor que antes? Incluye distribuciones de errores y no solamente resultados binarios. No nos dice únicamente si es correcto o incorrecto, si no qué tan cerca estuvimos (los gráficos son una gran herramienta para esto).</p>
+<p>Devuelve una matriz de confusión.</p>
+<p>Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-scikit-learn" class="csl-entry" role="listitem">
+Pedregosa, F., G. Varoquaux, A. Gramfort, et&nbsp;al. 2011. <span>«Scikit-learn: Machine Learning in <span>P</span>ython»</span>. <em>Journal of Machine Learning Research</em> 12: 2825-30.
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>En estas notas intento siempre usar terminología en castellano. Pero en este caso es mucho más usado el nombre en inglés.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Esto refiere a <em>mejor</em> desde un punto de vista estadístico. Una pregunta distinta es si esta diferencia es relevante desde el punto de vista de la aplicación del modelo.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>La forma correcta de hacer estas comparaciones es hacer algún test estadístico pareado, pero excede el alcance de estas notas.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./03-modelos-sencillos-regresion-lineal.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos - Parte 2">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link" aria-label="Referencias">
+        <span class="nav-page-text">Referencias</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es">CC BY-NC-SA 4.0</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
