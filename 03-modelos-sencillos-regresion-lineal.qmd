@@ -1,4 +1,4 @@
-# Modelos sencillos, pero efectivos - Parte 2
+# Modelos sencillos, pero efectivos - Parte 2 {#sec-regresion-lineal}
 
 Este capítulo presenta la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.
 

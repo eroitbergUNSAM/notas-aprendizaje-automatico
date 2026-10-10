@@ -72,32 +72,72 @@ Si precisión o exhaustividad son bajas, cercanas a cero, también lo será el F
 
 ### Problemas desbalanceados
 
-El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales. Un ejercicio que a veces conviene hacer es preguntarse, para cada métrica, qué ocurriría si cambiara el balance de clases del conjunto de datos con el que estoy trabajando. ¿Cambiaría la métrica obtenida? Volveremos sobre esto más adelante.
+El balance de clases es la proporción que hay de cada clase objetivo en un conjunto de datos. Siempre es más cómodo cuando los conjuntos de datos están balanceados. En ese caso, cada clase está en una proporción aproximada de $\frac{1}{K}$, donde $K$ es el número de clases totales. Un ejercicio que a veces conviene hacer es preguntarse, para cada métrica, qué ocurriría si cambiara el balance de clases del conjunto de datos con el que estoy trabajando. ¿Cambiaría la métrica obtenida? Si la métrica es sensible al balance de clases, entonces conviene usarla con precaución. Volveremos sobre esto más adelante.
 
-<!-- ## Métricas de evaluación para regresión
+## Métricas de evaluación para regresión
 
-escribir
+En clasificación comparamos una etiqueta medida contra una etiqueta predicha. Las etiquetas pueden coincidir o no, lo que nos da aciertos y errores. En regresión, en cambio, lo que obtenemos es una predicción numérica que debemos comparar contra otro número. La situación, entonces, es más sutil, porque no es inmediato cuándo la predicción está dentro de lo razonable y cuándo no. 
 
-$$RSS = \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2 $$
+El comienzo natural para empezar a evaluar un modelo de regresión es partir de los errores, $\epsilon_i = y_i - \hat{y}$, también llamados *residuos*. Éste es el error por instancia. En algunos casos, nuestro regresor sobreestimará el valor de la predicción, por lo que el error será positivo, mientras que en otros casos subestimará, por lo que el error será negativo. Para obtener una métrica del desempeño del modelo, podemos calcular un promedio de los errores sobre cada instancia. Pero como los errores pueden ser positivos o negativos, si sumamos sin tener en cuenta esto, puede ocurrir que los errores se compensen, y la métrica no refleje el desempeño del regresor. Entonces, una opción es promediar los errores para obtener el **error cuadrático medio** (MSE, por sus siglas en inglés):
 
+$$MSE = \frac{1}{N} \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2$$
+
+que, si ya leyeron el @sec-regesion-lineal, es simplemente $MSE = \frac{1}{N} RSS$.
+
+Otra opción es sumar los valores absolutos de los errores sobre cada instancia y luego promediar para obtener el error promedio. Esto nos da como resultado el **error absoluto promedio** (MAE):
+
+$$MAE = \frac{1}{N} \sum^{N}_{i = 1} |y_i - \hat{y}_i|$$
+
+La diferencia entre el MSE y el MAE es que, al estar en el MSE el error elevado al cuadrado, penaliza más fuertemente los errores grandes. MSE, además, no tiene la misma magnitud ni unidades que la variable, ya que está elevado al cuadrado. Por eso, se suele utilizar la **raíz del error cuadrático medio** (RMSE):
+
+$$RMSE = \sqrt{MSE}$$
+
+Otra mética sumamente útil pero un poco más compleja es el **coeficiente de determinación**, $R^2$: 
+
+$$R^2 = 1 - \frac{RSS}{TSS}$$
+
+donde $TSS = \sum^{N}_{i = 1} (y_i - \bar{y})$. Es decir, también lo podríamos escribir como
+
+$$R^2 = 1 - \frac{ \sum^{N}_{i = 1} (y_i - \hat{y}_i)}{ \sum^{N}_{i = 1} (y_i - \bar{y})}$$
+
+¿Qué significa? El $R^2$ hace un cociente entre el error obtenido por el modelo, $RSS$, y el error que habríamos obtenido si predijeramos con el promedio de las etiquetas ($\bar{y}$), $TSS$. Si el cociente $\frac{RSS}{TSS}$ es menor que uno, nuestro modelo es mejor que el promedio, por lo que da un $R^2$ mayor que cero. Caso contrario, nuestro modelo es peor que el promedio, por lo $\frac{RSS}{TSS}$ es mayor que uno y el $R^2$ da negativo.
+
+El nombre, $R^2$, es confuso. No es, salvo excepciones, una magnitud al cuadrado. De hecho, en el caso más general, es una métrica que es cómo máximo uno pero puede tomar valores negativos de manera no acotada. Si bien tiene muchas más sutilezas que el MSE, RMSE o MAE, es una métrica muy útil que conviene tener en cuenta en cualquier problema de regresión.
+
+
+<!-- stas métricas son métricas de error; es decir, a más bajo MAE, MSE o RMSE, mejor regresor. En el caso ideal, los errores serán 0. Las métricas que vimos para clasificación son métricas que miden aciertos, buen desempeño, por lo que ocurre lo contrario: cuanto más altas (caso ideal: 1), mejor clasificador. Se puede convertir una métrica de desempeño en una métrica de error y viceversa. ¿Se te ocurre cómo?  -->
 
 
 ## Protocolos de evaluación
 
-Model selection
-model assesment
+Evaluar correctamente un modelo puede ser un proceso complejo. Además de elegir correctamente la o las métricas, debemos aplicar un protocolo de evaluación apropiado para asegurarnos que medimos correctamente y podemos abordar algunas de las siguientes situaciones y preguntas típicas:
 
+1. ¿Cuál es el desempeño esperado del modelo en datos nuevos?¿Cómo nos aseguramos que el modelo **generaliza**?
+1. ¿Cómo elijo entre varios modelos diferentes el de mejor desempeño? Este problema se conoce como **selección de modelos**.
+1. Si obtenés un desempeño de, por ejemplo, de 0.8 en exactitud o $R^2$, ¿es bueno, malo, regular?¿Cómo respondemos esa pregunta? 
 
-### Train-test split
+Pero, ¿por qué nos preocupa que un modelo no generalice? Hay algo intuitivo que surge rápidamente cuando empezamos a trabajar con modelos. Los modelos son, en general, muy flexibles, y los conjuntos de datos son acotados. Entonces, es común que un modelo muy flexible se ajuste a características particulares de los datos con los que fue entrenado sin lograr aprender patrones característicos de la población que esos datos quieren representar. Este fenómeno se conoce como **sobreajuste**. 
+
+Contamos con tres herramientas fundamentales para abordar estas preguntas:
+1. División entre *entrenamiento* y *testeo*.
+1. Validación cruzada.
+1. Modelo de referencia (*benchmark*).
+
+Vamos a ver cada una de ellas y luego vamos a dar un protocolo general que sirva para la mayoría de las situaciones.
+
+### División entre *entrenamiento* y *testeo*
+
+El *train-test split* es la primera herramienta, tal vez las más intuitiva, que empezamos a 
 
 porque no es suficietne
 
 
 ### Validación cruzada
 
+Los aspectos que pueden llevar a que un modelo sea distinto a otro son muchas, prácticamente cada decisión que tomamos impacta en el modelo y genera un modelo distinto.
 
 
-### Hiperparámetros
+#### Hiperparámetros
 
 ¿Qué es comparar distintos modelos?
 Se podría pensar que es comparar una árbol de decisión contra una regresión logística (otro modelo de clasificaicón)
@@ -107,7 +147,6 @@ pero podemos considerar que dos árboles de distinta profundidad son dos modelos
 
 o árboles de una misma profundidad pero entrenado ssobre un conjunto de atributos distintos.
 
-Los aspectos que pueden llevar a que un modelo sea distinto a otro son muchas, prácticamente cada decisión que tomamos impacta en el modelo y genera un modelo distinto.
 
 
 La importancia de evaluar correctamente
