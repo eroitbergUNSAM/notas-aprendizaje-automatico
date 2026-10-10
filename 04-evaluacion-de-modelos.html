@@ -362,13 +362,13 @@ Tabla&nbsp;4.1: Matriz de confusión: filas = clase real, columnas = clase predi
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="división-entre-entrenamiento-y-prueba"><span class="header-section-number">4.3.1</span> División entre <em>entrenamiento</em> y <em>prueba</em></h3>
 <p>El <em>train-test split</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (<em>train</em>), y la otra para evaluar el modelo (prueba o <em>test</em>). De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.</p>
 <p>Pero esta división no es suficiente, como veremos a continuación.</p>
-<div class="cell" data-layout-align="default">
+<div class="cell" data-fig-width="7" data-fig-height="0.8" data-layout-align="default">
 <div class="cell-output-display">
 <div id="fig-train-test" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-train-test-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div>
-<svg width="672" height="480" viewbox="0.00 0.00 426.00 58.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<svg width="672" height="77" viewbox="0.00 0.00 426.00 58.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 54)">
 <title>division</title>
 <!-- datos -->
@@ -413,13 +413,13 @@ Figura&nbsp;4.1: División del conjunto de datos en entrenamiento y prueba. Una 
 <li><p>Evaluamos un modelo A y un modelo B mediante validación cruzada. Obtenemos <span class="math inline">\(0.79 \pm 0.01\)</span> y <span class="math inline">\(0.81 \pm 0.01\)</span>, respectivamente. El modelo B es probablemente mejor que el A.</p></li>
 <li><p>Evaluamos un modelo A y un modelo B mediante validación cruzada. Obtenemos <span class="math inline">\(0.79 \pm 0.05\)</span> y <span class="math inline">\(0.81 \pm 0.04\)</span>, respectivamente. Difícil asegurar en este caso que el modelo B es mejor que el A.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p></li>
 </ol>
-<div class="cell" data-layout-align="default">
+<div class="cell" data-fig-width="7" data-fig-height="2.2" data-layout-align="default">
 <div class="cell-output-display">
 <div id="fig-validacion-cruzada" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-validacion-cruzada-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div>
-<svg width="672" height="480" viewbox="0.00 0.00 514.00 166.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<svg width="672" height="211" viewbox="0.00 0.00 514.00 166.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 162)">
 <title>validacion_cruzada</title>
 <!-- folds -->
@@ -683,13 +683,20 @@ Figura&nbsp;4.3: Protocolo recomendado. El conjunto de prueba se separa al princ
 </ul>
 <p>Para que la comparación tenga sentido, el modelo de referencia tiene que evaluarse con la misma métrica, los mismos datos y el mismo protocolo que nuestro modelo.</p>
 <p>También hay que tener en cuenta qué sirve para la aplicación. En algunos casos, la misma aplicación —el <em>negocio</em>— nos puede informar qué es un desempeño razonable y qué no.</p>
-<p>&lt;!– #### ¿Separación al azar?</p>
-<p>La característica más importante que debe cumplir la separación entre los conjuntos de entrenamiento, validación y desempeño es que las instancias sean independientes entre sí. Esto se suele lograr con una separación al azar. Pero no siempre es el caso.</p>
-<section id="sistemas-de-evaluación" class="level4" data-number="4.3.4.1">
-<h4 data-number="4.3.4.1" class="anchored" data-anchor-id="sistemas-de-evaluación"><span class="header-section-number">4.3.4.1</span> Sistemas de evaluación</h4>
-<p>Aquí van 4 recomendaciones para identificar un buen sistema de evaluación: Es simple de ejecutar con un (o pocos) comando único. Esto es importante ya que facilita la iteración en la evaluación y mejora del modelo. Devuelve un set de métricas relevantes y gráficos. ¿Está funcionando mejor que antes? Incluye distribuciones de errores y no solamente resultados binarios. No nos dice únicamente si es correcto o incorrecto, si no qué tan cerca estuvimos (los gráficos son una gran herramienta para esto).</p>
-<p>Devuelve una matriz de confusión.</p>
-<p>Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando.</p>
+<!-- #### ¿Separación al azar?
+
+La característica más importante que debe cumplir la separación entre los conjuntos de entrenamiento, validación y desempeño es que las instancias sean independientes entre sí. Esto se suele lograr con una separación al azar. Pero no siempre es el caso.
+
+#### Sistemas de evaluación
+
+Aquí van 4 recomendaciones para identificar un buen sistema de evaluación:
+Es simple de ejecutar con un (o pocos) comando único. Esto es importante ya que facilita la iteración en la evaluación y mejora del modelo.
+Devuelve un set de métricas relevantes y gráficos. ¿Está funcionando mejor que antes?
+Incluye distribuciones de errores y no solamente resultados binarios. No nos dice únicamente si es correcto o incorrecto, si no qué tan cerca estuvimos (los gráficos son una gran herramienta para esto).
+
+Devuelve una matriz de confusión.
+
+Otro aspecto importante en el momento de evaluar nuestro modelo es mirar instancias individuales que hayan sido clasificadas incorrectamente ¿hay algo que podamos aprender de ellas? A veces es necesario consultarlo con expertos/as en el problema en el que estemos trabajando. -->
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
@@ -697,7 +704,6 @@ Figura&nbsp;4.3: Protocolo recomendado. El conjunto de prueba se separa al princ
 Pedregosa, F., G. Varoquaux, A. Gramfort, et&nbsp;al. 2011. <span>«Scikit-learn: Machine Learning in <span>P</span>ython»</span>. <em>Journal of Machine Learning Research</em> 12: 2825-30.
 </div>
 </div>
-</section>
 </section>
 </section>
 <section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
