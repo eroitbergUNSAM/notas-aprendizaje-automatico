@@ -224,6 +224,20 @@ window.Quarto = {
 <h2 data-number="3.1" class="anchored" data-anchor-id="regresión-lineal"><span class="header-section-number">3.1</span> Regresión lineal</h2>
 <p>Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, encaja perfectamente en el esquema de función de costo y optimizador del <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>.</p>
 <p>Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos <span class="math inline">\((x,y)\)</span>. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente.</p>
+<div id="cell-fig-regresion-simple-multiple" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-regresion-simple-multiple" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regresion-simple-multiple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-modelos-sencillos-regresion-lineal_files/figure-html/fig-regresion-simple-multiple-output-1.png" width="681" height="346" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regresion-simple-multiple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;3.1: Izquierda: regresión lineal con un solo atributo <span class="math inline">\(X\)</span>. El modelo es una recta. Derecha: regresión lineal con dos atributos, <span class="math inline">\(X_1\)</span> y <span class="math inline">\(X_2\)</span>. El modelo es un plano. Con tres o más atributos el modelo es un hiperplano, que ya no podemos visualizar porque necesitaríamos cuatro o más dimensiones.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <section id="regresión-lineal-simple" class="level3" data-number="3.1.1">
 <h3 data-number="3.1.1" class="anchored" data-anchor-id="regresión-lineal-simple"><span class="header-section-number">3.1.1</span> Regresión lineal simple</h3>
 <p>Supongamos que solamente tenemos un atributo <span class="math inline">\(X\)</span>; entonces, proponemos que la relación <span class="math inline">\(f\)</span> entre ese atributo y la variable a predecir <span class="math inline">\(Y\)</span> tiene la siguiente forma:</p>
@@ -272,10 +286,15 @@ window.Quarto = {
 <p>Desde un punto de vista operativo, ya está. Obtuvimos un estimador de los coeficientes <span class="math inline">\(\hat{\beta}\)</span> y una <span class="math inline">\(\hat{f}(X) = X^T\hat{\beta}\)</span> que nos sirven para hacer predicciones, y para eso no hace falta prácticamente ninguna hipótesis sobre los datos, más allá de que <span class="math inline">\(\mathbf{X}\)</span> tenga rango completo por columnas. Los supuestos que suelen asociarse a la regresión lineal entran en juego cuando queremos hacer inferencia sobre los coeficientes.</p>
 <!-- La dificultad acá radica en que, cuando ya son más de dos atributos, no podemos visualizar, ya que necesitaríamos más de tres dimensiones.
 La regresión lineal suele ser el Benchmark de muchos problemas de regresión pero no por eso hay que minimizar su utilidad. Muchas relaciones en la naturaleza son lineales, al menos hasta cierto punto. -->
-<!-- #### SVD
-
-
-
+<section id="descomposición-en-valores-singulares-svd" class="level4" data-number="3.1.2.1">
+<h4 data-number="3.1.2.1" class="anchored" data-anchor-id="descomposición-en-valores-singulares-svd"><span class="header-section-number">3.1.2.1</span> Descomposición en valores singulares (SVD)</h4>
+<p>Una forma particularmente útil de calcular el estimador de cuadrados mínimos <span class="math inline">\(\hat{\beta}\)</span> es usando la descomposición en valores singulares. A partir de la descomposición <span class="math inline">\(\mathbf{X} = U D V^T\)</span>, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla</p>
+<p><span class="math display">\[ \hat{\beta} = V D^{-1} U^T \mathbf{y}\]</span></p>
+<p>donde <span class="math inline">\(D^{-1}\)</span> es la matriz diagonal que contiene los inversos de los valores singulares.</p>
+<p>Esta forma es particularmente útil por varios motivos. Por un lado, existen algoritmos sumamente eficientes y estables para calcular la descomposición en valores singulares de una matriz. Esto muchas veces es preferible a obtener <span class="math inline">\((\mathbf{X}^T \mathbf{X})^{-1}\)</span>, incluso cuando está bien definida, ya que invertir matrices puede ser una operación numéricamente inestable. En cambio, invertir <span class="math inline">\(D\)</span> es muy sencillo.</p>
+<p>Si <span class="math inline">\(\mathbf{X}^T \mathbf{X}\)</span> no es invertible (por ejemplo, cuando hay atributos colineales), <span class="math inline">\(\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}\)</span> no se puede calcular de esa forma. Pero si usamos la forma <span class="math inline">\(\hat{\beta} = V D^{-1} U^T \mathbf{y}\)</span>, podemos <em>recortar</em> los valores singulares nulos, acomodar <span class="math inline">\(V\)</span> y <span class="math inline">\(U^T\)</span> de forma que se pueda hacer la multiplicación, y ya está, obtuvimos una estimación de <span class="math inline">\(\beta\)</span>.</p>
+<p>Ésta sigue siendo una solución de cuadrados mínimos. Pero como había atributos colineales, había muchas soluciones de cuadrados mínimos —el sistema estaba <em>degenerado</em>— y lo que obtuvimos fue una en particular de esas soluciones, la de menor norma <span class="math inline">\(\|\beta\|\)</span>. La matriz <span class="math inline">\(V D^{-1} U^T\)</span>, con los valores singulares nulos recortados, se conoce como la <strong>pseudoinversa de Moore-Penrose</strong> de <span class="math inline">\(\mathbf{X}\)</span>.</p>
+<!-- 
 #### Descenso por gradiente
 
 
@@ -292,6 +311,7 @@ Ahora que vimos algunos ejemplos de modelos y formas de entrenarlos, podemos cer
 A veces se escucha decir a algunas personas que para ajustar una regresión lineal primero hay que probar sus supuestos. -->
 
 
+</section>
 </section>
 </section>
 
