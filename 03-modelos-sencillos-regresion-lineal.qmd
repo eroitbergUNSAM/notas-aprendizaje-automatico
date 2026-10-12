@@ -8,6 +8,68 @@ Muchos probablemente la conozcan de haber estudiado estadística y se estarán p
 
 Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos $(x,y)$. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente.
 
+```{python}
+#| label: fig-regresion-simple-multiple
+#| fig-cap: "Izquierda: regresión lineal con un solo atributo $X$. El modelo es una recta. Derecha: regresión lineal con dos atributos, $X_1$ y $X_2$. El modelo es un plano. Con tres o más atributos el modelo es un hiperplano, que ya no podemos visualizar porque necesitaríamos cuatro o más dimensiones."
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+generador = np.random.default_rng(0)
+fig = plt.figure(figsize=(8, 3.6))
+
+# posiciones fijas [izquierda, abajo, ancho, alto] en fracciones de la figura:
+# mezclar ejes 2D y 3D en una grilla automática los desalinea
+rectangulo_simple = [0.08, 0.14, 0.32, 0.70]    # 2.56 x 2.52 pulgadas, casi cuadrado
+rectangulo_multiple = [0.46, 0.02, 0.52, 0.88]  # más grande: el cubo 3D no ocupa toda su caja
+altura_titulos = 0.93
+
+# --- un atributo: recta ---
+ax_simple = fig.add_axes(rectangulo_simple)
+
+x = generador.uniform(0, 10, 40)
+y = 1 + 0.5 * x + generador.normal(0, 1, x.size)
+pendiente, ordenada = np.polyfit(x, y, 1)
+
+x_grilla = np.linspace(0, 10, 200)
+ax_simple.scatter(x, y, s=18, color="#888888")
+ax_simple.plot(x_grilla, ordenada + pendiente * x_grilla, color="#3a76b8", linewidth=2)
+ax_simple.set(xlabel="$X$", ylabel="$Y$", xticks=[], yticks=[])
+ax_simple.spines[["top", "right"]].set_visible(False)
+
+# --- dos atributos: plano ---
+ax_multiple = fig.add_axes(rectangulo_multiple, projection="3d")
+
+x1 = generador.uniform(0, 10, 40)
+x2 = generador.uniform(0, 10, 40)
+y_multiple = 1 + 0.5 * x1 + 0.3 * x2 + generador.normal(0, 1, x1.size)
+
+# columna de unos para la ordenada al origen, como en la notación matricial del capítulo
+matriz_atributos = np.column_stack([np.ones_like(x1), x1, x2])
+coeficientes, *_ = np.linalg.lstsq(matriz_atributos, y_multiple, rcond=None)
+
+x1_grilla, x2_grilla = np.meshgrid(np.linspace(0, 10, 10), np.linspace(0, 10, 10))
+y_plano = coeficientes[0] + coeficientes[1] * x1_grilla + coeficientes[2] * x2_grilla
+
+ax_multiple.scatter(x1, x2, y_multiple, s=18, color="#888888", depthshade=False)
+ax_multiple.plot_surface(x1_grilla, x2_grilla, y_plano, color="#3a76b8",
+                         alpha=0.3, linewidth=0)
+ax_multiple.set(xticks=[], yticks=[], zticks=[])
+# sin marcas en los ejes, las etiquetas quedan lejos del cubo; las acercamos
+ax_multiple.set_xlabel("$X_1$", labelpad=-10)
+ax_multiple.set_ylabel("$X_2$", labelpad=-10)
+ax_multiple.set_zlabel("$Y$", labelpad=-12)
+
+# títulos a nivel de figura, para que queden a la misma altura
+fig.text(rectangulo_simple[0] + rectangulo_simple[2] / 2, altura_titulos,
+         "Un atributo", ha="center", fontsize=12)
+fig.text(rectangulo_multiple[0] + rectangulo_multiple[2] / 2, altura_titulos,
+         "Dos atributos", ha="center", fontsize=12)
+
+plt.show()
+```
+
 ### Regresión lineal simple
 
 Supongamos que solamente tenemos un atributo $X$; entonces, proponemos que la relación $f$ entre ese atributo y la variable a predecir $Y$ tiene la siguiente forma:
@@ -104,10 +166,22 @@ La regresión lineal suele ser el Benchmark de muchos problemas de regresión pe
 
 
 
-<!-- #### SVD
+#### SVD
+
+Una forma particularmente útil de calcular el estimador de cuadrados mínimos $\hat{\beta}$ es usando la descomposición en valores singulares. A partir de la descomposición $\mathbf{X} = U D V^T$, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla
+    
+$$ \hat{\beta} = V D^{-1} U^T \mathbf{y}$$
+
+donde $D^{-1}$ es la matriz diagonal que contiene los inversos de los valores singulares. 
+
+Esta forma es particularmente útil por varios motivos. Por un lado, existen algoritmos sumamente eficientes y estables para calcular la descomposición en valores singulares de una matriz. Esto muchas veces es preferible a obtener $(\mathbf{X}^T \mathbf{X})^{-1}$, incluso cuando está bien definida, ya que invertir matrices puede ser una operación numéricamente inestable. En cambio, invertir $D$ es muy sencillo.
+
+Si $\mathbf{X}^T \mathbf{X}$ no es invertible (por ejemplo, cuando hay atributos colineales), $\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$ no se puede calcular de esa forma. Pero si usamos la forma $\hat{\beta} = V D^{-1} U^T \mathbf{y}$, podemos *recortar* los valores singulares nulos, acomodar $V$ y $U^T$ de forma que se pueda hacer la multiplicación, y ya está, obtuvimos una estimación de $\beta$. 
+
+Ésta sigue siendo una solución de cuadrados mínimos. Pero como había atributos colineales, había muchas soluciones de cuadrados mínimos —el sistema estaba *degenerado*— y lo que obtuvimos fue una en particular de esas soluciones, la de menor norma $\|\beta\|$. La matriz $V D^{-1} U^T$, con los valores singulares nulos recortados, se conoce como la **pseudoinversa de Moore-Penrose** de $\mathbf{X}$.
 
 
-
+<!-- 
 #### Descenso por gradiente
 
 
