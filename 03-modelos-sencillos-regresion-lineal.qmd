@@ -165,8 +165,7 @@ Desde un punto de vista operativo, ya está. Obtuvimos un estimador de los coefi
 La regresión lineal suele ser el Benchmark de muchos problemas de regresión pero no por eso hay que minimizar su utilidad. Muchas relaciones en la naturaleza son lineales, al menos hasta cierto punto. -->
 
 
-
-#### SVD
+#### Descomposición en valores singulares (SVD)
 
 Una forma particularmente útil de calcular el estimador de cuadrados mínimos $\hat{\beta}$ es usando la descomposición en valores singulares. A partir de la descomposición $\mathbf{X} = U D V^T$, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla
     
