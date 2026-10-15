@@ -4,7 +4,7 @@ Este capítulo presenta la regresión lineal, probablemente el modelo más utili
 
 ## Regresión lineal
 
-Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, encaja perfectamente en el esquema de función de costo y optimizador del @sec-aprendizaje-automatico.
+Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, utiliza datos para *aprender* de ellos y, para hacerlo, utiliza tanto una función de costo como un optimizador, siguiendo el esquema del @sec-aprendizaje-automatico.
 
 Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos $(x,y)$. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente.
 
@@ -107,6 +107,61 @@ $$ \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$$
 
 donde $\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i$ y $\bar{y} = \frac{1}{N} \sum_{i=1}^{N} y_i$. Entonces, el modelo entrenado es $\hat{f}(X) = \hat{\beta}_0 + \hat{\beta}_1 X$. 
 
+
+```{python}
+#| label: fig-funcion-costo-rss
+#| fig-cap: 'Izquierda: datos, una recta elegida a mano (rojo) con sus residuos (punteado) y la recta de cuadrados mínimos (azul). Derecha: curvas de nivel del $RSS(\beta_0, \beta_1)$. Cada punto de este plano es una recta distinta: el círculo rojo es la recta elegida a mano y la estrella azul es la que minimiza el $RSS$.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+
+generador = np.random.default_rng(42)
+x = generador.normal(0, 1, 100)
+y = 2 + 1.0 * x + 0.5 * generador.normal(0, 1, x.size)
+
+def calcular_rss(ordenada, pendiente):
+    return np.sum((y - (ordenada + pendiente * x)) ** 2)
+
+# lejos del óptimo, para que los residuos se vean
+ordenada_candidata, pendiente_candidata = 0.5, -0.5
+pendiente_optima, ordenada_optima = np.polyfit(x, y, 1)
+
+ordenadas = np.linspace(-3, 7, 200)
+pendientes = np.linspace(-4, 6, 200)
+rss_grilla = np.zeros((len(ordenadas), len(pendientes)))
+for i, ordenada in enumerate(ordenadas):
+    for j, pendiente in enumerate(pendientes):
+        rss_grilla[i, j] = calcular_rss(ordenada, pendiente)
+
+fig, (ax_recta, ax_rss) = plt.subplots(1, 2, figsize=(8, 3.6))
+
+# --- espacio de los datos ---
+x_grilla = np.linspace(x.min(), x.max(), 100)
+y_candidata = ordenada_candidata + pendiente_candidata * x
+ax_recta.vlines(x, y_candidata, y, colors="#888888", linestyles=":", linewidth=0.8)
+ax_recta.scatter(x, y, s=12, color="#888888", zorder=3)
+ax_recta.plot(x_grilla, ordenada_candidata + pendiente_candidata * x_grilla,
+              color="#c44e52", linewidth=2)
+ax_recta.plot(x_grilla, ordenada_optima + pendiente_optima * x_grilla,
+              color="#3a76b8", linewidth=2)
+ax_recta.set(xlabel="$X$", ylabel="$Y$", xticks=[], yticks=[])
+ax_recta.spines[["top", "right"]].set_visible(False)
+
+# --- espacio de los parámetros ---
+# niveles geométricos: con niveles lineales casi no se ven curvas cerca del mínimo
+niveles = np.geomspace(calcular_rss(ordenada_optima, pendiente_optima), rss_grilla.max(), 15)
+ax_rss.contour(pendientes, ordenadas, rss_grilla, levels=niveles,
+               cmap="viridis", norm=LogNorm(), linewidths=1)
+ax_rss.scatter(pendiente_candidata, ordenada_candidata, s=60, color="#c44e52", zorder=3)
+ax_rss.scatter(pendiente_optima, ordenada_optima, marker="*", s=180, color="#3a76b8", zorder=3)
+ax_rss.set(xlabel=r"$\beta_1$", ylabel=r"$\beta_0$")
+ax_rss.spines[["top", "right"]].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
 
 ### Regresión lineal múltiple
 
