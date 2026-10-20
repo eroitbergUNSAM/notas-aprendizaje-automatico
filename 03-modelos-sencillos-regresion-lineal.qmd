@@ -125,7 +125,7 @@ def calcular_rss(ordenada, pendiente):
     return np.sum((y - (ordenada + pendiente * x)) ** 2)
 
 # lejos del óptimo, para que los residuos se vean
-ordenada_candidata, pendiente_candidata = 0.5, -0.5
+ordenada_candidata, pendiente_candidata = 0.5, 0.5
 pendiente_optima, ordenada_optima = np.polyfit(x, y, 1)
 
 ordenadas = np.linspace(-3, 7, 200)
@@ -224,7 +224,7 @@ La regresión lineal suele ser el Benchmark de muchos problemas de regresión pe
 
 Una forma particularmente útil de calcular el estimador de cuadrados mínimos $\hat{\beta}$ es usando la descomposición en valores singulares. A partir de la descomposición $\mathbf{X} = U D V^T$, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla
     
-$$ \hat{\beta} = V D^{-1} U^T \mathbf{y}$$
+$$\hat{\beta} = V D^{-1} U^T \mathbf{y}$$
 
 donde $D^{-1}$ es la matriz diagonal que contiene los inversos de los valores singulares. 
 
@@ -234,12 +234,114 @@ Si $\mathbf{X}^T \mathbf{X}$ no es invertible (por ejemplo, cuando hay atributos
 
 Ésta sigue siendo una solución de cuadrados mínimos. Pero como había atributos colineales, había muchas soluciones de cuadrados mínimos —el sistema estaba *degenerado*— y lo que obtuvimos fue una en particular de esas soluciones, la de menor norma $\|\beta\|$. La matriz $V D^{-1} U^T$, con los valores singulares nulos recortados, se conoce como la **pseudoinversa de Moore-Penrose** de $\mathbf{X}$.
 
+La solución de cuadrados mínimos a partir de la descomposición en valores singulares es la que utilizan muchas bibliotecas de cálculo numérico.
 
-<!-- 
 #### Descenso por gradiente
 
+La solución de cuadrados mínimos $\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$ o, con la descomposición, $\hat{\beta} = V D^{-1} U^T \mathbf{y}$, es sumamente útil y la forma por defecto para obtener los parámetros de una regresión lineal. Pero existen circunstancias en las que obtener esas soluciones es muy costoso. Por ejemplo, cuando hay muchos atributos, o cuando $\mathbf{X}$ es tan grande que no entra en memoria. En estos casos, se pueden utilizar métodos de optimización para obtener los coeficientes $\beta$. El descenso por gradiente es uno de los métodos más conocidos.
 
+La idea detrás del método es sencilla. Cualquier combinación aleatoria de los coeficientes $\beta$ tiene un costo $RSS (\beta)$. Es muy poco probable que justo esa combinación sea el mínimo. Entonces, lo que se puede hacer es calcular el gradiente de la función de costo $\frac{\partial RSS}{\partial \beta}$ y hacer un paso en la dirección contraria. Esto nos dará un nuevo $\beta$ cuyo costo $RSS$ asociado debería ser menor. Podemos repetir este paso iterativamente hasta que se alcance algún criterio de parada del algoritmo. Entonces, el método consiste en un proceso iterativo, cuyos pasos son los siguientes:
 
+1. Comenzar con una combinación de parámetros $\beta$.
+1. Obtener el gradiente en ese punto.
+1. Realizar un *paso* en la dirección contraria al gradiente.
+1. Repetir los puntos 2 y 3 hasta alcanzar un criterio de parada.
+
+Este método funciona porque el gradiente nos indica la dirección de mayor ascenso, mientras que el negativo del gradiente la dirección de mayor descenso. El gradiente es $\frac{\partial RSS}{\partial \beta} = -2 \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta)$, tal como está más arriba. Por lo que el paso de actualización es 
+
+$$ \beta^{(\tau + 1)} = \beta^{(\tau)} + \eta \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta^{(\tau)})$$
+
+donde $\eta$ es la **tasa de aprendizaje** que debemos elegir para definir el tamaño del paso (y que absorbió el $2$ faltante), y $\tau$ indica el número de iteración. La elección correcta de $\eta$ es importante: si es muy grande, el método diverge, y si es muy chica, converge muy lento.
+
+En general, si $\mathbf{X}$ es muy grande, calcular ese gradiente en cada paso sigue siendo costoso, ya que requiere recorrer todas las instancias. Pero no es necesario usar todas las instancias a la vez, sino que se puede usar una fracción de las instancias —un *mini-batch*— para ir calculando el gradiente en cada paso. Un caso extremo es el **descenso por gradiente estocástico**, donde cada actualización se hace usando una instancia por vez.
+
+Deshaciendo la notación matricial, podemos volver a calcular el gradiente. Como $RSS = \sum_{i=1}^{N} (y_i - \hat{y}_i)^2 = \sum_{i=1}^{N} (y_i - x_i^T \beta)^2$, entonces la derivada respecto de $\beta$ es $\frac{\partial RSS}{\partial \beta} = -2 \sum_{i=1}^{N} (y_i - x_i^T \beta) x_i$. Para que el tamaño del paso no dependa de la cantidad de instancias, conviene pasar a minimizar el error cuadrático medio, $MSE = \frac{1}{N} RSS$, que tiene el mismo mínimo que el $RSS$. Su gradiente es $\frac{1}{N} \frac{\partial RSS}{\partial \beta}$ y la actualización de $\beta$ es $\beta^{(\tau + 1)} = \beta^{(\tau)} - \eta \frac{1}{N} \frac{\partial RSS}{\partial \beta}$. Si en cada paso usamos una sola instancia, el algoritmo queda así:
+
+1. Inicializar $\beta$ con valores aleatorios.
+1. Repetir, en cada iteración $\tau$, hasta alcanzar un criterio de parada:
+   1. Seleccionar una instancia aleatoria $i$ del conjunto de entrenamiento.
+   1. Calcular el error: $e_i = y_i - \hat{y}_i = y_i - x_i^T \beta^{(\tau)}$
+   1. Actualizar $\beta^{(\tau + 1)} = \beta^{(\tau)} + \eta e_i x_i$
+
+El descenso por gradiente no se limita a la regresión lineal, sino que es un método sumamente utilizado en otras familias de modelos. Probablemente su mayor aplicación en este momento sea para entrenar redes neuronales profundas. En ese caso, no hay garantía de llegar al mínimo global, ya que la función de costo no es convexa como en el caso del $RSS$ para la regresión lineal, pero el método sigue siendo extremadamente útil.
+
+Acá solamente mencionamos las variantes más fundamentales del método, pero existen muchas modificaciones que se pueden hacer. La mayoría son para mejorar la convergencia del método (y su velocidad de convergencia).
+
+```{python}
+#| label: fig-descenso-gradiente
+#| fig-cap: 'Descenso por gradiente partiendo de la recta elegida a mano de la @fig-funcion-costo-rss. Izquierda: la recta en distintas iteraciones $\tau$; la roja es la inicial y la azul más intensa, la final. Derecha: el camino que recorre el método sobre las curvas de nivel del $RSS$, desde el círculo rojo hasta la estrella azul. Los pasos se achican a medida que se acerca al mínimo, porque el gradiente se hace cada vez más chico.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+
+# mismos datos que la figura de la función de costo: misma semilla y mismo orden de sorteos
+generador = np.random.default_rng(42)
+x = generador.normal(0, 1, 100)
+y = 2 + 1.0 * x + 0.5 * generador.normal(0, 1, x.size)
+
+def calcular_rss(ordenada, pendiente):
+    return np.sum((y - (ordenada + pendiente * x)) ** 2)
+
+ordenada_candidata, pendiente_candidata = 0.5, 0.5
+pendiente_optima, ordenada_optima = np.polyfit(x, y, 1)
+
+# descenso por gradiente sobre el MSE, partiendo de la recta elegida a mano
+matriz_atributos = np.column_stack([np.ones_like(x), x])
+tasa_aprendizaje = 0.1
+cantidad_iteraciones = 30
+beta = np.array([ordenada_candidata, pendiente_candidata])
+camino = [beta.copy()]
+for _ in range(cantidad_iteraciones):
+    residuos = y - matriz_atributos @ beta
+    beta = beta + tasa_aprendizaje * (2 / x.size) * matriz_atributos.T @ residuos
+    camino.append(beta.copy())
+camino = np.array(camino)  # columnas: ordenada, pendiente
+
+ordenadas = np.linspace(-3, 7, 200)
+pendientes = np.linspace(-4, 6, 200)
+rss_grilla = np.zeros((len(ordenadas), len(pendientes)))
+for i, ordenada in enumerate(ordenadas):
+    for j, pendiente in enumerate(pendientes):
+        rss_grilla[i, j] = calcular_rss(ordenada, pendiente)
+
+fig, (ax_recta, ax_rss) = plt.subplots(1, 2, figsize=(8, 3.6))
+
+# --- espacio de los datos ---
+iteraciones_mostradas = [0, 2, 5, 10, cantidad_iteraciones]
+opacidades = np.linspace(0.3, 1, len(iteraciones_mostradas) - 1)
+x_grilla = np.linspace(x.min(), x.max(), 100)
+
+ax_recta.scatter(x, y, s=12, color="#888888", zorder=3)
+ordenada_inicial, pendiente_inicial = camino[0]
+ax_recta.plot(x_grilla, ordenada_inicial + pendiente_inicial * x_grilla,
+              color="#c44e52", linewidth=2, label=r"$\tau = 0$")
+for iteracion, opacidad in zip(iteraciones_mostradas[1:], opacidades):
+    ordenada, pendiente = camino[iteracion]
+    ax_recta.plot(x_grilla, ordenada + pendiente * x_grilla, color="#3a76b8",
+                  alpha=opacidad, linewidth=1.5, label=rf"$\tau = {iteracion}$")
+ax_recta.set(xlabel="$X$", ylabel="$Y$", xticks=[], yticks=[])
+ax_recta.legend(frameon=False, fontsize=8)
+ax_recta.spines[["top", "right"]].set_visible(False)
+
+# --- espacio de los parámetros ---
+niveles = np.geomspace(calcular_rss(ordenada_optima, pendiente_optima), rss_grilla.max(), 15)
+ax_rss.contour(pendientes, ordenadas, rss_grilla, levels=niveles,
+               cmap="viridis", norm=LogNorm(), linewidths=1)
+# cada punto del camino es una iteración: se ve cómo los pasos se achican
+ax_rss.plot(camino[:, 1], camino[:, 0], "-o", color="#333333", markersize=3, linewidth=1)
+ax_rss.scatter(pendiente_candidata, ordenada_candidata, s=60, color="#c44e52", zorder=3)
+ax_rss.scatter(pendiente_optima, ordenada_optima, marker="*", s=180, color="#3a76b8", zorder=3)
+# acercamos la vista a la zona del camino; las curvas son las mismas que en la otra figura
+ax_rss.set(xlabel=r"$\beta_1$", ylabel=r"$\beta_0$", xlim=(-0.5, 2), ylim=(0, 3))
+ax_rss.spines[["top", "right"]].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
+
+<!-- 
 
 ## Comentarios finales
 
