@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>1&nbsp; Aprendizaje Automático – Otro texto más sobre aprendizaje automático</title>
+<title>1&nbsp; Aprendizaje automático – Otro texto más sobre aprendizaje automático</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -137,7 +137,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-aprendizaje-automatico.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-aprendizaje-automatico.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
@@ -171,7 +171,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -223,7 +223,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="sec-aprendizaje-automatico" class="quarto-section-identifier"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></h1>
+<h1 class="title"><span id="sec-aprendizaje-automatico" class="quarto-section-identifier"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span></h1>
 </div>
 
 
@@ -265,7 +265,7 @@ Una forma básica de armar un modelo sería tomar patrones y observaciones de ev
 </div>
 <p>En la sección anterior dijimos que el aprendizaje supervisado es una rama del aprendizaje automático que permite modelar la relación entre algunas características y una etiqueta asociada, a partir de un conjunto de ejemplos en los que la etiqueta es conocida. Vamos a tratar de darle un poco de forma a esa definición, y para ello conviene pensar en un proceso típico de aprendizaje supervisado, de manera ligeramente simplificada.</p>
 <p>Comenzamos con un conjunto de datos. El conjunto de datos está compuesto de diferentes características medidas sobre cierto número de instancias u observaciones. En general, una de esas características será la que queramos predecir, por lo que la llamaremos variable objetivo o etiqueta (también pueden llegar a encontrar <em>target</em> o <em>output</em>), mientras que las otras características serán las variables que usaremos para predecir, por lo que las llamaremos atributos (<em>features</em>) o variables predictoras (<em>inputs</em>).</p>
-<p>Una vez que tenemos un conjunto de datos, y sabemos cuáles son los atributos y cuál es la etiqueta, podemos <em>entrenar un modelo</em>. El modelo es una estructura flexible cuyas reglas o asociaciones entre los atributos y la etiqueta se ajustan a partir de pares atributos-etiqueta (es decir, el conjunto de datos). Esas reglas serán las que luego le permitirán predecir la etiqueta de nuevas instancias, de las cuales solamente conocemos los atributos. Si el modelo predice de manera apropiada o no es un tema muy importante, que veremos en <strong>Evaluación de modelos</strong>.</p>
+<p>Una vez que tenemos un conjunto de datos, y sabemos cuáles son los atributos y cuál es la etiqueta, podemos <em>entrenar un modelo</em>. El modelo es una estructura flexible cuyas reglas o asociaciones entre los atributos y la etiqueta se ajustan a partir de pares atributos-etiqueta (es decir, el conjunto de datos). Esas reglas serán las que luego le permitirán predecir la etiqueta de nuevas instancias, de las cuales solamente conocemos los atributos. Si el modelo predice de manera apropiada o no es un tema muy importante, que veremos en el <a href="04-evaluacion-de-modelos.html" class="quarto-xref"><span>Capítulo 4</span></a>.</p>
 <p>El entrenamiento tiene unas características comunes a (casi) todas las familias de modelos que existen. Para ser flexibles, los modelos tienen que tener parámetros o estructuras que podamos ajustar o modificar según nuestra necesidad. Pero ese ajuste hay que hacerlo de forma automática, por lo que necesitamos dos cosas:</p>
 <ul>
 <li><p><strong>Una función de costo:</strong> para entrenar un modelo, se debe optimizar una función de costo. Esta función de costo compara las predicciones del modelo con las etiquetas. La función de costo guía el entrenamiento, es la que informa al optimizador cuán bien o mal está andando el modelo; es decir, cuán bien está prediciendo esas etiquetas.</p></li>

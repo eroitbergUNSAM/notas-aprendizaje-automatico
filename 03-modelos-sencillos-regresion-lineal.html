@@ -152,7 +152,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -222,8 +222,8 @@ window.Quarto = {
 <p>Este capítulo presenta la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.</p>
 <section id="regresión-lineal" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="regresión-lineal"><span class="header-section-number">3.1</span> Regresión lineal</h2>
-<p>Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, encaja perfectamente en el esquema de función de costo y optimizador del <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>.</p>
-<p>Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos <span class="math inline">\((x,y)\)</span>. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente.</p>
+<p>Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, usa datos para <em>aprender</em> de ellos y, para hacerlo, utiliza tanto una función de costo como un optimizador, siguiendo el esquema del <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>.</p>
+<p>Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos <span class="math inline">\((x,y)\)</span>. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente (<a href="#fig-regresion-simple-multiple" class="quarto-xref">Figura&nbsp;<span>3.1</span></a>).</p>
 <div id="cell-fig-regresion-simple-multiple" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div id="fig-regresion-simple-multiple" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -242,7 +242,7 @@ Figura&nbsp;3.1: Izquierda: regresión lineal con un solo atributo <span class="
 <h3 data-number="3.1.1" class="anchored" data-anchor-id="regresión-lineal-simple"><span class="header-section-number">3.1.1</span> Regresión lineal simple</h3>
 <p>Supongamos que solamente tenemos un atributo <span class="math inline">\(X\)</span>; entonces, proponemos que la relación <span class="math inline">\(f\)</span> entre ese atributo y la variable a predecir <span class="math inline">\(Y\)</span> tiene la siguiente forma:</p>
 <p><span class="math display">\[ f(X) = \beta_0 + \beta_1 X \]</span></p>
-<p>Entrenar una regresión lineal consiste en encontrar el <span class="math inline">\(\beta_0\)</span> y el <span class="math inline">\(\beta_1\)</span> que hagan que la curva - una recta en este caso - mejor se aproxime a los datos. A <span class="math inline">\(\beta_1\)</span> se lo suele conocer como pendiente y a <span class="math inline">\(\beta_0\)</span> como ordenada al origen, pero para nosotros serán <em>coeficientes</em> o <em>parámetros</em> de la regresión lineal.</p>
+<p>Entrenar una regresión lineal consiste en encontrar el <span class="math inline">\(\beta_0\)</span> y el <span class="math inline">\(\beta_1\)</span> que hagan que la curva —una recta en este caso— mejor se aproxime a los datos. A <span class="math inline">\(\beta_1\)</span> se lo suele conocer como pendiente y a <span class="math inline">\(\beta_0\)</span> como ordenada al origen, pero para nosotros serán <em>coeficientes</em> o <em>parámetros</em> de la regresión lineal.</p>
 <p>Para encontrar los mejores coeficientes necesitamos, como siempre, una función de costo y una forma de optimizarla. La función de costo más usada da nombre al método: cuadrados mínimos. Para optimizarla existen varias técnicas, algunas exactas y otras aproximadas; acá vamos a empezar por la solución exacta.</p>
 <p>La función de costo debe cuantificar cuán bien la curva obtenida aproxima a los datos. Vamos a usar la <strong>suma de los residuos al cuadrado</strong> (RSS, por sus siglas en inglés). Para una instancia <span class="math inline">\(i\)</span>, el residuo es la diferencia entre el valor observado <span class="math inline">\(y_i\)</span> y la predicción del modelo <span class="math inline">\(\hat{y}_i\)</span>. Es decir, el residuo es <span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>. La suma de los residuos al cuadrado es la suma sobre todas las instancias</p>
 <p><span class="math display">\[RSS = e^2_1 + e^2_2 + ... + e^2_N\]</span> <span class="math display">\[RSS = (y_1 - \hat{y}_1)^2 + (y_2 - \hat{y}_2)^2 + ... + (y_N - \hat{y}_N)^2\]</span></p>
@@ -250,12 +250,26 @@ Figura&nbsp;3.1: Izquierda: regresión lineal con un solo atributo <span class="
 <p><span class="math display">\[RSS = \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2 \]</span></p>
 <p>Pero, ¿qué son las predicciones <span class="math inline">\(\hat{y}_i\)</span>? Recordemos que contamos con una expresión explícita para las predicciones, <span class="math inline">\(\hat{y}_i = \beta_0 + \beta_1 x_i\)</span> (notar que reemplazamos el valor de <span class="math inline">\(X\)</span> por el valor observado para esa instancia, <span class="math inline">\(x_i\)</span>), así que podemos escribir el <span class="math inline">\(RSS\)</span> como</p>
 <p><span class="math display">\[RSS = \sum^{N}_{i = 1} (y_i - (\beta_0 + \beta_1 x_i))^2 \]</span></p>
-<p>Es importante asegurarse de entender bien esta expresión antes de continuar. ¿De qué variables depende? Los pares <span class="math inline">\((x_i, y_i)\)</span> son valores medidos, es decir, números. No son variables de la expresión. El <span class="math inline">\(RSS\)</span> es función únicamente de los coeficientes del modelo, <span class="math inline">\(\beta_0\)</span> y <span class="math inline">\(\beta_1\)</span>. Es decir, es <span class="math inline">\(RSS(\beta_0, \beta_1)\)</span>, y esos coeficientes es lo único que podemos modificar para cambiar el <span class="math inline">\(RSS\)</span> y, a su vez, el modelo.</p>
+<p>Es importante asegurarse de entender bien esta expresión antes de continuar. ¿De qué variables depende? Los pares <span class="math inline">\((x_i, y_i)\)</span> son valores medidos, es decir, números. No son variables de la expresión. El <span class="math inline">\(RSS\)</span> es función únicamente de los coeficientes del modelo, <span class="math inline">\(\beta_0\)</span> y <span class="math inline">\(\beta_1\)</span>. Es decir, es <span class="math inline">\(RSS(\beta_0, \beta_1)\)</span>, y esos coeficientes es lo único que podemos modificar para cambiar el <span class="math inline">\(RSS\)</span> y, a su vez, el modelo. La <a href="#fig-funcion-costo-rss" class="quarto-xref">Figura&nbsp;<span>3.2</span></a> ilustra esta idea: cada par <span class="math inline">\((\beta_0, \beta_1)\)</span> es una recta distinta, con su propio <span class="math inline">\(RSS\)</span>.</p>
 <p>Pero lo que buscamos es el modelo que mejor aproxime a los datos, dada esta función de costo. La función de costo toma valores más chicos a medida que el modelo mejor aproxima a los datos, por lo que lo que tenemos es un <strong>problema de minimización</strong>. Para obtener el mínimo, basta con tomar las derivadas parciales, igualar a cero y despejar:</p>
 <p><span class="math display">\[ \frac{\partial RSS}{\partial \beta_0} = 0  \]</span> <span class="math display">\[ \frac{\partial RSS}{\partial \beta_1} = 0  \]</span></p>
 <p>cuya solución es</p>
 <p><span class="math display">\[ \hat{\beta}_1 = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{N} (x_i - \bar{x})^2}\]</span> <span class="math display">\[ \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}\]</span></p>
 <p>donde <span class="math inline">\(\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i\)</span> y <span class="math inline">\(\bar{y} = \frac{1}{N} \sum_{i=1}^{N} y_i\)</span>. Entonces, el modelo entrenado es <span class="math inline">\(\hat{f}(X) = \hat{\beta}_0 + \hat{\beta}_1 X\)</span>.</p>
+<div id="cell-fig-funcion-costo-rss" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-funcion-costo-rss" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-funcion-costo-rss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-modelos-sencillos-regresion-lineal_files/figure-html/fig-funcion-costo-rss-output-1.png" width="757" height="332" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-funcion-costo-rss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;3.2: Izquierda: datos, una recta elegida a mano (rojo) con sus residuos (punteado) y la recta de cuadrados mínimos (azul). Derecha: curvas de nivel del <span class="math inline">\(RSS(\beta_0, \beta_1)\)</span>. Cada punto de este plano es una recta distinta: el círculo rojo es la recta elegida a mano y la estrella azul es la que minimiza el <span class="math inline">\(RSS\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="regresión-lineal-múltiple" class="level3" data-number="3.1.2">
 <h3 data-number="3.1.2" class="anchored" data-anchor-id="regresión-lineal-múltiple"><span class="header-section-number">3.1.2</span> Regresión lineal múltiple</h3>
@@ -289,16 +303,54 @@ La regresión lineal suele ser el Benchmark de muchos problemas de regresión pe
 <section id="descomposición-en-valores-singulares-svd" class="level4" data-number="3.1.2.1">
 <h4 data-number="3.1.2.1" class="anchored" data-anchor-id="descomposición-en-valores-singulares-svd"><span class="header-section-number">3.1.2.1</span> Descomposición en valores singulares (SVD)</h4>
 <p>Una forma particularmente útil de calcular el estimador de cuadrados mínimos <span class="math inline">\(\hat{\beta}\)</span> es usando la descomposición en valores singulares. A partir de la descomposición <span class="math inline">\(\mathbf{X} = U D V^T\)</span>, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla</p>
-<p><span class="math display">\[ \hat{\beta} = V D^{-1} U^T \mathbf{y}\]</span></p>
+<p><span class="math display">\[\hat{\beta} = V D^{-1} U^T \mathbf{y}\]</span></p>
 <p>donde <span class="math inline">\(D^{-1}\)</span> es la matriz diagonal que contiene los inversos de los valores singulares.</p>
 <p>Esta forma es particularmente útil por varios motivos. Por un lado, existen algoritmos sumamente eficientes y estables para calcular la descomposición en valores singulares de una matriz. Esto muchas veces es preferible a obtener <span class="math inline">\((\mathbf{X}^T \mathbf{X})^{-1}\)</span>, incluso cuando está bien definida, ya que invertir matrices puede ser una operación numéricamente inestable. En cambio, invertir <span class="math inline">\(D\)</span> es muy sencillo.</p>
 <p>Si <span class="math inline">\(\mathbf{X}^T \mathbf{X}\)</span> no es invertible (por ejemplo, cuando hay atributos colineales), <span class="math inline">\(\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}\)</span> no se puede calcular de esa forma. Pero si usamos la forma <span class="math inline">\(\hat{\beta} = V D^{-1} U^T \mathbf{y}\)</span>, podemos <em>recortar</em> los valores singulares nulos, acomodar <span class="math inline">\(V\)</span> y <span class="math inline">\(U^T\)</span> de forma que se pueda hacer la multiplicación, y ya está, obtuvimos una estimación de <span class="math inline">\(\beta\)</span>.</p>
 <p>Ésta sigue siendo una solución de cuadrados mínimos. Pero como había atributos colineales, había muchas soluciones de cuadrados mínimos —el sistema estaba <em>degenerado</em>— y lo que obtuvimos fue una en particular de esas soluciones, la de menor norma <span class="math inline">\(\|\beta\|\)</span>. La matriz <span class="math inline">\(V D^{-1} U^T\)</span>, con los valores singulares nulos recortados, se conoce como la <strong>pseudoinversa de Moore-Penrose</strong> de <span class="math inline">\(\mathbf{X}\)</span>.</p>
+<p>La solución de cuadrados mínimos a partir de la descomposición en valores singulares es la que utilizan muchas bibliotecas de cálculo numérico.</p>
+</section>
+<section id="descenso-por-gradiente" class="level4" data-number="3.1.2.2">
+<h4 data-number="3.1.2.2" class="anchored" data-anchor-id="descenso-por-gradiente"><span class="header-section-number">3.1.2.2</span> Descenso por gradiente</h4>
+<p>La solución de cuadrados mínimos <span class="math inline">\(\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}\)</span> o, con la descomposición, <span class="math inline">\(\hat{\beta} = V D^{-1} U^T \mathbf{y}\)</span>, es sumamente útil y la forma por defecto para obtener los parámetros de una regresión lineal. Pero existen circunstancias en las que obtener esas soluciones es muy costoso. Por ejemplo, cuando hay muchos atributos, o cuando <span class="math inline">\(\mathbf{X}\)</span> es tan grande que no entra en memoria. En estos casos, se pueden utilizar métodos de optimización para obtener los coeficientes <span class="math inline">\(\beta\)</span>. El descenso por gradiente es uno de los métodos más conocidos.</p>
+<p>La idea detrás del método es sencilla. Cualquier combinación aleatoria de los coeficientes <span class="math inline">\(\beta\)</span> tiene un costo <span class="math inline">\(RSS (\beta)\)</span>. Es muy poco probable que justo esa combinación sea el mínimo. Entonces, lo que se puede hacer es calcular el gradiente de la función de costo <span class="math inline">\(\frac{\partial RSS}{\partial \beta}\)</span> y hacer un paso en la dirección contraria. Esto nos dará un nuevo <span class="math inline">\(\beta\)</span> cuyo costo <span class="math inline">\(RSS\)</span> asociado debería ser menor. Podemos repetir este paso iterativamente hasta que se alcance algún criterio de parada del algoritmo. Entonces, el método consiste en un proceso iterativo, cuyos pasos son los siguientes:</p>
+<ol type="1">
+<li>Comenzar con una combinación de parámetros <span class="math inline">\(\beta\)</span>.</li>
+<li>Obtener el gradiente en ese punto.</li>
+<li>Realizar un <em>paso</em> en la dirección contraria al gradiente.</li>
+<li>Repetir los puntos 2 y 3 hasta alcanzar un criterio de parada.</li>
+</ol>
+<p>Este método funciona porque el gradiente nos indica la dirección de mayor ascenso, mientras que el negativo del gradiente la dirección de mayor descenso. El gradiente es <span class="math inline">\(\frac{\partial RSS}{\partial \beta} = -2 \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta)\)</span>, tal como está más arriba. Por lo que el paso de actualización es</p>
+<p><span class="math display">\[ \beta^{(\tau + 1)} = \beta^{(\tau)} + \eta \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta^{(\tau)})\]</span></p>
+<p>donde <span class="math inline">\(\eta\)</span> es la <strong>tasa de aprendizaje</strong> que debemos elegir para definir el tamaño del paso (y que absorbió el <span class="math inline">\(2\)</span> faltante), y <span class="math inline">\(\tau\)</span> indica el número de iteración. La elección correcta de <span class="math inline">\(\eta\)</span> es importante: si es muy grande, el método diverge, y si es muy chica, converge muy lento. La <a href="#fig-descenso-gradiente" class="quarto-xref">Figura&nbsp;<span>3.3</span></a> muestra el método aplicado a los datos de la <a href="#fig-funcion-costo-rss" class="quarto-xref">Figura&nbsp;<span>3.2</span></a>.</p>
+<p>En general, si <span class="math inline">\(\mathbf{X}\)</span> es muy grande, calcular ese gradiente en cada paso sigue siendo costoso, ya que requiere recorrer todas las instancias. Pero no es necesario usar todas las instancias a la vez, sino que se puede usar una fracción de las instancias —un <em>mini-batch</em>— para ir calculando el gradiente en cada paso. Un caso extremo es el <strong>descenso por gradiente estocástico</strong>, donde cada actualización se hace usando una instancia por vez.</p>
+<p>Deshaciendo la notación matricial, podemos volver a calcular el gradiente. Como <span class="math inline">\(RSS = \sum_{i=1}^{N} (y_i - \hat{y}_i)^2 = \sum_{i=1}^{N} (y_i - x_i^T \beta)^2\)</span>, entonces la derivada respecto de <span class="math inline">\(\beta\)</span> es <span class="math inline">\(\frac{\partial RSS}{\partial \beta} = -2 \sum_{i=1}^{N} (y_i - x_i^T \beta) x_i\)</span>. Para que el tamaño del paso no dependa de la cantidad de instancias, conviene pasar a minimizar el error cuadrático medio, <span class="math inline">\(MSE = \frac{1}{N} RSS\)</span>, que tiene el mismo mínimo que el <span class="math inline">\(RSS\)</span>. Su gradiente es <span class="math inline">\(\frac{1}{N} \frac{\partial RSS}{\partial \beta}\)</span> y la actualización de <span class="math inline">\(\beta\)</span> es <span class="math inline">\(\beta^{(\tau + 1)} = \beta^{(\tau)} - \eta \frac{1}{N} \frac{\partial RSS}{\partial \beta}\)</span>. Si en cada paso usamos una sola instancia, el algoritmo queda así:</p>
+<ol type="1">
+<li>Inicializar <span class="math inline">\(\beta\)</span> con valores aleatorios.</li>
+<li>Repetir, en cada iteración <span class="math inline">\(\tau\)</span>, hasta alcanzar un criterio de parada:
+<ol type="1">
+<li>Seleccionar una instancia aleatoria <span class="math inline">\(i\)</span> del conjunto de entrenamiento.</li>
+<li>Calcular el error: <span class="math inline">\(e_i = y_i - \hat{y}_i = y_i - x_i^T \beta^{(\tau)}\)</span></li>
+<li>Actualizar <span class="math inline">\(\beta^{(\tau + 1)} = \beta^{(\tau)} + \eta e_i x_i\)</span></li>
+</ol></li>
+</ol>
+<p>El descenso por gradiente no se limita a la regresión lineal, sino que es un método sumamente utilizado en otras familias de modelos. Probablemente su mayor aplicación en este momento sea para entrenar redes neuronales profundas. En ese caso, no hay garantía de llegar al mínimo global, ya que la función de costo no es convexa como en el caso del <span class="math inline">\(RSS\)</span> para la regresión lineal, pero el método sigue siendo extremadamente útil.</p>
+<p>Acá solamente mencionamos las variantes más fundamentales del método, pero existen muchas modificaciones que se pueden hacer. La mayoría son para mejorar la convergencia del método (y su velocidad de convergencia).</p>
+<div id="cell-fig-descenso-gradiente" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-descenso-gradiente" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-descenso-gradiente-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-modelos-sencillos-regresion-lineal_files/figure-html/fig-descenso-gradiente-output-1.png" width="757" height="332" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-descenso-gradiente-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;3.3: Descenso por gradiente partiendo de la recta elegida a mano de la <a href="#fig-funcion-costo-rss" class="quarto-xref">Figura&nbsp;<span>3.2</span></a>. Izquierda: la recta en distintas iteraciones <span class="math inline">\(\tau\)</span>; la roja es la inicial y la azul más intensa, la final. Derecha: el camino que recorre el método sobre las curvas de nivel del <span class="math inline">\(RSS\)</span>, desde el círculo rojo hasta la estrella azul. Los pasos se achican a medida que se acerca al mínimo, porque el gradiente se hace cada vez más chico.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <!-- 
-#### Descenso por gradiente
-
-
-
 
 ## Comentarios finales
 

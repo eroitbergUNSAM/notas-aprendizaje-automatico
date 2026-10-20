@@ -152,7 +152,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -219,7 +219,7 @@ window.Quarto = {
 </header>
 
 
-<p>Este capítulo y el próximo presentan dos modelos de aprendizaje automático sencillos pero sumamente útiles. El primero de ellos es árbol de decisión, un modelo ampliamente utilizado que también sirve de base para enfoques más complejos. El segundo es la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.</p>
+<p>Este capítulo y el próximo presentan dos modelos de aprendizaje automático sencillos pero sumamente útiles. El primero de ellos es el árbol de decisión, un modelo ampliamente utilizado que también sirve de base para enfoques más complejos. El segundo es la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.</p>
 <section id="árboles-de-decisión" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="árboles-de-decisión"><span class="header-section-number">2.1</span> Árboles de decisión</h2>
 <p>Un árbol de decisión es una estructura compuesta de ramas, y nodos internos y externos (hojas), tal como se muestra en la <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>. El árbol se lee de arriba hacia abajo. Dada una nueva instancia, ésta es clasificada recorriendo el árbol de decisión: en cada nodo interno, el árbol hace una pregunta a la instancia sobre alguno de sus atributos. Según la respuesta a esta pregunta, deriva a la instancia por alguna de sus ramas, donde puede ocurrir que aparezca otro nodo —otra pregunta— o que termine en una hoja (nodo externo). La hoja contiene la etiqueta que le corresponde a esa instancia, finalizando su recorrido en el árbol.</p>
@@ -304,7 +304,7 @@ Figura&nbsp;2.1: Árbol de decisión de profundidad dos. Cada nodo interno hace 
 </div>
 <section id="entrenamiento-de-un-árbol-para-clasificación" class="level3" data-number="2.1.1">
 <h3 data-number="2.1.1" class="anchored" data-anchor-id="entrenamiento-de-un-árbol-para-clasificación"><span class="header-section-number">2.1.1</span> Entrenamiento de un árbol para clasificación</h3>
-<p>Como vimos en el primer capítulo de estas notas, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>Como vimos en el <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <section id="impureza-gini" class="level4" data-number="2.1.1.1">
 <h4 data-number="2.1.1.1" class="anchored" data-anchor-id="impureza-gini"><span class="header-section-number">2.1.1.1</span> Impureza Gini</h4>
 <p>Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (<a href="#fig-recipientes" class="quarto-xref">Figura&nbsp;<span>2.2</span></a>). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si les pidieran ordenar por pureza a los recipientes, ¿cómo lo harían?</p>
@@ -350,7 +350,7 @@ Figura&nbsp;2.2: Tres recipientes con 10 pelotas cada uno: 10 verdes; 5 verdes y
 <section id="fronteras-de-decisión" class="level4" data-number="2.1.1.4">
 <h4 data-number="2.1.1.4" class="anchored" data-anchor-id="fronteras-de-decisión"><span class="header-section-number">2.1.1.4</span> Fronteras de decisión</h4>
 <p>Como vimos en el <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase. Formalmente, podemos decir que un clasificador divide el espacio de atributos en regiones <span class="math inline">\(R_1, \dots, R_M\)</span> y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo <span class="math inline">\(X_j\)</span> —separa las instancias con <span class="math inline">\(X_j \leq s\)</span> de las que tienen <span class="math inline">\(X_j &gt; s\)</span>—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.</p>
-<p>Por ejemplo, para el árbol de la <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>, la frontera de decisión queda así:</p>
+<p>Por ejemplo, la <a href="#fig-frontera" class="quarto-xref">Figura&nbsp;<span>2.3</span></a> muestra la frontera de decisión del árbol de la <a href="#fig-arbol" class="quarto-xref">Figura&nbsp;<span>2.1</span></a>.</p>
 <div id="cell-fig-frontera" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div id="fig-frontera" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -792,8 +792,8 @@ Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictor
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./01-aprendizaje-automatico.html" class="pagination-link" aria-label="Aprendizaje Automático">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span>
+      <a href="./01-aprendizaje-automatico.html" class="pagination-link" aria-label="Aprendizaje automático">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

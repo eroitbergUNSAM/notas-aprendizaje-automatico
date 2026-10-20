@@ -171,7 +171,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje Automático</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -229,7 +229,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></h1>
+<h1 class="title"><span id="sec-evaluacion-de-modelos" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></span></h1>
 </div>
 
 
@@ -261,7 +261,7 @@ window.Quarto = {
 <li>Un <strong>falso negativo</strong> es una instancia que fue predicha como negativa cuando en realidad era positiva.</li>
 <li>Un <strong>verdadero negativo</strong> es una instancia negativa correctamente predicha como negativa.</li>
 </ul>
-<p>Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en una sola instancia. Pero no alcanza para evaluar el desempeño de un modelo observar una única instancia, ya que eso no nos permite hacer estadística. Cuando analizamos muchas instancias, podemos contar la ocurrencia de cada caso y agruparlos en una tabla de doble entrada, la matriz de confusión.</p>
+<p>Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en una sola instancia. Pero no alcanza para evaluar el desempeño de un modelo observar una única instancia, ya que eso no nos permite hacer estadística. Cuando analizamos muchas instancias, podemos contar la ocurrencia de cada caso y agruparlos en una tabla de doble entrada, la matriz de confusión (<a href="#tbl-matriz-confusion" class="quarto-xref">Tabla&nbsp;<span>4.1</span></a>).</p>
 <div id="tbl-matriz-confusion" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-matriz-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -330,7 +330,7 @@ Tabla&nbsp;4.1: Matriz de confusión: filas = clase real, columnas = clase predi
 <p>En clasificación comparamos una etiqueta medida contra una etiqueta predicha. Las etiquetas pueden coincidir o no, lo que nos da aciertos y errores. En regresión, en cambio, lo que obtenemos es una predicción numérica que debemos comparar contra otro número. La situación, entonces, es más sutil, porque no es inmediato cuándo la predicción está dentro de lo razonable y cuándo no.</p>
 <p>El comienzo natural es evaluar un modelo de regresión a partir de los errores, <span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>, también llamados <em>residuos</em>. Éste es el error por instancia. En algunos casos, nuestro regresor sobreestimará el valor de la predicción, por lo que el error será negativo, mientras que en otros casos subestimará, por lo que el error será positivo. Para obtener una métrica del desempeño del modelo, podemos calcular un promedio de los errores sobre cada instancia. Pero como los errores pueden ser positivos o negativos, si sumamos sin tener en cuenta esto, puede ocurrir que los errores se compensen, y la métrica no refleje el desempeño del regresor. Entonces, una opción es promediar los errores al cuadrado para obtener el <strong>error cuadrático medio</strong> (MSE, por sus siglas en inglés):</p>
 <p><span class="math display">\[MSE = \frac{1}{N} \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2\]</span></p>
-<p>que, si ya leyeron el <a href="03-modelos-sencillos-regresion-lineal.html" class="quarto-xref"><span>Capítulo 3</span></a>, es simplemente <span class="math inline">\(MSE = \frac{1}{N} RSS\)</span>.</p>
+<p>que, como vimos en el <a href="03-modelos-sencillos-regresion-lineal.html" class="quarto-xref"><span>Capítulo 3</span></a>, es simplemente <span class="math inline">\(MSE = \frac{1}{N} RSS\)</span>.</p>
 <p>Otra opción es sumar los valores absolutos de los errores sobre cada instancia y luego promediar para obtener el error promedio. Esto nos da como resultado el <strong>error absoluto medio</strong> (MAE):</p>
 <p><span class="math display">\[MAE = \frac{1}{N} \sum^{N}_{i = 1} |y_i - \hat{y}_i|\]</span></p>
 <p>La diferencia entre el MSE y el MAE es que, al estar en el MSE el error elevado al cuadrado, penaliza más fuertemente los errores grandes. MSE, además, no tiene la misma magnitud ni unidades que la variable, ya que está elevado al cuadrado. Por eso, se suele utilizar la <strong>raíz del error cuadrático medio</strong> (RMSE):</p>
@@ -360,7 +360,7 @@ Tabla&nbsp;4.1: Matriz de confusión: filas = clase real, columnas = clase predi
 <p>Vamos a ver las dos primeras, el protocolo general que las combina y, finalmente, cómo usar un modelo de referencia.</p>
 <section id="división-entre-entrenamiento-y-prueba" class="level3" data-number="4.3.1">
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="división-entre-entrenamiento-y-prueba"><span class="header-section-number">4.3.1</span> División entre <em>entrenamiento</em> y <em>prueba</em></h3>
-<p>El <em>train-test split</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (<em>train</em>), y la otra para evaluar el modelo (prueba o <em>test</em>). De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.</p>
+<p>El <em>train-test split</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (<em>train</em>), y la otra para evaluar el modelo (prueba o <em>test</em>), como se muestra en la <a href="#fig-train-test" class="quarto-xref">Figura&nbsp;<span>4.1</span></a>. De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.</p>
 <p>Pero esta división no es suficiente, como veremos a continuación.</p>
 <div class="cell" data-fig-width="7" data-fig-height="0.8" data-layout-align="default">
 <div class="cell-output-display">
@@ -397,7 +397,7 @@ Figura&nbsp;4.1: División del conjunto de datos en entrenamiento y prueba. Una 
 <h3 data-number="4.3.2" class="anchored" data-anchor-id="validación-cruzada"><span class="header-section-number">4.3.2</span> Validación cruzada</h3>
 <p>La división entre entrenamiento (desarrollo) y prueba no es suficiente para obtener un modelo correctamente evaluado. Cuando desarrollamos un modelo, generalmente hacemos muchas pruebas y tomamos muchas decisiones, y cada una de ellas implica una nueva evaluación. Si solamente tenemos un conjunto de prueba, evaluar múltiples veces sobre él y quedarnos con el de mejor desempeño produce un sobreajuste a ese conjunto, por lo que obtenemos una estimación inflada del desempeño. Además, cada evaluación nos da una única estimación, sin una idea de su dispersión. Supongamos que queremos comparar dos modelos, A y B. Evaluamos el modelo A y nos da 0.79 bajo alguna métrica de desempeño. Hacemos lo mismo con el modelo B y nos da 0.81. ¿Es mejor el modelo B? Una única estimación no es suficiente para afirmarlo.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <p>La técnica que nos ayuda a no depender de una única separación de los datos y, además, nos sirve para comparar modelos es la validación cruzada.</p>
-<p>Existen varias técnicas de validación cruzada. La más conocida es la validación cruzada de k-pliegues o de <em>k-folds</em>. En este caso, solo hay que elegir <span class="math inline">\(k\)</span>, el número de grupos en los cuales se va a dividir el conjunto de desarrollo. El procedimiento es sencillo:</p>
+<p>Existen varias técnicas de validación cruzada. La más conocida es la validación cruzada de k-pliegues o de <em>k-folds</em>. En este caso, solo hay que elegir <span class="math inline">\(k\)</span>, el número de grupos en los cuales se va a dividir el conjunto de desarrollo. El procedimiento es sencillo (<a href="#fig-validacion-cruzada" class="quarto-xref">Figura&nbsp;<span>4.2</span></a>):</p>
 <ol type="1">
 <li><p>Separamos el conjunto de desarrollo en <span class="math inline">\(k\)</span> <em>folds</em>.</p></li>
 <li><p>Luego, repetimos <span class="math inline">\(k\)</span> veces el siguiente procedimiento:</p>
@@ -534,6 +534,7 @@ Figura&nbsp;4.2: Validación cruzada con 5 <em>folds</em>. El conjunto de desarr
 <h3 data-number="4.3.3" class="anchored" data-anchor-id="protocolo-recomendado"><span class="header-section-number">4.3.3</span> Protocolo recomendado</h3>
 <p>¿Cómo combinamos entonces estas herramientas? ¿Cuál es la forma típica de entrenar y evaluar modelos?</p>
 <p><strong>Nomenclatura para los conjuntos de datos:</strong> en la división inicial, usaremos desarrollo y prueba (<em>test</em>). Dentro de la validación cruzada, cada iteración separa el conjunto de desarrollo en entrenamiento (<em>train</em>) y validación (<em>validation</em>).</p>
+<p>La <a href="#fig-protocolo" class="quarto-xref">Figura&nbsp;<span>4.3</span></a> resume el procedimiento:</p>
 <ol type="1">
 <li><p>Dividir los datos en conjuntos de desarrollo y prueba. A partir de acá, el conjunto de prueba queda <em>guardado</em> para la evaluación final.</p></li>
 <li><p>Evaluar una o varias configuraciones mediante validación cruzada sobre el conjunto de desarrollo. Aunque haya una sola configuración, la validación cruzada nos da una estimación del desempeño y de su dispersión.</p></li>
