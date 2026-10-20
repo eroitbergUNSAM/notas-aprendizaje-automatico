@@ -1,4 +1,4 @@
-# Aprendizaje Automático {#sec-aprendizaje-automatico}
+# Aprendizaje automático {#sec-aprendizaje-automatico}
 
 El aprendizaje automático (*machine learning*) es una rama de la inteligencia artificial (IA) que desarrolla técnicas para que las computadoras aprendan a realizar tareas sin haber sido explícitamente programadas con ese fin. Es decir, no es necesario programar reglas *ad hoc* para cada tarea que queramos abordar, sino que existen mecanismos a partir de los cuales las computadoras pueden generar esas reglas de manera automática. Evidentemente, las computadoras no pueden hacer eso sin ningún insumo específico, y en este caso el principal insumo van a ser los datos.
 
@@ -35,7 +35,7 @@ En la sección anterior dijimos que el aprendizaje supervisado es una rama del a
 
 Comenzamos con un conjunto de datos. El conjunto de datos está compuesto de diferentes características medidas sobre cierto número de instancias u observaciones. En general, una de esas características será la que queramos predecir, por lo que la llamaremos variable objetivo o etiqueta (también pueden llegar a encontrar *target* o *output*), mientras que las otras características serán las variables que usaremos para predecir, por lo que las llamaremos atributos (*features*) o variables predictoras (*inputs*). 
 
-Una vez que tenemos un conjunto de datos, y sabemos cuáles son los atributos y cuál es la etiqueta, podemos *entrenar un modelo*. El modelo es una estructura flexible cuyas reglas o asociaciones entre los atributos y la etiqueta se ajustan a partir de pares atributos-etiqueta (es decir, el conjunto de datos). Esas reglas serán las que luego le permitirán predecir la etiqueta de nuevas instancias, de las cuales solamente conocemos los atributos. Si el modelo predice de manera apropiada o no es un tema muy importante, que veremos en **Evaluación de modelos**.
+Una vez que tenemos un conjunto de datos, y sabemos cuáles son los atributos y cuál es la etiqueta, podemos *entrenar un modelo*. El modelo es una estructura flexible cuyas reglas o asociaciones entre los atributos y la etiqueta se ajustan a partir de pares atributos-etiqueta (es decir, el conjunto de datos). Esas reglas serán las que luego le permitirán predecir la etiqueta de nuevas instancias, de las cuales solamente conocemos los atributos. Si el modelo predice de manera apropiada o no es un tema muy importante, que veremos en el @sec-evaluacion-de-modelos.
 
 El entrenamiento tiene unas características comunes a (casi) todas las familias de modelos que existen. Para ser flexibles, los modelos tienen que tener parámetros o estructuras que podamos ajustar o modificar según nuestra necesidad. Pero ese ajuste hay que hacerlo de forma automática, por lo que necesitamos dos cosas:
 

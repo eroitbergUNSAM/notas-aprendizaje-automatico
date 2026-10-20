@@ -4,9 +4,9 @@ Este capítulo presenta la regresión lineal, probablemente el modelo más utili
 
 ## Regresión lineal
 
-Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, utiliza datos para *aprender* de ellos y, para hacerlo, utiliza tanto una función de costo como un optimizador, siguiendo el esquema del @sec-aprendizaje-automatico.
+Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, usa datos para *aprender* de ellos y, para hacerlo, utiliza tanto una función de costo como un optimizador, siguiendo el esquema del @sec-aprendizaje-automatico.
 
-Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos $(x,y)$. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente.
+Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos $(x,y)$. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente (@fig-regresion-simple-multiple).
 
 ```{python}
 #| label: fig-regresion-simple-multiple
@@ -76,7 +76,7 @@ Supongamos que solamente tenemos un atributo $X$; entonces, proponemos que la re
 
 $$ f(X) = \beta_0 + \beta_1 X $$
 
-Entrenar una regresión lineal consiste en encontrar el $\beta_0$ y el $\beta_1$ que hagan que la curva - una recta en este caso - mejor se aproxime a los datos. A $\beta_1$ se lo suele conocer como pendiente y a $\beta_0$ como ordenada al origen, pero para nosotros serán *coeficientes* o *parámetros* de la regresión lineal.
+Entrenar una regresión lineal consiste en encontrar el $\beta_0$ y el $\beta_1$ que hagan que la curva —una recta en este caso— mejor se aproxime a los datos. A $\beta_1$ se lo suele conocer como pendiente y a $\beta_0$ como ordenada al origen, pero para nosotros serán *coeficientes* o *parámetros* de la regresión lineal.
 
 Para encontrar los mejores coeficientes necesitamos, como siempre, una función de costo y una forma de optimizarla. La función de costo más usada da nombre al método: cuadrados mínimos. Para optimizarla existen varias técnicas, algunas exactas y otras aproximadas; acá vamos a empezar por la solución exacta.
 
@@ -93,7 +93,7 @@ Pero, ¿qué son las predicciones $\hat{y}_i$? Recordemos que contamos con una e
 
 $$RSS = \sum^{N}_{i = 1} (y_i - (\beta_0 + \beta_1 x_i))^2 $$
 
-Es importante asegurarse de entender bien esta expresión antes de continuar. ¿De qué variables depende? Los pares $(x_i, y_i)$ son valores medidos, es decir, números. No son variables de la expresión. El $RSS$ es función únicamente de los coeficientes del modelo, $\beta_0$ y $\beta_1$. Es decir, es $RSS(\beta_0, \beta_1)$, y esos coeficientes es lo único que podemos modificar para cambiar el $RSS$ y, a su vez, el modelo.
+Es importante asegurarse de entender bien esta expresión antes de continuar. ¿De qué variables depende? Los pares $(x_i, y_i)$ son valores medidos, es decir, números. No son variables de la expresión. El $RSS$ es función únicamente de los coeficientes del modelo, $\beta_0$ y $\beta_1$. Es decir, es $RSS(\beta_0, \beta_1)$, y esos coeficientes es lo único que podemos modificar para cambiar el $RSS$ y, a su vez, el modelo. La @fig-funcion-costo-rss ilustra esta idea: cada par $(\beta_0, \beta_1)$ es una recta distinta, con su propio $RSS$.
 
 Pero lo que buscamos es el modelo que mejor aproxime a los datos, dada esta función de costo. La función de costo toma valores más chicos a medida que el modelo mejor aproxima a los datos, por lo que lo que tenemos es un **problema de minimización**. Para obtener el mínimo, basta con tomar las derivadas parciales, igualar a cero y despejar:
 
@@ -251,7 +251,7 @@ Este método funciona porque el gradiente nos indica la dirección de mayor asce
 
 $$ \beta^{(\tau + 1)} = \beta^{(\tau)} + \eta \mathbf{X}^T (\mathbf{y} - \mathbf{X} \beta^{(\tau)})$$
 
-donde $\eta$ es la **tasa de aprendizaje** que debemos elegir para definir el tamaño del paso (y que absorbió el $2$ faltante), y $\tau$ indica el número de iteración. La elección correcta de $\eta$ es importante: si es muy grande, el método diverge, y si es muy chica, converge muy lento.
+donde $\eta$ es la **tasa de aprendizaje** que debemos elegir para definir el tamaño del paso (y que absorbió el $2$ faltante), y $\tau$ indica el número de iteración. La elección correcta de $\eta$ es importante: si es muy grande, el método diverge, y si es muy chica, converge muy lento. La @fig-descenso-gradiente muestra el método aplicado a los datos de la @fig-funcion-costo-rss.
 
 En general, si $\mathbf{X}$ es muy grande, calcular ese gradiente en cada paso sigue siendo costoso, ya que requiere recorrer todas las instancias. Pero no es necesario usar todas las instancias a la vez, sino que se puede usar una fracción de las instancias —un *mini-batch*— para ir calculando el gradiente en cada paso. Un caso extremo es el **descenso por gradiente estocástico**, donde cada actualización se hace usando una instancia por vez.
 

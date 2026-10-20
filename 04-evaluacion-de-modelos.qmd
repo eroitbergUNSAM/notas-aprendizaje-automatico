@@ -1,4 +1,4 @@
-# Evaluación de modelos
+# Evaluación de modelos {#sec-evaluacion-de-modelos}
 
 Este capítulo presenta cómo evaluar correctamente un modelo. Es, sin lugar a dudas, el capítulo más importante de todo este conjunto de notas.
 
@@ -17,7 +17,7 @@ Hay dos preguntas fundamentales que debemos hacernos antes de empezar a desarrol
 * Un **falso negativo** es una instancia que fue predicha como negativa cuando en realidad era positiva. 
 * Un **verdadero negativo** es una instancia negativa correctamente predicha como negativa.
 
-Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en una sola instancia. Pero no alcanza para evaluar el desempeño de un modelo observar una única instancia, ya que eso no nos permite hacer estadística. Cuando analizamos muchas instancias, podemos contar la ocurrencia de cada caso y agruparlos en una tabla de doble entrada, la matriz de confusión.
+Esas son todas las posibilidades que pueden ocurrir cuando nos concentramos en una sola instancia. Pero no alcanza para evaluar el desempeño de un modelo observar una única instancia, ya que eso no nos permite hacer estadística. Cuando analizamos muchas instancias, podemos contar la ocurrencia de cada caso y agruparlos en una tabla de doble entrada, la matriz de confusión (@tbl-matriz-confusion).
 
 
 |                     | Predicho: negativo | Predicho: positivo |
@@ -82,7 +82,7 @@ El comienzo natural es evaluar un modelo de regresión a partir de los errores, 
 
 $$MSE = \frac{1}{N} \sum^{N}_{i = 1} (y_i - \hat{y}_i)^2$$
 
-que, si ya leyeron el @sec-regresion-lineal, es simplemente $MSE = \frac{1}{N} RSS$.
+que, como vimos en el @sec-regresion-lineal, es simplemente $MSE = \frac{1}{N} RSS$.
 
 Otra opción es sumar los valores absolutos de los errores sobre cada instancia y luego promediar para obtener el error promedio. Esto nos da como resultado el **error absoluto medio** (MAE):
 
@@ -126,7 +126,7 @@ Vamos a ver las dos primeras, el protocolo general que las combina y, finalmente
 
 ### División entre *entrenamiento* y *prueba*
 
-El *train-test split*^[En estas notas intento siempre usar terminología en castellano. Pero en este caso es mucho más usado el nombre en inglés.] es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (*train*), y la otra para evaluar el modelo (prueba o *test*). De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.
+El *train-test split*^[En estas notas intento siempre usar terminología en castellano. Pero en este caso es mucho más usado el nombre en inglés.] es la primera herramienta que podemos usar para obtener una evaluación más robusta del desempeño del modelo. Consiste en separar una parte del conjunto de datos como entrenamiento (*train*), y la otra para evaluar el modelo (prueba o *test*), como se muestra en la @fig-train-test. De esta forma, obtenemos una estimación independiente del desempeño del modelo sobre datos que no fueron usados para el entrenamiento.
 
 Pero esta división no es suficiente, como veremos a continuación.
 
@@ -160,7 +160,7 @@ La división entre entrenamiento (desarrollo) y prueba no es suficiente para obt
 
 La técnica que nos ayuda a no depender de una única separación de los datos y, además, nos sirve para comparar modelos es la validación cruzada. 
 
-Existen varias técnicas de validación cruzada. La más conocida es la validación cruzada de k-pliegues o de *k-folds*. En este caso, solo hay que elegir $k$, el número de grupos en los cuales se va a dividir el conjunto de desarrollo. El procedimiento es sencillo:
+Existen varias técnicas de validación cruzada. La más conocida es la validación cruzada de k-pliegues o de *k-folds*. En este caso, solo hay que elegir $k$, el número de grupos en los cuales se va a dividir el conjunto de desarrollo. El procedimiento es sencillo (@fig-validacion-cruzada):
 
 1. Separamos el conjunto de desarrollo en $k$ *folds*.
 
@@ -255,6 +255,8 @@ Cuando comparamos modelos mediante validación cruzada, lo que comparamos son co
 ¿Cómo combinamos entonces estas herramientas? ¿Cuál es la forma típica de entrenar y evaluar modelos?
 
 **Nomenclatura para los conjuntos de datos:** en la división inicial, usaremos desarrollo y prueba (*test*). Dentro de la validación cruzada, cada iteración separa el conjunto de desarrollo en entrenamiento (*train*) y validación (*validation*).
+
+La @fig-protocolo resume el procedimiento:
 
 1. Dividir los datos en conjuntos de desarrollo y prueba. A partir de acá, el conjunto de prueba queda *guardado* para la evaluación final.
 
