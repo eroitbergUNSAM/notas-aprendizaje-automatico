@@ -20,6 +20,7 @@ book:
     - 02-modelos-sencillos-arboles.qmd
     - 03-modelos-sencillos-regresion-lineal.qmd
     - 04-evaluacion-de-modelos.qmd
+    - 05-regularizacion.qmd
     - references.qmd
   
 format:

@@ -1,153 +1,219 @@
 # Regularización {#sec-regularizacion}
 
-regularización es uno de los temas más importantes dentro del aprendizaje automático.
+Las familias de modelos dentro del aprendizaje automático tienden a ser flexibles para acomodar las diversas relaciones que pueden encontrar entre los predictores y las etiquetas. Pero un exceso de flexibilidad puede ser perjudicial, ya que el modelo puede encontrar patrones donde no los hay y terminar aprendiendo del ruido (sobreajuste, como vimos en el @sec-evaluacion-de-modelos). Por eso, en general hay características de los modelos —hiperparámetros— que podemos ajustar para controlar su flexibilidad. Por ejemplo, en el caso de los árboles de decisión una característica fundamental es la profundidad, pero hay otras, como la cantidad mínima de instancias requeridas para hacer un corte o la cantidad mínima de instancias que tiene que haber en una hoja. Estos hiperparámetros controlan la complejidad del árbol y, por lo tanto, actúan como mecanismos de **regularización**.
 
-Existen varias formas de motivar la regularización
+Regularizar es restringir la capacidad del modelo para sobreajustarse a los datos de entrenamiento, con el objetivo de mejorar su generalización sobre datos nuevos. Que un modelo más restringido prediga mejor puede parecer contraintuitivo, pero tiene una justificación en lo que se conoce como el compromiso sesgo-varianza, que veremos más adelante. La regularización es uno de los temas más importantes dentro del aprendizaje automático, ya que es un mecanismo que atraviesa prácticamente todas las familias de modelos. En este capítulo nos concentraremos en regularización en regresión lineal.
 
-Los modelos complejos son flexibles.
+## Regularización en regresión lineal
+
+Probablemente la regresión lineal por cuadrados mínimos no parezca un método particularmente flexible. Sin embargo, en muchas situaciones puede tener más flexibilidad de la necesaria:
+
+1. Cuando el número de instancias $N$ es similar a la cantidad de predictores $p$, hay pocos datos para estimar de manera confiable los coeficientes $\beta$. En el caso extremo, cuando hay más predictores que instancias (más precisamente, $p + 1 > N$), no se puede obtener una única solución por cuadrados mínimos, como vimos en el @sec-regresion-lineal.
+
+1. Cuando hay predictores altamente correlacionados entre sí (**multicolinealidad**), aportan información redundante y los coeficientes quedan mal determinados.
 
 
-Dos formas de motivar los métodos de regularización:
-1. **Problemas de multicolinealidad**: Cuando las variables de entrada están altamente correlacionadas, la matriz $\mathbf{X}^T \mathbf{X}$ es casi singular y su inversa es muy inestable. Esto puede llevar a estimaciones poco confiables de los coeficientes.
+<!-- 1. **Gauss-Markov**: El teorema de Gauss-Markov establece que el estimador de mínimos cuadrados es el mejor estimador lineal insesgado (BLUE). Sin embargo, no garantiza que sea el mejor estimador en términos de varianza. En algunos casos, se pueden encontrar estimadores con menor varianza al introducir un sesgo controlado. -->
 
-1. **Gauss-Markov**: El teorema de Gauss-Markov establece que el estimador de mínimos cuadrados es el mejor estimador lineal insesgado (BLUE). Sin embargo, no garantiza que sea el mejor estimador en términos de varianza. En algunos casos, se pueden encontrar estimadores con menor varianza al introducir un sesgo controlado.
 
-Probablemente veamos Gauss-Markov luego de ver compromiso sesgo-varianza.
+Se ve rápidamente cómo impactan estos casos en la solución de cuadrados mínimos ordinarios (OLS, por sus siglas en inglés), $\hat{\beta}^{ols} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$. Cuando los predictores están altamente correlacionados, o cuando hay casi tantos predictores como instancias, la matriz $\mathbf{X}^T \mathbf{X}$ es casi singular y su inversa es muy inestable. Esto lleva a estimaciones poco confiables de los coeficientes: pequeñas modificaciones de los datos pueden dar estimaciones completamente diferentes. En particular, esto se traduce en coeficientes que pueden ser *grandes* en módulo. Por ejemplo, con dos predictores casi iguales, un coeficiente muy positivo y otro muy negativo se compensan y ajustan casi igual de bien que dos coeficientes moderados. Entonces, una forma de introducir regularización es penalizando el tamaño de los coeficientes en la función de costo. Ésta es la acepción más estricta de regularización. A continuación, veremos dos formas de implementarla.
 
-En estas notas, nos vamos a concentrar en regularización para modelos de regrsión lineal. Sin embargo, es u 
+<!-- Ya nos habíamos topao con estos problemas. En el @sec-regresion-lineal, mencionamos que SVD era una forma de evitar estos problemas. A partir de $\hat{\beta} = V D^{-1} U^T \mathbf{y}$, mencionamos que podíamos *recortar* los valores singulares nulos, acomodar $V$ y $U^T$ de forma que se pueda hacer la multiplicación, y obtener una estimación de $\beta$.  -->
 
-## Regularización Ridge
+### Regularización Ridge
 
-Cuando las variables de entrada están altamente correlacionadas, la matriz $\mathbf{X}^T \mathbf{X}$ es casi singular y su inversa es muy inestable. Esto puede llevar a estimaciones poco confiables de los coeficientes. Otra forma de verlo es que modificaciones de los datos pueden llevar a estimaciones completamente diferentes de los coeficientes. En particular, esto se traduce en coeficientes que pueden ser *grandes* en módulo. Entonces, una forma de introducir regularización es penalizando el tamaño de los coeficientes en la función de costo. La regularización Ridge penaliza el módulo de los coeficientes al cuadrado, de la siguiente forma:
+La regularización Ridge penaliza la suma de los cuadrados de los coeficientes, de la siguiente forma:
 
 $$\hat{\beta}^{ridge} = \arg \min_{\beta} \{\sum_{i=1}^{N} (y_i - \beta_0 - \sum_{j=1}^{p} x_{ij} \beta_j)^2 + \lambda \sum_{j=1}^{p} \beta_j^2\}$$
 
-Notar que la ordenada al origen ($\beta_0$) no se penaliza, solos coeficientes que acompañan a los predictores. 
-
-Nuevamente, podemos hacer uso de la notación vectorial y matricial para simplificar la expresión
+Notar que la ordenada al origen ($\beta_0$) no se penaliza, solo los coeficientes que acompañan a los predictores. Nuevamente, podemos hacer uso de la notación vectorial y matricial para simplificar la expresión
 
 $$\hat{\beta}^{ridge} = \arg \min_{\beta} \{(\mathbf{y} - \mathbf{X} \beta)^T (\mathbf{y} - \mathbf{X} \beta) + \lambda \beta^T \beta\}$$
 
-Sin embargo, hay que tener en cuenta que esta expresión solamente es correcta **si los predictores fueron estandarizados**, es decir, que tienen media cero y varianza uno.
+Esta expresión solamente es correcta **si los predictores fueron centrados**, es decir, si tienen media cero. En ese caso, $\hat{\beta}_0 = \bar{y}$, y $\mathbf{X}$ no lleva la columna de unos que usamos en el @sec-regresion-lineal. Además, conviene que los predictores estén estandarizados: la penalización depende del tamaño de los coeficientes, y ese tamaño depende de la escala de cada predictor, así que sin estandarizar la regularización afectaría de forma distinta a cada uno.
+
+En términos de una función de costo, esto se puede escribir como el $RSS$ penalizado:
+
+$$ RSS_\lambda(\beta) = \|\mathbf{y} - \mathbf{X} \beta\|^2 + \lambda \|\beta\|^2 $$
 
 
-* ¿Por qué conviene que los atributos estén centrados?
+<!-- * ¿Por qué conviene que los atributos estén centrados?
 * ¿Por qué conviene que tengan todos la misma varianza?
+ -->
 
-
-
-En términos de una función de costo, esto se puede escribir como:
-
-$$ RSS(\beta, \lambda) = ||\mathbf{y} - \mathbf{X} \beta||^2 + \lambda ||\beta||^2 $$
-
-
-¿Qué hace la regularización Ridge?
-
-La regularización Ridge agrega un término de penalización a la función de costo, que es proporcional a la suma de los cuadrados de los coeficientes. Esto tiene el efecto de *achicar* los coeficientes hacia cero. Entonces $\lambda \ge 0$ es un hiperparámetro que controla la cantidad de regularización. 
+¿Qué hace la regularización Ridge? La regularización Ridge agrega un término de penalización a la función de costo que es proporcional a la suma de los cuadrados de los coeficientes. Esto tiene el efecto de *achicar* los coeficientes hacia cero. El parámetro $\lambda \ge 0$ es un hiperparámetro que controla la cantidad de regularización: 
 
 * Si $\lambda = 0$, entonces el problema se reduce a la regresión lineal ordinaria. 
 * A medida que $\lambda$ aumenta, los coeficientes se vuelven más pequeños y el modelo se vuelve más simple.
 
-La solución se obtiene de la misma manera que en el cuadrados mínimos usual, calculando el gradiente (derivando), igualando a cero y despejando para $\beta$:
+La solución se obtiene de la misma manera que en cuadrados mínimos: calculando el gradiente, igualando a cero y despejando $\beta$:
     
 $$ \hat{\beta}^{ridge} = (\mathbf{X}^T \mathbf{X} + \lambda I)^{-1} \mathbf{X}^T \mathbf{y} $$
 
-### Regresión Ridge con SVD
+Notar que ahora hay que invertir $\mathbf{X}^T \mathbf{X} + \lambda I$, que para $\lambda > 0$ es siempre invertible, aunque $\mathbf{X}^T \mathbf{X}$ no lo sea. Por eso, Ridge resuelve los dos problemas que planteamos al principio. Esto también se puede ver en la función de costo (@fig-ridge-superficie).
 
-SVD ayuda a entender qué hace la regresión ridge. Si $ \mathbf{X} = U D V^T $, entonces $ \hat{\beta}^{ridge} = (\mathbf{X}^T \mathbf{X} + \lambda I)^{-1} \mathbf{X}^T \mathbf{y} $ puede reescribirse así:
+```{python}
+#| label: fig-ridge-superficie
+#| fig-cap: 'Curvas de nivel de la función de costo en función de $\beta_1$ y $\beta_2$, con dos predictores perfectamente correlacionados ($x_2 = x_1$). Izquierda: cuadrados mínimos. Como el costo solo depende de $\beta_1 + \beta_2$, las curvas de nivel son rectas paralelas y todos los puntos de la recta punteada son mínimos: el problema no tiene solución única. Derecha: Ridge. La penalización cierra las curvas de nivel y el problema pasa a tener un único mínimo (estrella).'
+#| echo: false
 
-$$ \hat{\beta}^{ridge} = (V D U^T U D V^T + \lambda I)^{-1} V D U^T \mathbf{y} $$
-$$ \hat{\beta}^{ridge} = (V D^2 V^T + \lambda I)^{-1} V D U^T \mathbf{y} $$
-$$ \hat{\beta}^{ridge} = (V (D^2 + \lambda I) V^T)^{-1} V  D U^T \mathbf{y} $$
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
-Notar que en $(V (D^2 + \lambda I) V^T)^{-1}$ solamente basta invertir el término del medio, ya que $V$ es ortogonal (hacer la cuenta $V (D^2 + \lambda I)^{-1} V^T V (D^2 + \lambda I) V^T$ para convencerse). Además, es fácil ver que $(D^2 + \lambda I)^{-1}$ es una matriz diagonal, donde los elementos de la diagonal son $1/(d_i^2 + \lambda)$, donde $d_i$ son los valores singulares de $\mathbf{X}$. Entonces
+generador = np.random.default_rng(1)
+n = 100
+x1 = generador.normal(0, 1, n)
+x2 = x1.copy()  # colinealidad exacta: x2 no aporta información nueva
+y = 2 * x1 + 3 * x2 + generador.normal(0, 1, n)
+X = np.column_stack([x1, x2])
 
-$$ \hat{\beta}^{ridge} = V (D^2 + \lambda I)^{-1} V^T V  D U^T \mathbf{y} $$
+lambda_ridge = 1.0
+
+beta1_grilla, beta2_grilla = np.meshgrid(np.linspace(-3, 8, 300), np.linspace(-3, 8, 300))
+predicciones = beta1_grilla[..., None] * x1 + beta2_grilla[..., None] * x2
+mse_grilla = ((y - predicciones) ** 2).mean(axis=-1)
+costo_ridge_grilla = mse_grilla + lambda_ridge * (beta1_grilla**2 + beta2_grilla**2)
+
+# con x1 = x2 el costo solo depende de beta1 + beta2: todos los puntos de esta recta son mínimos
+suma_optima = np.sum(x1 * y) / np.sum(x1**2)
+beta1_recta = np.linspace(-3, 8, 2)
+
+# con lambda > 0, X'X/n + lambda I siempre es invertible
+beta_ridge = np.linalg.solve(X.T @ X / n + lambda_ridge * np.eye(2), X.T @ y / n)
+
+fig, (ax_ols, ax_ridge) = plt.subplots(1, 2, figsize=(8, 3.6), sharex=True, sharey=True)
+
+for ax, costo, titulo in [(ax_ols, mse_grilla, "Cuadrados mínimos"),
+                          (ax_ridge, costo_ridge_grilla, "Ridge")]:
+    # niveles geométricos, como en la figura de la función de costo
+    niveles = np.geomspace(costo.min(), costo.max(), 15)
+    ax.contour(beta1_grilla, beta2_grilla, costo, levels=niveles,
+               cmap="viridis", norm=LogNorm(), linewidths=1)
+    ax.set(xlabel=r"$\beta_1$", title=titulo, xlim=(-3, 8), ylim=(-3, 8))
+    ax.set_aspect("equal")
+    ax.spines[["top", "right"]].set_visible(False)
+
+ax_ols.plot(beta1_recta, suma_optima - beta1_recta, "--", color="#3a76b8", linewidth=2)
+ax_ridge.scatter(*beta_ridge, marker="*", s=180, color="#3a76b8", zorder=3)
+ax_ols.set_ylabel(r"$\beta_2$")
+
+fig.tight_layout()
+plt.show()
+```
 
 
-$$ \hat{\beta}^{ridge} = V (D^2 + \lambda I)^{-1} D U^T \mathbf{y} $$
+#### Regresión Ridge con SVD
 
-Entonces, por un lado teníamos que 
+La descomposición en valores singulares ayuda a entender qué hace la regresión Ridge. Si $\mathbf{X} = U D V^T$, entonces $\hat{\beta}^{ridge} = (\mathbf{X}^T \mathbf{X} + \lambda I)^{-1} \mathbf{X}^T \mathbf{y}$ puede reescribirse así:
 
-$$ \hat{\beta}^{ols} = V D^{-1} U^T y$$
+$$\hat{\beta}^{ridge} = (V D U^T U D V^T + \lambda I)^{-1} V D U^T \mathbf{y}$$
 
-y por el otro
+Muchos de los términos de esa ecuación se cancelan, ya que $U^T U = I$ y $V$ es ortogonal. Al final, queda la expresión
 
-$$ \hat{\beta}^{ridge} = V (D^2 + \lambda I)^{-1} D U^T \mathbf{y} $$
+$$\hat{\beta}^{ridge} = V (D^2 + \lambda I)^{-1} D U^T \mathbf{y}$$
 
-La única diferencia es que en lugar de $D^{-1}$ tenemos $(D^2 + \lambda I)^{-1} D$. Ambas son matrices diagonales, en el primer caso cada elemento es $1/d_i$, y en el segundo caso es $d_i/(d_i^2 + \lambda)$. 
+Entonces, por un lado teníamos que $\hat{\beta}^{ols} = V D^{-1} U^T \mathbf{y}$, como vimos en el @sec-regresion-lineal, y por el otro $\hat{\beta}^{ridge} = V (D^2 + \lambda I)^{-1} D U^T \mathbf{y}$.
 
-Comparemos $1/d_i$ y $d_i/(d_i^2 + \lambda)$:
-* Tanto $d_i$ como $\lambda$ son no negativos, por lo que:
+La única diferencia es que en lugar de $D^{-1}$ tenemos $(D^2 + \lambda I)^{-1} D$. Ambas son matrices diagonales: en el primer caso, cada elemento es $1/d_i$, y en el segundo, $d_i/(d_i^2 + \lambda)$. Para compararlos, podemos calcular su cociente. Como $d_i$ y $\lambda$ son no negativos,
+
+$$ \frac{d_i / (d_i^2 + \lambda)}{1 / d_i} = \frac{d_i^2}{d_i^2 + \lambda} \leq 1 $$
+
+Es decir, Ridge achica cada dirección, pero no a todas por igual. Si $d_i^2$ es mucho mayor que $\lambda$, el cociente es cercano a uno y casi no hay cambio. Si $d_i^2$ es mucho menor que $\lambda$, el cociente es cercano a cero y la dirección se achica mucho. Los valores singulares chicos, en relación con el más grande, son justamente los que aparecen con la multicolinealidad: en cuadrados mínimos, el término $1/d_i$ se vuelve enorme, mientras que Ridge lo mantiene acotado (@fig-ridge-valores-singulares).
+
+```{python}
+#| label: fig-ridge-valores-singulares
+#| fig-cap: 'Factor que multiplica a cada dirección singular en cuadrados mínimos ($1/d_i$) y en Ridge ($d_i / (d_i^2 + \lambda)$, con $\lambda = 1$). Para valores singulares grandes, los dos factores casi coinciden. Para valores singulares chicos, que aparecen con la multicolinealidad, el de cuadrados mínimos diverge, mientras que el de Ridge tiende a cero.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+lambda_ridge = 1.0
+# arrancamos apenas por encima de cero: 1/d diverge en d = 0
+valores_singulares = np.linspace(0.01, 5, 500)
+
+fig, ax = plt.subplots(figsize=(5, 3.2))
+ax.plot(valores_singulares, 1 / valores_singulares, color="#c44e52", linewidth=2,
+        label="Cuadrados mínimos: $1/d_i$")
+ax.plot(valores_singulares, valores_singulares / (valores_singulares**2 + lambda_ridge),
+        color="#3a76b8", linewidth=2, label=r"Ridge: $d_i / (d_i^2 + \lambda)$")
+ax.set(xlabel="$d_i$", ylabel="factor", xlim=(0, 5), ylim=(0, 2))
+ax.legend(frameon=False)
+ax.spines[["top", "right"]].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
 
 
-$$  (\frac{d_i}{d_i^2 + \lambda}) /  \frac{1}{d_i} = \frac{d_i^2}{d_i^2 + \lambda} \leq 1$$
-
-¿Qué implica? Cuando los valores singulares son muy chicos singnfica que hay multicolinealidad. Si hay multicolinealidad, el término $1/d_i$ pu
-
-<!-- d_i = np.linspace(0.0, 10, 1000)
-alpha = 1
-
-plt.plot(d_i, 1/d_i, label = 'OLS')
-plt.plot(d_i, d_i/(d_i**2 + alpha), label = 'Ridge')
-
-plt.ylim(0,2)
-plt.legend()
-plt.show() -->
-
-
-## Regularización Lasso
+### Regularización Lasso
 
 En lugar de penalizar los coeficientes al cuadrado, como en la regresión Ridge, la regresión Lasso penaliza la suma de los valores absolutos de los coeficientes:
 
 $$ \hat{\beta}^{lasso} = \arg \min_{\beta} \{\sum_{i=1}^{N} (y_i - \beta_0 - \sum_{j=1}^{p} x_{ij} \beta_j)^2 + \lambda \sum_{j=1}^{p} |\beta_j|\}$$
 
-### Regresión Lasso
+Esa diferencia en la penalización cambia la forma de entrenar el modelo: como el valor absoluto no es derivable en cero, la función de costo deja de ser diferenciable en todos los puntos donde algún coeficiente vale cero, y ya no hay una solución cerrada como la de Ridge. Hay dos formas principales de entrenar el modelo Lasso:
 
-Hay dos formas principales de entrenar el modelo Lasso:
-
-1. ***Coordinate descent***: este es un algoritmo iterativo que optimiza los coeficientes uno a uno, manteniendo los demás fijos. En cada iteración, se actualiza un coeficiente a la vez, minimizando la función de costo con respecto a ese coeficiente mientras se mantienen los otros fijos. Este proceso se repite hasta que los cambios en los coeficientes son pequeños. Es la forma por defecto de entrenar el modelo Lasso en muchas implementaciones, como en `scikit-learn`.
+1. ***Coordinate descent***: es un algoritmo iterativo que optimiza los coeficientes de a uno. En cada paso, minimiza la función de costo con respecto a un único coeficiente, manteniendo los demás fijos. Este proceso se repite hasta que los cambios en los coeficientes son pequeños. Es la forma por defecto de entrenar el modelo Lasso en muchas implementaciones.
 
 1. ***Least-angle regression (LARS)***: este es un algoritmo que construye el modelo Lasso de manera eficiente. Comienza con todos los coeficientes en cero y agrega variables al modelo de manera secuencial, ajustando los coeficientes a medida que avanza.
 
-Vamos a ver *coordinate descent*-
+Vamos a ver cómo es *coordinate descent*, pero no lo vamos a justificar.
 
-### Coordinate descent
+#### Coordinate descent
 
 Para entender *coordinate descent*, conviene entender antes la función *soft-thresholding*:
 
-$$ S(t, \lambda) = sign(t) (|t| - \lambda)_{+} $$
+$$ S(t, \lambda) = \operatorname{sign}(t) \, (|t| - \lambda)_{+} = \operatorname{sign}(t) \max(0, |t| - \lambda) $$
 
-que es equivalente a $$ S(t, \lambda) = sign(t) \max(0, |t| - \lambda) $$
+donde $(z)_{+} = \max(0, z)$ es la parte positiva de $z$.
 
-<!-- def soft_thresholding(x, lambda_):
-    return np.sign(x) * np.maximum(np.abs(x) - lambda_, 0)
+```{python}
+#| label: fig-soft-thresholding
+#| fig-cap: 'Función *soft-thresholding* $S(t, \lambda)$ con $\lambda = 2.5$ (azul), comparada con la identidad (gris punteado). Si $|t| \leq \lambda$, la función vale cero. Si $|t| > \lambda$, achica a $t$ en $\lambda$ hacia el cero.'
+#| echo: false
 
-lambda_ = 2.5
-x = np.linspace(-10, 10, 100)
+import numpy as np
+import matplotlib.pyplot as plt
 
-plt.plot(x, soft_thresholding(x, lambda_))
-plt.plot(x, x, linestyle='--', c='gray')
-plt.grid()
-plt.show() -->
+def soft_thresholding(t, lambda_):
+    return np.sign(t) * np.maximum(np.abs(t) - lambda_, 0)
 
-Lo que hace la función soft-thresholding es *achicar* el valor de $t$ hacia cero, pero si $|t| < \lambda$, lo lleva a cero. Es decir, si el valor absoluto de $t$ es menor que $\lambda$, lo lleva a cero, y si es mayor, lo achica en $\lambda$.
+lambda_lasso = 2.5
+t = np.linspace(-6, 6, 500)
 
-Volviendo a Lasso, la función a optimizar es $ \hat{\beta}^{lasso} = \arg \min_{\beta} \{\sum_{i=1}^{N} (y_i - \beta_0 - \sum_{j=1}^{p} x_{ij} \beta_j)^2 + \lambda \sum_{j=1}^{p} |\beta_j|\}$. Por simplicidad, vamos a asumir que todos los predictores están estandarizados, junto con la variable de salida, así podemos omitir $\beta_0$. También, separamos las contribuciones de todos los coeficientes $\beta_k$ excepto $\beta_j$:
+fig, ax = plt.subplots(figsize=(5, 3.2))
+ax.plot(t, t, linestyle="--", color="#888888", linewidth=1)
+ax.plot(t, soft_thresholding(t, lambda_lasso), color="#3a76b8", linewidth=2)
+ax.set_xticks([-lambda_lasso, 0, lambda_lasso], labels=[r"$-\lambda$", "0", r"$\lambda$"])
+ax.set(xlabel="$t$", ylabel=r"$S(t, \lambda)$")
+ax.spines[["top", "right"]].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
+
+Lo que hace la función *soft-thresholding* es achicar $t$ hacia cero: si $|t| \leq \lambda$, lo lleva exactamente a cero, y si $|t| > \lambda$, le resta $\lambda$ a su valor absoluto (@fig-soft-thresholding). Esta operación es la que permite que Lasso lleve algunos coeficientes exactamente a cero.
+
+Volviendo a Lasso, por simplicidad vamos a asumir que todos los predictores están estandarizados y que la variable de salida está centrada, así podemos omitir $\beta_0$. Además, separamos en la función de costo la contribución de $\beta_j$ de la del resto de los coeficientes $\beta_k$:
 
 $$ \hat{\beta}^{lasso} = \arg \min_{\beta} \{\sum_{i=1}^{N} (y_i - \sum_{k \neq j} x_{ik} \beta_k - x_{ij} \beta_j)^2 +  \lambda \sum_{k \neq j} |\beta_k| + \lambda |\beta_j|\}$$
 
-Entonces, 
+Para actualizar $\beta_j$:
 
-* Asumimos que ya contamos con una estimación inicial $\tilde{\beta}_k$ de los coeficientes. Ésta puede ser cero, aleatoria, o el resultado de un cálculo previo de mínimos cuadrados o ridge, etc.
-* Fijamos todos los coeficientes excepto $\beta_j$
+* Partimos de una estimación $\tilde{\beta}_k$ de los demás coeficientes. Puede ser cero, aleatoria o el resultado de un cálculo previo, por ejemplo de cuadrados mínimos o de Ridge.
+* Fijamos todos los coeficientes excepto $\beta_j$.
 
 La función de costo queda entonces
 
 $$R( \tilde{\beta}, \beta_j) = \sum_{i=1}^{N} (y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k - x_{ij} \beta_j)^2 + \lambda \sum_{k \neq j} |\tilde{\beta}_k| + \lambda |\beta_j| $$
 
-El término $y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k$ es el residuo parcial quitando la contribución de $\beta_j$. Esto es un problema de lasso univariado, que se puede resolver de forma analítica, y cuya solución es:
+El término $y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k$ es el residuo parcial quitando la contribución de $\beta_j$. Esto es un problema de Lasso univariado, que se puede resolver de forma analítica, y cuya solución es:^[Para llegar a esta expresión, conviene multiplicar la función de costo por $\frac{1}{2N}$, lo que no cambia su mínimo. Esa constante queda absorbida en $\lambda$: el $\lambda$ de esta fórmula equivale a $\lambda / (2N)$ en la definición de Lasso.]
 
 $$ \hat{\beta}_j = S\left(\frac{1}{N} \sum_{i=1}^{N} x_{ij} (y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k), \lambda\right) $$
 
-Para resolver el lasso multivariado, entonces, basta con iterar por cada variable, actualizando su coeficiente según la fórmula anterior, y usando los valores más recientes de los otros coeficientes, hasta convergencia.
+Para resolver el Lasso multivariado, entonces, basta con iterar por cada variable, actualizando su coeficiente según la fórmula anterior, y usando los valores más recientes de los otros coeficientes, hasta convergencia.
+
+
+<!-- ### Ridge vs. Lasso -->
