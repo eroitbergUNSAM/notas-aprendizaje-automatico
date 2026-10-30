@@ -216,4 +216,10 @@ $$ \hat{\beta}_j = S\left(\frac{1}{N} \sum_{i=1}^{N} x_{ij} (y_i - \sum_{k \neq 
 Para resolver el Lasso multivariado, entonces, basta con iterar por cada variable, actualizando su coeficiente según la fórmula anterior, y usando los valores más recientes de los otros coeficientes, hasta convergencia.
 
 
-<!-- ### Ridge vs. Lasso -->
+<!-- ### Ridge vs. Lasso
+
+- Comparar ambos métodos (uno selecciona, el otro no). Uno reparte pesos, el otro elige, etc.
+
+- Dibujo típico de la función de costo en 2D, con las curvas de nivel y el mínimo de cada uno, y la intersección con el cuadrado y el círculo.
+
+- Citar o al menos mencionar papers y fechas  -->

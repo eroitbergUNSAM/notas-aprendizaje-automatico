@@ -176,6 +176,9 @@ plt.show()
 
 
 
+
+
+
 <!-- ##### Apartado matemático
 
 Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictores $X$ en $\{X|X_j \leq s\}$ y $\{X|X_j > s\}$
@@ -183,3 +186,5 @@ Para una atributo $X_j$ y un umbral $s$, la regla divide el espacio de predictor
 
     \sum_{j=1}^J \sum_{i \in R_j}^J (y_i - \hat{y}_{R_j})  -->
 
+
+<!-- Recomendación de Juan: ejemplo donde greedy perjudica (compuerta XOR), usos de árboles por fuera de AA -->
