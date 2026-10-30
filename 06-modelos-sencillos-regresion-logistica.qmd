@@ -158,8 +158,88 @@ $$1+ e^{-X^T \beta} = 2$$
 
 Entonces, $e^{-X^T \beta} = 1$. Para que eso se cumpla, el exponente debe ser cero, $X^T \beta = 0$, que es exactamente un hiperplano. Recomendamos convencerse despejando para el caso más sencillo de dos atributos. No olvidar la ordenada al origen.
 
-<!-- ### Entrenamiento -->
+### Entrenamiento
+
+¿Cómo entrenamos una regresión logística? Es decir, ¿cómo obtenemos los coeficientes $\beta$? Como siempre, necesitamos una función de costo a optimizar y un método para optimizarla. Pero este caso es un poco más complejo que el de la regresión lineal; ahí, la regresión lineal predice números que podemos comparar contra números, mientras que la regresión logística predice probabilidades que queremos comparar contra etiquetas^[Otra posibilidad es comparar etiquetas predichas contra etiquetas medidas, como en el perceptrón de Rosenblatt, de gran valor histórico pero que no exploraremos en estas notas.]. Existe una función de costo que hace precisamente esto. No exploraremos sus orígenes en estas notas, pero hay más de una forma de llegar a ella. Se conoce como entropía cruzada, *log loss* y algunos nombres más. Toma la forma
+
+$$ J(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] $$
+
+donde $\hat{p}_i = \frac{1}{1+ e^{-x_i^T \beta}}$ es la probabilidad predicha para la instancia $i$ e $y_i \in \{0, 1\}$ es su etiqueta. Notar que esta expresión cubre los casos para ambas etiquetas.
+
+$J(\beta)$ es convexa cuando $\hat{p}_i$ está dado por la regresión logística. Sin embargo, no tiene solución cerrada, ya que al tomar el gradiente e igualar a cero no obtenemos una expresión que pueda despejarse para obtener una solución. Se debe recurrir a métodos numéricos. Veremos dos métodos muy generales, descenso por gradiente y Newton-Raphson.
+
+#### Descenso por gradiente
+
+Este caso es muy sencillo si ya conocemos el descenso por gradiente aplicado a la regresión lineal. El método es exactamente igual, lo único que cambia es el gradiente. Para obtenerlo, conviene notar que la función sigmoide cumple $\sigma'(z) = \sigma(z)(1 - \sigma(z))$. Como $\hat{p}_i = \sigma(x_i^T \beta)$, resulta que $\frac{\partial \hat{p}_i}{\partial \beta} = \hat{p}_i (1 - \hat{p}_i) \, x_i$. Derivando $J(\beta)$, ese factor se cancela con los denominadores que aparecen al derivar los logaritmos:
+
+$$\frac{\partial J}{\partial \beta} = -\sum_{i=1}^{N} \left[ \frac{y_i}{\hat{p}_i} - \frac{1 - y_i}{1 - \hat{p}_i} \right] \hat{p}_i (1 - \hat{p}_i) \, x_i = -\sum_{i=1}^{N} (y_i - \hat{p}_i) \, x_i$$
+
+o, de forma matricial,
+
+$$\frac{\partial J}{\partial \beta} = -\mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}})$$
+
+donde $\hat{\mathbf{p}}$ es el vector de $N$ componentes con las probabilidades predichas $\hat{p}_i$, y $\mathbf{X}$ incluye la columna de unos. Por lo tanto, el paso de actualización es
+
+$$\beta^{(\tau + 1)} = \beta^{(\tau)} + \eta \mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}}^{(\tau)})$$
+
+Notar que tiene la misma forma que en la regresión lineal: lo que cambia es que $\hat{\mathbf{p}}$ depende de $\beta$ a través de la función sigmoide, en lugar de $\mathbf{X}\beta$. En cada iteración, entonces, hay que volver a calcular las probabilidades predichas con los coeficientes actuales.
 
 
+#### Newton-Raphson
+
+El método de Newton-Raphson es un método iterativo para encontrar raíces de funciones. Dada una función $f(\theta)$, buscamos un valor $\theta^*$ tal que $f(\theta^*) = 0$.
+
+Para ello, partimos de un valor inicial $\theta^{(0)}$ y aproximamos $f$ por su recta tangente en ese punto:
+
+$$ y = f(\theta^{(0)}) + f'(\theta^{(0)})(\theta - \theta^{(0)}) $$
+
+La raíz de esa recta es nuestra nueva aproximación a la raíz de $f$:
+
+$$\theta^{(1)} = \theta^{(0)} - \frac{f(\theta^{(0)})}{f'(\theta^{(0)})}$$
+
+Este paso se repite hasta converger. ¿Qué ocurre si, en lugar de aplicarlo a la función, lo aplicamos a su derivada? Encontramos los puntos donde la derivada se anula, es decir, los puntos críticos de $f$, entre los que están sus mínimos. La actualización en este caso es
+
+$$\theta^{(\tau + 1)} = \theta^{(\tau)} - \frac{f'(\theta^{(\tau)})}{f''(\theta^{(\tau)})}$$
+
+Notar que ahora necesitamos la derivada segunda.
+
+Finalmente, consideremos una función multivariada, que va de $\mathbb{R}^p$ a $\mathbb{R}$. En este caso, la actualización es
+
+$$\theta^{(\tau + 1)} = \theta^{(\tau)} - \mathbf{H}^{-1}(\theta^{(\tau)}) \nabla f(\theta^{(\tau)})$$
+
+Es decir, la derivada se reemplaza por el gradiente (el vector de derivadas parciales) y la derivada segunda, por la matriz Hessiana (la matriz de derivadas parciales segundas):
+
+$$\mathbf{H} = \begin{bmatrix}
+\frac{\partial^2 f}{\partial \theta_1^2} & \frac{\partial^2 f}{\partial \theta_1 \partial \theta_2} & \ldots & \frac{\partial^2 f}{\partial \theta_1 \partial \theta_p} \\
+\frac{\partial^2 f}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 f}{\partial \theta_2^2} & \ldots & \frac{\partial^2 f}{\partial \theta_2 \partial \theta_p} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial^2 f}{\partial \theta_p \partial \theta_1} & \frac{\partial^2 f}{\partial \theta_p \partial \theta_2} & \ldots & \frac{\partial^2 f}{\partial \theta_p^2}
+\end{bmatrix}$$
+
+En la regresión logística, buscamos el $\beta$ que anula el gradiente de $J(\beta)$, que ya obtuvimos en la sección anterior:
+
+$$\frac{\partial J}{\partial \beta} = -\sum_{i=1}^{N} (y_i - \hat{p}_i) \, x_i = 0$$
+
+Este es un sistema de ecuaciones no lineales, que podemos resolver con Newton-Raphson. Para eso necesitamos el Hessiano, que se obtiene derivando nuevamente:
+
+$$\mathbf{H} = \frac{\partial^2 J}{\partial \beta \, \partial \beta^T} = \sum_{i=1}^{N} \hat{p}_i (1 - \hat{p}_i) \, x_i x_i^T$$
+
+Notar que $x_i x_i^T$ es un producto exterior, cuyo resultado es una matriz de $(p+1) \times (p+1)$. Por lo tanto, la actualización de Newton-Raphson es
+
+$$\beta^{(\tau + 1)} = \beta^{(\tau)} - \mathbf{H}^{-1} \frac{\partial J}{\partial \beta}$$
+
+donde tanto el Hessiano como el gradiente se evalúan en $\beta^{(\tau)}$.
+
+Podemos escribir todo esto de forma matricial. Además de $\mathbf{y}$, $\mathbf{X}$ y $\hat{\mathbf{p}}$, definimos $\mathbf{W}$, una matriz diagonal de $N \times N$ con elementos $W_{ii} = \hat{p}_i (1 - \hat{p}_i)$. Entonces, el gradiente y el Hessiano son
+
+$$\frac{\partial J}{\partial \beta} = -\mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}})$$
+
+$$\mathbf{H} = \mathbf{X}^T \mathbf{W} \mathbf{X}$$
+
+y la actualización queda
+
+$$\beta^{(\tau + 1)} = \beta^{(\tau)} + (\mathbf{X}^T \mathbf{W}^{(\tau)} \mathbf{X})^{-1} \mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}}^{(\tau)})$$
+
+Esta expresión ya es suficiente para obtener los coeficientes. Notar que se parece a la del descenso por gradiente, pero en lugar de un paso definido por la tasa de aprendizaje, el paso lo define la derivada segunda (el Hessiano). Por eso, no hay que elegir $\eta$. Newton-Raphson suele converger en pocas iteraciones, pero cada una requiere resolver un sistema de $(p+1) \times (p+1)$, lo que se vuelve costoso cuando hay muchos atributos. En esos casos, suele convenir el descenso por gradiente.
 
 <!-- Regularización -->
