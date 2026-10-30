@@ -1,0 +1,165 @@
+# Modelos sencillos, pero efectivos - Parte 3 {#sec-regresion-logistica}
+
+En este capítulo presentamos la regresión logística. Si bien es un poco menos conocida que la regresión lineal, ambas están íntimamente relacionadas desde lo conceptual, y su uso está ampliamente extendido.
+
+## Regresión logística
+
+La regresión logística es un modelo para clasificación, aunque el nombre pueda hacer creer otra cosa. En su versión más sencilla sirve para clasificación binaria, pero se puede extender a problemas multiclase.
+
+Empecemos por una idea sencilla. En el caso binario, con clases A y B, podríamos hacer el siguiente experimento:
+
+1. Codificar una clase como 0 y la otra como 1. Es decir, si las etiquetas eran $\mathbf{y} = [A, B, B, A, \dots, B]$, hacemos $\mathbf{y} = [0, 1, 1, 0, \dots, 1]$.
+1. Ajustar una regresión lineal para que prediga $Y$ en función de los predictores $X$, es decir, $f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$ o, de manera más compacta, $f(X) = X^T \beta$.
+1. Al momento de predecir para una instancia $x$, asignar A si $x^T \hat{\beta} < 0.5$ y B si $x^T \hat{\beta} \geq 0.5$.
+
+Esta idea, la de resolver un problema de clasificación con una regresión lineal, se puede aplicar y, en muchos casos, anda muy bien. Sin embargo, en muchos otros puede traer problemas. Por un lado, es sensible a valores extremos de los atributos: una instancia muy alejada puede desplazar la frontera de decisión, incluso si está del lado correcto. Por otro lado, si bien se puede extender a problemas multiclase, puede ocurrir que una clase quede oculta por las otras (lo que se conoce como el problema de *masking*).
+
+Pero en realidad uno de los problemas más grandes es qué representan las predicciones. En una clasificación binaria, esperaríamos modelar la probabilidad de pertenecer a una clase dados los atributos, es decir, la probabilidad condicional $P(Y = 1 \mid X)$. Con etiquetas 0 y 1, eso es lo que intenta aproximar la regresión lineal, ya que $E[Y \mid X] = P(Y = 1 \mid X)$. Sin embargo, nada garantiza que los valores predichos estén entre 0 y 1, por lo que no siempre se pueden interpretar como probabilidades.
+
+Por suerte, la solución es sencilla. Podemos recurrir a la función logística o sigmoide^[La función logística o sigmoide no es lo mismo que la regresión logística, así como una función lineal no es una regresión lineal.]. La función sigmoide tiene la siguiente forma:
+
+$$ \sigma(z) = \frac{1}{1+ e^{-z}}$$
+
+donde $z$ puede tomar cualquier valor real. Notar que, cuando $z \to +\infty$, la función tiende a 1, mientras que cuando $z \to -\infty$, tiende a 0. Además, siempre está acotada entre esos dos valores, por lo que se la puede interpretar como una probabilidad.
+
+Combinando la función lineal que usamos antes con la función sigmoide, podemos obtener la siguiente expresión:
+
+$$ f(X) = \frac{1}{1+ e^{-(\beta_0 + \sum_{j=1}^{p} X_j \beta_j)}}$$
+
+o, usando nuevamente la forma compacta, 
+
+$$f(X) = \frac{1}{1+ e^{-X^T \beta}}$$
+
+De esta forma conseguimos una expresión que está acotada entre 0 y 1, y además es una función de los predictores. La regresión logística asume que esta expresión modela la probabilidad de la clase positiva:
+
+$$P(Y = 1 \mid X) = \frac{1}{1+ e^{-X^T \beta}}$$
+
+Su uso sigue exactamente los mismos pasos que definimos anteriormente:
+
+1. Codificar una clase como 0 y la otra como 1. Es decir, si las etiquetas eran $\mathbf{y} = [A, B, B, A, \dots, B]$, hacemos $\mathbf{y} = [0, 1, 1, 0, \dots, 1]$.
+1. Ajustar una regresión logística para que modele $P(Y = 1 \mid X)$ en función de los predictores $X$, es decir, $P(Y = 1 \mid X) = \frac{1}{1+ e^{-X^T \beta}}$.
+1. Al momento de predecir para una instancia $x$, calcular $\hat{p} = \frac{1}{1+ e^{-x^T \hat{\beta}}}$, y asignar A si $\hat{p} < 0.5$ y B si $\hat{p} \geq 0.5$.
+
+### Fronteras de decisión
+
+¿Qué tipo de frontera de decisión obtenemos con la regresión logística? Se puede mostrar que, en el caso de un solo predictor, obtenemos un valor umbral que hace de frontera. En el caso de dos predictores, una recta. Y, en el caso general, con $p$ predictores, obtenemos un hiperplano en ese espacio, es decir, una superficie plana de $p-1$ dimensiones (@fig-logistica-fronteras).
+
+```{python}
+#| label: fig-logistica-fronteras
+#| fig-cap: 'Frontera de decisión de la regresión logística (línea violeta). Izquierda: con un predictor, la curva cruza $P(Y = 1 \mid X) = 0.5$ (línea gris) en un único valor de $X$, que hace de frontera. Centro: con dos predictores, $P(Y = 1 \mid X)$ es una superficie, y la frontera es el conjunto de puntos donde vale 0.5. Derecha: la misma superficie vista desde arriba, donde se ve que la frontera es una recta. Los coeficientes están elegidos a mano y los puntos son simulados, solo a modo ilustrativo.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+
+def sigmoide(z):
+    return 1 / (1 + np.exp(-z))
+
+generador = np.random.default_rng(0)
+color_clase_a, color_clase_b = "#3a76b8", "#d9822b"
+fondo_clase_a, fondo_clase_b = "#cfe0f3", "#f7ddb8"
+color_frontera = "#7b3294"
+mapa_probabilidad = LinearSegmentedColormap.from_list("clases", [fondo_clase_a, fondo_clase_b])
+
+fig = plt.figure(figsize=(9, 3.2))
+
+# posiciones fijas [izquierda, abajo, ancho, alto]: mezclar ejes 2D y 3D en una grilla los desalinea
+rectangulo_1d = [0.06, 0.17, 0.24, 0.66]
+rectangulo_3d = [0.32, 0.02, 0.36, 0.88]
+rectangulo_plano = [0.73, 0.17, 0.24, 0.66]
+altura_titulos = 0.92
+
+# --- un predictor: la frontera es x = -beta0 / beta1 ---
+beta0_1d, beta1_1d = -2.0, 2.0
+frontera_1d = -beta0_1d / beta1_1d
+ax_1d = fig.add_axes(rectangulo_1d)
+
+# una nube por clase, a cada lado de la frontera: mezcladas apenas cerca del umbral
+x = np.concatenate([generador.normal(frontera_1d - 1.5, 0.75, 20),
+                    generador.normal(frontera_1d + 1.5, 0.75, 20)])
+y = np.repeat([False, True], 20)
+x_grilla = np.linspace(-3, 5, 300)
+
+ax_1d.plot(x_grilla, sigmoide(beta0_1d + beta1_1d * x_grilla), color="#333333", linewidth=2)
+ax_1d.axhline(0.5, color="#888888", linestyle="--", linewidth=1)
+ax_1d.axvline(frontera_1d, color=color_frontera, linestyle="--", linewidth=1.5)
+ax_1d.scatter(x[~y], np.zeros((~y).sum()), s=18, color=color_clase_a, zorder=3, clip_on=False)
+ax_1d.scatter(x[y], np.ones(y.sum()), s=18, color=color_clase_b, zorder=3, clip_on=False)
+ax_1d.set(ylabel=r"$P(Y = 1 \mid X)$", xticks=[], yticks=[0, 0.5, 1],
+          xlim=(-3, 5), ylim=(0, 1))
+# a la derecha: centrada quedaba justo debajo de la frontera y parecía su etiqueta
+ax_1d.set_xlabel("$X$", loc="right")
+ax_1d.spines[["top", "right"]].set_visible(False)
+
+# --- dos predictores: la frontera es beta0 + beta1 x1 + beta2 x2 = 0 ---
+beta0, beta1, beta2 = -1.0, 1.5, 1.0
+limite = 3.5
+x1_grilla, x2_grilla = np.meshgrid(np.linspace(-limite, limite, 100),
+                                   np.linspace(-limite, limite, 100))
+probabilidad = sigmoide(beta0 + beta1 * x1_grilla + beta2 * x2_grilla)
+
+# tramo de la frontera que queda dentro de la grilla
+x1_frontera = np.linspace((-beta2 * limite - beta0) / beta1,
+                          (beta2 * limite - beta0) / beta1, 2)
+
+x2_frontera = -(beta0 + beta1 * x1_frontera) / beta2
+
+# centros de las nubes sobre la dirección perpendicular a la frontera
+normal = np.array([beta1, beta2]) / np.hypot(beta1, beta2)
+punto_frontera = -beta0 / np.hypot(beta1, beta2) * normal
+puntos_a = generador.normal(punto_frontera - 1.5 * normal, 0.75, (30, 2))
+puntos_b = generador.normal(punto_frontera + 1.5 * normal, 0.75, (30, 2))
+
+ax_3d = fig.add_axes(rectangulo_3d, projection="3d")
+# más transparente que antes, para que se vean los puntos
+ax_3d.plot_surface(x1_grilla, x2_grilla, probabilidad, cmap=mapa_probabilidad, vmin=0, vmax=1,
+                   linewidth=0, alpha=0.6)
+ax_3d.plot(x1_frontera, x2_frontera, 0.5, color=color_frontera, linestyle="--", linewidth=2, zorder=5)
+# cada punto va a la altura de su etiqueta: 0 o 1
+ax_3d.scatter(*puntos_a.T, 0, s=18, color=color_clase_a, depthshade=False)
+ax_3d.scatter(*puntos_b.T, 1, s=18, color=color_clase_b, depthshade=False)
+ax_3d.set(xticks=[], yticks=[], zticks=[0, 0.5, 1], zlim=(0, 1))
+# sin marcas en los ejes, las etiquetas quedan lejos del cubo; las acercamos
+ax_3d.set_xlabel("$X_1$", labelpad=-10)
+ax_3d.set_ylabel("$X_2$", labelpad=-10)
+ax_3d.set_zlabel(r"$P(Y = 1 \mid X)$", labelpad=-2)
+
+# --- vista desde arriba ---
+ax_plano = fig.add_axes(rectangulo_plano)
+
+ax_plano.contourf(x1_grilla, x2_grilla, probabilidad >= 0.5, levels=[-0.5, 0.5, 1.5],
+                  colors=[fondo_clase_a, fondo_clase_b])
+ax_plano.plot(x1_frontera, x2_frontera, color=color_frontera, linestyle="--", linewidth=2)
+ax_plano.scatter(*puntos_a.T, s=18, color=color_clase_a)
+ax_plano.scatter(*puntos_b.T, s=18, color=color_clase_b)
+ax_plano.set(xlabel="$X_1$", ylabel="$X_2$", xticks=[], yticks=[],
+             xlim=(-limite, limite), ylim=(-limite, limite))
+ax_plano.spines[["top", "right"]].set_visible(False)
+
+# títulos a nivel de figura, para que queden a la misma altura
+for rectangulo, titulo in [(rectangulo_1d, "Un predictor"),
+                           (rectangulo_3d, "Dos predictores"),
+                           (rectangulo_plano, "Vista desde arriba")]:
+    fig.text(rectangulo[0] + rectangulo[2] / 2, altura_titulos, titulo, ha="center", fontsize=12)
+
+plt.show()
+```
+
+#### Obtención matemática de las fronteras
+
+Para obtener la frontera, basta ver en qué valores de $X$ se obtiene justo el umbral de 0.5.
+
+$$P(Y = 1 \mid X) = \frac{1}{1+ e^{-X^T \beta}} = 0.5$$
+
+Como el numerador es 1, para que dé 0.5 el denominador tiene que ser 2.
+
+$$1+ e^{-X^T \beta} = 2$$
+
+Entonces, $e^{-X^T \beta} = 1$. Para que eso se cumpla, el exponente debe ser cero, $X^T \beta = 0$, que es exactamente un hiperplano. Recomendamos convencerse despejando para el caso más sencillo de dos atributos. No olvidar la ordenada al origen.
+
+<!-- ### Entrenamiento -->
+
+
+
+<!-- Regularización -->

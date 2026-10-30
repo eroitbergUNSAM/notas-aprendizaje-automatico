@@ -21,6 +21,7 @@ book:
     - 03-modelos-sencillos-regresion-lineal.qmd
     - 04-evaluacion-de-modelos.qmd
     - 05-regularizacion.qmd
+    - 06-modelos-sencillos-regresion-logistica.qmd
     - references.qmd
   
 format:

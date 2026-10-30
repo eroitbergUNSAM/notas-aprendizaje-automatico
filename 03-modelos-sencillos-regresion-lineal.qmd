@@ -176,7 +176,7 @@ $$f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2  + ... + \beta_p X_p$$
 De esta forma, debemos encontrar un coeficiente $\beta_j$ para cada atributo $X_j$.
 
 Muchas veces, lo van a encontrar escrito de manera más compacta así:
-$$ f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
+$$f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
 
 Pero se puede resumir aún más, usando notación vectorial. Si a $X$ le agregamos un $1$ en el primer lugar, y llamamos $\beta = (\beta_0, \beta_1,..., \beta_p)$, la regresión lineal es simplemente
 
