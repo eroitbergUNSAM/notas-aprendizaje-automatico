@@ -36,7 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./06-modelos-sencillos-regresion-logistica.html" rel="next">
 <link href="./04-evaluacion-de-modelos.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -177,6 +177,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./05-regularizacion.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regularización</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-modelos-sencillos-regresion-logistica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -339,7 +345,13 @@ Figura&nbsp;5.3: Función <em>soft-thresholding</em> <span class="math inline">\
 <p>El término <span class="math inline">\(y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k\)</span> es el residuo parcial quitando la contribución de <span class="math inline">\(\beta_j\)</span>. Esto es un problema de Lasso univariado, que se puede resolver de forma analítica, y cuya solución es:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 <p><span class="math display">\[ \hat{\beta}_j = S\left(\frac{1}{N} \sum_{i=1}^{N} x_{ij} (y_i - \sum_{k \neq j} x_{ik} \tilde{\beta}_k), \lambda\right) \]</span></p>
 <p>Para resolver el Lasso multivariado, entonces, basta con iterar por cada variable, actualizando su coeficiente según la fórmula anterior, y usando los valores más recientes de los otros coeficientes, hasta convergencia.</p>
-<!-- ### Ridge vs. Lasso -->
+<!-- ### Ridge vs. Lasso
+
+- Comparar ambos métodos (uno selecciona, el otro no). Uno reparte pesos, el otro elige, etc.
+
+- Dibujo típico de la función de costo en 2D, con las curvas de nivel y el mínimo de cada uno, y la intersección con el cuadrado y el círculo.
+
+- Citar o al menos mencionar papers y fechas  -->
 
 
 </section>
@@ -760,8 +772,8 @@ Figura&nbsp;5.3: Función <em>soft-thresholding</em> <span class="math inline">\
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link" aria-label="Referencias">
-        <span class="nav-page-text">Referencias</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./06-modelos-sencillos-regresion-logistica.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos - Parte 3">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

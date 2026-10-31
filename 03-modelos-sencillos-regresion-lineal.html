@@ -181,6 +181,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./06-modelos-sencillos-regresion-logistica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Referencias</span></a>
   </div>
@@ -285,7 +291,7 @@ Figura&nbsp;3.2: Izquierda: datos, una recta elegida a mano (rojo) con sus resid
 <p>Es raro que tengamos un solo atributo; en general son varios, que es precisamente lo que hace más interesantes a los problemas. La regresión lineal se adapta fácilmente a estas situaciones. Si tenemos <span class="math inline">\(p\)</span> variables, podemos escribir</p>
 <p><span class="math display">\[f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2  + ... + \beta_p X_p\]</span></p>
 <p>De esta forma, debemos encontrar un coeficiente <span class="math inline">\(\beta_j\)</span> para cada atributo <span class="math inline">\(X_j\)</span>.</p>
-<p>Muchas veces, lo van a encontrar escrito de manera más compacta así: <span class="math display">\[ f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j\]</span></p>
+<p>Muchas veces, lo van a encontrar escrito de manera más compacta así: <span class="math display">\[f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j\]</span></p>
 <p>Pero se puede resumir aún más, usando notación vectorial. Si a <span class="math inline">\(X\)</span> le agregamos un <span class="math inline">\(1\)</span> en el primer lugar, y llamamos <span class="math inline">\(\beta = (\beta_0, \beta_1,..., \beta_p)\)</span>, la regresión lineal es simplemente</p>
 <p><span class="math display">\[f(X) = X^T \beta\]</span></p>
 <p>donde, por las definiciones que hicimos antes, tanto <span class="math inline">\(X\)</span> como <span class="math inline">\(\beta\)</span> son vectores de tamaño <span class="math inline">\(p+1\)</span>. La función de costo a minimizar es la misma, la suma de los residuos al cuadrado:</p>
