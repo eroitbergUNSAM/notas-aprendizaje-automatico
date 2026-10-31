@@ -4,7 +4,7 @@ En este capítulo presentamos la regresión logística. Si bien es un poco menos
 
 ## Regresión logística
 
-La regresión logística es un modelo para clasificación, aunque el nombre pueda hacer creer otra cosa. En su versión más sencilla sirve para clasificación binaria, pero se puede extender a problemas multiclase.
+La regresión logística es un modelo para clasificación, aunque el nombre pueda hacer creer otra cosa. En su versión más sencilla sirve para clasificación binaria, y, si bien se puede extender a problemas multiclase, aquí nos concentraremos en el caso binario.
 
 Empecemos por una idea sencilla. En el caso binario, con clases A y B, podríamos hacer el siguiente experimento:
 
@@ -112,7 +112,7 @@ puntos_a = generador.normal(punto_frontera - 1.5 * normal, 0.75, (30, 2))
 puntos_b = generador.normal(punto_frontera + 1.5 * normal, 0.75, (30, 2))
 
 ax_3d = fig.add_axes(rectangulo_3d, projection="3d")
-# más transparente que antes, para que se vean los puntos
+# semitransparente, para que se vean los puntos
 ax_3d.plot_surface(x1_grilla, x2_grilla, probabilidad, cmap=mapa_probabilidad, vmin=0, vmax=1,
                    linewidth=0, alpha=0.6)
 ax_3d.plot(x1_frontera, x2_frontera, 0.5, color=color_frontera, linestyle="--", linewidth=2, zorder=5)
@@ -158,9 +158,11 @@ $$1+ e^{-X^T \beta} = 2$$
 
 Entonces, $e^{-X^T \beta} = 1$. Para que eso se cumpla, el exponente debe ser cero, $X^T \beta = 0$, que es exactamente un hiperplano. Recomendamos convencerse despejando para el caso más sencillo de dos atributos. No olvidar la ordenada al origen.
 
+Esta cuenta también muestra qué hace cada coeficiente: $\beta_1, \dots, \beta_p$ determinan la orientación de la frontera, y $\beta_0$ la desplaza de forma paralela a sí misma. Sin este coeficiente, la frontera estaría obligada a pasar por el origen.
+
 ### Entrenamiento
 
-¿Cómo entrenamos una regresión logística? Es decir, ¿cómo obtenemos los coeficientes $\beta$? Como siempre, necesitamos una función de costo a optimizar y un método para optimizarla. Pero este caso es un poco más complejo que el de la regresión lineal; ahí, la regresión lineal predice números que podemos comparar contra números, mientras que la regresión logística predice probabilidades que queremos comparar contra etiquetas^[Otra posibilidad es comparar etiquetas predichas contra etiquetas medidas, como en el perceptrón de Rosenblatt, de gran valor histórico pero que no exploraremos en estas notas.]. Existe una función de costo que hace precisamente esto. No exploraremos sus orígenes en estas notas, pero hay más de una forma de llegar a ella. Se conoce como entropía cruzada, *log loss* y algunos nombres más. Toma la forma
+¿Cómo entrenamos una regresión logística? Es decir, ¿cómo obtenemos los coeficientes $\beta$? Como siempre, necesitamos una función de costo a optimizar y un método para optimizarla. Pero este caso es un poco más complejo que el de la regresión lineal; ahí predecimos números que podemos comparar contra números, mientras que la regresión logística predice probabilidades que queremos comparar contra etiquetas^[Otra posibilidad es comparar etiquetas predichas contra etiquetas medidas, como en el perceptrón de Rosenblatt, de gran valor histórico pero que no exploraremos en estas notas.]. Existe una función de costo que hace precisamente esto. No exploraremos sus orígenes en estas notas, pero hay más de una forma de llegar a ella. Se conoce como entropía cruzada, *log loss* y algunos nombres más. Toma la forma
 
 $$ J(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] $$
 
@@ -182,10 +184,16 @@ donde $\hat{\mathbf{p}}$ es el vector de $N$ componentes con las probabilidades 
 
 $$\beta^{(\tau + 1)} = \beta^{(\tau)} + \eta \mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}}^{(\tau)})$$
 
-Notar que tiene la misma forma que en la regresión lineal: lo que cambia es que $\hat{\mathbf{p}}$ depende de $\beta$ a través de la función sigmoide, en lugar de $\mathbf{X}\beta$. En cada iteración, entonces, hay que volver a calcular las probabilidades predichas con los coeficientes actuales.
+Notar que tiene la misma forma que en la regresión lineal: lo que cambia es que $\hat{\mathbf{p}}$ depende de $\beta$ a través de la función sigmoide, en lugar de $\mathbf{X}\beta$. En cada iteración, entonces, hay que volver a calcular las probabilidades predichas con los coeficientes actuales. Además, conviene estandarizar los atributos: si tienen escalas muy distintas, la función de costo queda muy alargada en algunas direcciones y el método converge más lento.
+
+El gradiente también dice algo sobre la ordenada al origen. Como la primera columna de $\mathbf{X}$ son unos, igualar a cero la componente correspondiente a $\beta_0$ da $\sum_{i=1}^{N} (y_i - \hat{p}_i) = 0$. Es decir, en el óptimo sin regularizar, el promedio de las probabilidades predichas coincide con la proporción de instancias de la clase positiva en el conjunto de entrenamiento.
 
 
 #### Newton-Raphson
+
+::: {.fuente}
+Esta sección solamente es parte del programa de Aprendizaje Automático de UNSAM. De todas maneras, su lectura es bienvenida si genera curiosidad.
+:::
 
 El método de Newton-Raphson es un método iterativo para encontrar raíces de funciones. Dada una función $f(\theta)$, buscamos un valor $\theta^*$ tal que $f(\theta^*) = 0$.
 
@@ -216,6 +224,8 @@ $$\mathbf{H} = \begin{bmatrix}
 \frac{\partial^2 f}{\partial \theta_p \partial \theta_1} & \frac{\partial^2 f}{\partial \theta_p \partial \theta_2} & \ldots & \frac{\partial^2 f}{\partial \theta_p^2}
 \end{bmatrix}$$
 
+##### Newton-Raphson para la regresión logística
+
 En la regresión logística, buscamos el $\beta$ que anula el gradiente de $J(\beta)$, que ya obtuvimos en la sección anterior:
 
 $$\frac{\partial J}{\partial \beta} = -\sum_{i=1}^{N} (y_i - \hat{p}_i) \, x_i = 0$$
@@ -242,4 +252,14 @@ $$\beta^{(\tau + 1)} = \beta^{(\tau)} + (\mathbf{X}^T \mathbf{W}^{(\tau)} \mathb
 
 Esta expresión ya es suficiente para obtener los coeficientes. Notar que se parece a la del descenso por gradiente, pero en lugar de un paso definido por la tasa de aprendizaje, el paso lo define la derivada segunda (el Hessiano). Por eso, no hay que elegir $\eta$. Newton-Raphson suele converger en pocas iteraciones, pero cada una requiere resolver un sistema de $(p+1) \times (p+1)$, lo que se vuelve costoso cuando hay muchos atributos. En esos casos, suele convenir el descenso por gradiente.
 
-<!-- Regularización -->
+### Regularización
+
+Las penalizaciones L2 (Ridge) y L1 (Lasso) vistas en la regresión lineal se aplican de la misma manera en la regresión logística, y su efecto sobre los coeficientes es análogo. Las funciones de costo quedan
+
+$$J_{L2}(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] + \lambda \sum_{j=1}^{p} \beta_j^2$$
+
+$$J_{L1}(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] + \lambda \sum_{j=1}^{p} |\beta_j|$$
+
+donde, al igual que en la regresión lineal, la ordenada al origen $\beta_0$ no se penaliza. Y, como vimos en el @sec-regularizacion, conviene que los atributos estén estandarizados, ya que la penalización depende del tamaño de los coeficientes y este, de la escala de cada atributo.
+
+Así como en la regresión lineal, L1 selecciona variables, mientras que L2 reparte el peso entre atributos correlacionados. Además, en la regresión logística la regularización cumple un rol adicional: si las clases son linealmente separables, el costo sin regularizar no tiene un mínimo finito, ya que agrandar los coeficientes siempre lo reduce. La penalización evita que diverjan, y por ese motivo algunas bibliotecas la traen implementada por defecto.
