@@ -339,7 +339,7 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 <p><span class="math display">\[\mathbf{H} = \mathbf{X}^T \mathbf{W} \mathbf{X}\]</span></p>
 <p>y la actualización queda</p>
 <p><span class="math display">\[\beta^{(\tau + 1)} = \beta^{(\tau)} + (\mathbf{X}^T \mathbf{W}^{(\tau)} \mathbf{X})^{-1} \mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}}^{(\tau)})\]</span></p>
-<p>Esta expresión ya es suficiente para obtener los coeficientes. Notar que se parece a la del descenso por gradiente, pero en lugar de un paso definido por la tasa de aprendizaje, el paso lo define la derivada segunda (el Hessiano). Por eso, no hay que elegir <span class="math inline">\(\eta\)</span>. Newton-Raphson suele converger en pocas iteraciones, pero cada una requiere resolver un sistema de <span class="math inline">\((p+1) \times (p+1)\)</span>, lo que se vuelve costoso cuando hay muchos atributos. En esos casos, suele convenir el descenso por gradiente.</p>
+<p>Esta expresión ya es suficiente para obtener los coeficientes. Notar que se parece a la del descenso por gradiente, pero en lugar de una tasa de aprendizaje que escala el gradiente, usamos la inversa del Hessiano, que ajusta tanto el tamaño como la dirección del paso según la curvatura de la función de costo. Por eso, no hay que elegir <span class="math inline">\(\eta\)</span>. Newton-Raphson suele converger en pocas iteraciones, pero cada una requiere resolver un sistema de <span class="math inline">\((p+1) \times (p+1)\)</span>, lo que se vuelve costoso cuando hay muchos atributos. En esos casos, suele convenir el descenso por gradiente.</p>
 </section>
 </section>
 </section>
