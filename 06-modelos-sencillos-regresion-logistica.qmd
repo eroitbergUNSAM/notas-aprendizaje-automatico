@@ -250,7 +250,7 @@ y la actualización queda
 
 $$\beta^{(\tau + 1)} = \beta^{(\tau)} + (\mathbf{X}^T \mathbf{W}^{(\tau)} \mathbf{X})^{-1} \mathbf{X}^T (\mathbf{y} - \hat{\mathbf{p}}^{(\tau)})$$
 
-Esta expresión ya es suficiente para obtener los coeficientes. Notar que se parece a la del descenso por gradiente, pero en lugar de un paso definido por la tasa de aprendizaje, el paso lo define la derivada segunda (el Hessiano). Por eso, no hay que elegir $\eta$. Newton-Raphson suele converger en pocas iteraciones, pero cada una requiere resolver un sistema de $(p+1) \times (p+1)$, lo que se vuelve costoso cuando hay muchos atributos. En esos casos, suele convenir el descenso por gradiente.
+Esta expresión ya es suficiente para obtener los coeficientes. Notar que se parece a la del descenso por gradiente, pero en lugar de una tasa de aprendizaje que escala el gradiente, usamos la inversa del Hessiano, que ajusta tanto el tamaño como la dirección del paso según la curvatura de la función de costo. Por eso, no hay que elegir $\eta$. Newton-Raphson suele converger en pocas iteraciones, pero cada una requiere resolver un sistema de $(p+1) \times (p+1)$, lo que se vuelve costoso cuando hay muchos atributos. En esos casos, suele convenir el descenso por gradiente.
 
 ### Regularización
 
