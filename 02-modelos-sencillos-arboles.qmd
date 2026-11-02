@@ -1,8 +1,6 @@
-# Modelos sencillos, pero efectivos - Parte 1
+# Modelos sencillos, pero efectivos: árboles de decisión {#sec-arboles-decision}
 
 Este capítulo y el próximo presentan dos modelos de aprendizaje automático sencillos pero sumamente útiles. El primero de ellos es el árbol de decisión, un modelo ampliamente utilizado que también sirve de base para enfoques más complejos. El segundo es la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.
-
-## Árboles de decisión
 
 Un árbol de decisión es una estructura compuesta de ramas, y nodos internos y externos (hojas), tal como se muestra en la @fig-arbol. El árbol se lee de arriba hacia abajo. Dada una nueva instancia, ésta es clasificada recorriendo el árbol de decisión: en cada nodo interno, el árbol hace una pregunta a la instancia sobre alguno de sus atributos. Según la respuesta a esta pregunta, deriva a la instancia por alguna de sus ramas, donde puede ocurrir que aparezca otro nodo —otra pregunta— o que termine en una hoja (nodo externo). La hoja contiene la etiqueta que le corresponde a esa instancia, finalizando su recorrido en el árbol.
 
@@ -32,11 +30,11 @@ digraph arbol {
 ```
 
 
-### Entrenamiento de un árbol para clasificación
+## Entrenamiento de un árbol para clasificación
 
 Como vimos en el @sec-aprendizaje-automatico, para entrenar un modelo necesitamos dos cosas: una función de costo y una forma de optimizar sobre esa función de costo. El optimizador simplemente modifica parámetros o características internas del modelo para alcanzar un mínimo de esa función de costo o, en su defecto, disminuir su valor.^[Este marco es una simplificación: no todos los modelos encajan exactamente en él, pero sirve para entender la mayoría.] Para los árboles de decisión aplicados a clasificación, necesitamos entender el concepto de impureza Gini.^[La impureza Gini no es la única opción: otra muy usada es la entropía.]
 
-#### Impureza Gini
+### Impureza Gini
 
 Supongamos que tenemos tres recipientes con 10 pelotas de colores cada uno (@fig-recipientes). En el recipiente 1, hay 10 pelotas verdes; en el recipiente 2 hay 5 verdes y 5 grises; y en el recipiente 3 hay 8 verdes y 2 grises. Si les pidieran ordenar por pureza a los recipientes, ¿cómo lo harían?
 
@@ -102,7 +100,7 @@ ax.axis("off")
 plt.show()
 ```
 
-#### Entrenamiento de un árbol
+### Entrenamiento de un árbol
 
 El objetivo de entrenar un árbol de decisión es obtener las preguntas —las reglas de decisión— que usará para predecir sobre nuevas instancias. Hay varias formas de entrenar árboles; aquí nos concentraremos en CART (*Classification and Regression Trees*), uno de los métodos más usados. 
 
@@ -116,11 +114,11 @@ Cuando las hojas contienen instancias de una sola clase, se dice que son hojas p
 
 Esta forma de optimizar —en este caso, ir reduciendo la impureza Gini en cada nodo de decisión yendo de arriba hacia abajo (*top-down*)— se llama *greedy*. Es *greedy* porque se hace el mejor corte en cada nodo, sin mirar hacia adelante si se podría hacer un corte que no sea el mejor en ese momento pero que resulte en un mejor árbol en un corte posterior. 
 
-#### Predicción
+### Predicción
 
 ¿Cómo es el proceso de predicción con un árbol de decisión? Dijimos anteriormente que cuando queremos predecir sobre una instancia, ésta recorre el árbol hasta llegar a la hoja correspondiente. Pero la hoja no necesariamente es pura. Entonces, el árbol siempre predice la moda de las clases en esa hoja, es decir, la clase mayoritaria.
 
-#### Fronteras de decisión
+### Fronteras de decisión
 
 Como vimos en el @sec-aprendizaje-automatico, un clasificador genera una frontera de decisión, o, dicho de otra forma, pinta el espacio del color de cada clase. Formalmente, podemos decir que un clasificador divide el espacio de atributos en regiones $R_1, \dots, R_M$ y le asigna una clase a cada una. Al recorrer ese espacio, en algún punto el clasificador deja de predecir una clase y pasa a predecir otra: el conjunto de esos puntos es la frontera de decisión. Cada familia de modelos genera fronteras con formas características. En los árboles, como cada nodo hace un corte sobre un único atributo $X_j$ —separa las instancias con $X_j \leq s$ de las que tienen $X_j > s$—, la frontera está formada por tramos perpendiculares a alguno de los ejes. Con dos atributos es fácil de visualizar: son segmentos verticales u horizontales. Con tres, son porciones de planos perpendiculares a alguno de los ejes. En general, para un número arbitrario de atributos, se trata de porciones de hiperplanos perpendiculares a alguno de los ejes.
 
@@ -170,7 +168,7 @@ plt.show()
 ```
 
 
-### Árboles de decisión para regresión
+## Árboles de decisión para regresión
 
 ¿Qué cambia si queremos usar un árbol para regresión? El proceso es exactamente el mismo, pero cambiando la impureza Gini, que funciona sobre categorías, por la varianza, que funciona sobre valores numéricos. Al momento de predecir, no devolvemos la moda, sino el promedio. La combinación varianza/promedio no es casual: la varianza de un nodo es exactamente el error cuadrático medio que se comete si se predice con el promedio de ese nodo, y el promedio es justamente el valor que hace mínimo ese error. Es decir, la función de costo y la regla de predicción están alineadas.
 

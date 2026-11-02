@@ -1,8 +1,6 @@
-# Modelos sencillos, pero efectivos - Parte 2 {#sec-regresion-lineal}
+# Modelos sencillos, pero efectivos: regresión lineal {#sec-regresion-lineal}
 
 Este capítulo presenta la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.
-
-## Regresión lineal
 
 Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, usa datos para *aprender* de ellos y, para hacerlo, utiliza tanto una función de costo como un optimizador, siguiendo el esquema del @sec-aprendizaje-automatico.
 
@@ -70,7 +68,7 @@ fig.text(rectangulo_multiple[0] + rectangulo_multiple[2] / 2, altura_titulos,
 plt.show()
 ```
 
-### Regresión lineal simple
+## Regresión lineal simple
 
 Supongamos que solamente tenemos un atributo $X$; entonces, proponemos que la relación $f$ entre ese atributo y la variable a predecir $Y$ tiene la siguiente forma:
 
@@ -163,7 +161,7 @@ fig.tight_layout()
 plt.show()
 ```
 
-### Regresión lineal múltiple
+## Regresión lineal múltiple
 
 ::: {.fuente}
 La complejidad matemática de esta sección es un poco mayor a la que venimos teniendo. Recomendamos repasar la notación introducida en el @sec-aprendizaje-automatico.
@@ -220,7 +218,7 @@ Desde un punto de vista operativo, ya está. Obtuvimos un estimador de los coefi
 La regresión lineal suele ser el Benchmark de muchos problemas de regresión pero no por eso hay que minimizar su utilidad. Muchas relaciones en la naturaleza son lineales, al menos hasta cierto punto. -->
 
 
-#### Descomposición en valores singulares (SVD)
+### Descomposición en valores singulares (SVD)
 
 Una forma particularmente útil de calcular el estimador de cuadrados mínimos $\hat{\beta}$ es usando la descomposición en valores singulares. A partir de la descomposición $\mathbf{X} = U D V^T$, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla
     
@@ -236,7 +234,7 @@ Si $\mathbf{X}^T \mathbf{X}$ no es invertible (por ejemplo, cuando hay atributos
 
 La solución de cuadrados mínimos a partir de la descomposición en valores singulares es la que utilizan muchas bibliotecas de cálculo numérico.
 
-#### Descenso por gradiente
+### Descenso por gradiente
 
 La solución de cuadrados mínimos $\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$ o, con la descomposición, $\hat{\beta} = V D^{-1} U^T \mathbf{y}$, es sumamente útil y la forma por defecto para obtener los parámetros de una regresión lineal. Pero existen circunstancias en las que obtener esas soluciones es muy costoso. Por ejemplo, cuando hay muchos atributos, o cuando $\mathbf{X}$ es tan grande que no entra en memoria. En estos casos, se pueden utilizar métodos de optimización para obtener los coeficientes $\beta$. El descenso por gradiente es uno de los métodos más conocidos.
 
