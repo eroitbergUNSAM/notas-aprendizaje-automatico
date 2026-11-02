@@ -156,9 +156,7 @@ Como el numerador es 1, para que dé 0.5 el denominador tiene que ser 2.
 
 $$1+ e^{-X^T \beta} = 2$$
 
-Entonces, $e^{-X^T \beta} = 1$. Para que eso se cumpla, el exponente debe ser cero, $X^T \beta = 0$, que es exactamente un hiperplano. Recomendamos convencerse despejando para el caso más sencillo de dos atributos. No olvidar la ordenada al origen.
-
-Esta cuenta también muestra qué hace cada coeficiente: $\beta_1, \dots, \beta_p$ determinan la orientación de la frontera, y $\beta_0$ la desplaza de forma paralela a sí misma. Sin este coeficiente, la frontera estaría obligada a pasar por el origen.
+Entonces, $e^{-X^T \beta} = 1$. Para que eso se cumpla, el exponente debe ser cero, $X^T \beta = 0$, que es exactamente un hiperplano. Recomendamos convencerse despejando para el caso más sencillo de dos atributos, sin olvidar la ordenada al origen, $\beta_0$. Esta cuenta también muestra qué hace cada coeficiente: $\beta_1, \dots, \beta_p$ determinan la orientación de la frontera, y $\beta_0$ la desplaza de forma paralela a sí misma. Sin este coeficiente, la frontera estaría obligada a pasar por el origen.
 
 ### Entrenamiento
 
@@ -186,7 +184,9 @@ $$\beta^{(\tau + 1)} = \beta^{(\tau)} + \eta \mathbf{X}^T (\mathbf{y} - \hat{\ma
 
 Notar que tiene la misma forma que en la regresión lineal: lo que cambia es que $\hat{\mathbf{p}}$ depende de $\beta$ a través de la función sigmoide, en lugar de $\mathbf{X}\beta$. En cada iteración, entonces, hay que volver a calcular las probabilidades predichas con los coeficientes actuales. Además, conviene estandarizar los atributos: si tienen escalas muy distintas, la función de costo queda muy alargada en algunas direcciones y el método converge más lento.
 
-El gradiente también dice algo sobre la ordenada al origen. Como la primera columna de $\mathbf{X}$ son unos, igualar a cero la componente correspondiente a $\beta_0$ da $\sum_{i=1}^{N} (y_i - \hat{p}_i) = 0$. Es decir, en el óptimo sin regularizar, el promedio de las probabilidades predichas coincide con la proporción de instancias de la clase positiva en el conjunto de entrenamiento.
+Al igual que en la regresión lineal, el descenso por gradiente también se puede hacer con una fracción de las instancias —un *mini-batch*— o de forma estocástica, usando una instancia por vez en cada actualización.
+
+<!-- El gradiente también dice algo sobre la ordenada al origen. Como la primera columna de $\mathbf{X}$ son unos, igualar a cero la componente correspondiente a $\beta_0$ da $\sum_{i=1}^{N} (y_i - \hat{p}_i) = 0$. Es decir, en el óptimo sin regularizar, el promedio de las probabilidades predichas coincide con la proporción de instancias de la clase positiva en el conjunto de entrenamiento. -->
 
 
 #### Newton-Raphson
