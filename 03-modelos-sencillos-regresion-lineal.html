@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Modelos sencillos, pero efectivos - Parte 2 – Otro texto más sobre aprendizaje automático</title>
+<title>3&nbsp; Modelos sencillos, pero efectivos: regresión lineal – Otro texto más sobre aprendizaje automático</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -118,7 +118,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-modelos-sencillos-regresion-lineal.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-modelos-sencillos-regresion-lineal.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión lineal</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
@@ -158,13 +158,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./02-modelos-sencillos-arboles.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: árboles de decisión</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03-modelos-sencillos-regresion-lineal.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión lineal</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -182,7 +182,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./06-modelos-sencillos-regresion-logistica.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión logística</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-modelos-de-ensamble.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Modelos de ensamble</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -201,10 +207,11 @@ window.Quarto = {
     <h2 id="toc-title">Tabla de contenidos</h2>
    
   <ul>
-  <li><a href="#regresión-lineal" id="toc-regresión-lineal" class="nav-link active" data-scroll-target="#regresión-lineal"><span class="header-section-number">3.1</span> Regresión lineal</a>
+  <li><a href="#regresión-lineal-simple" id="toc-regresión-lineal-simple" class="nav-link active" data-scroll-target="#regresión-lineal-simple"><span class="header-section-number">3.1</span> Regresión lineal simple</a></li>
+  <li><a href="#regresión-lineal-múltiple" id="toc-regresión-lineal-múltiple" class="nav-link" data-scroll-target="#regresión-lineal-múltiple"><span class="header-section-number">3.2</span> Regresión lineal múltiple</a>
   <ul class="collapse">
-  <li><a href="#regresión-lineal-simple" id="toc-regresión-lineal-simple" class="nav-link" data-scroll-target="#regresión-lineal-simple"><span class="header-section-number">3.1.1</span> Regresión lineal simple</a></li>
-  <li><a href="#regresión-lineal-múltiple" id="toc-regresión-lineal-múltiple" class="nav-link" data-scroll-target="#regresión-lineal-múltiple"><span class="header-section-number">3.1.2</span> Regresión lineal múltiple</a></li>
+  <li><a href="#descomposición-en-valores-singulares-svd" id="toc-descomposición-en-valores-singulares-svd" class="nav-link" data-scroll-target="#descomposición-en-valores-singulares-svd"><span class="header-section-number">3.2.1</span> Descomposición en valores singulares (SVD)</a></li>
+  <li><a href="#descenso-por-gradiente" id="toc-descenso-por-gradiente" class="nav-link" data-scroll-target="#descenso-por-gradiente"><span class="header-section-number">3.2.2</span> Descenso por gradiente</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -214,7 +221,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="sec-regresion-lineal" class="quarto-section-identifier"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span></h1>
+<h1 class="title"><span id="sec-regresion-lineal" class="quarto-section-identifier"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión lineal</span></span></h1>
 </div>
 
 
@@ -232,8 +239,6 @@ window.Quarto = {
 
 
 <p>Este capítulo presenta la regresión lineal, probablemente el modelo más utilizado dentro de la estadística y del aprendizaje automático.</p>
-<section id="regresión-lineal" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="regresión-lineal"><span class="header-section-number">3.1</span> Regresión lineal</h2>
 <p>Muchos probablemente la conozcan de haber estudiado estadística y se estarán preguntando en este momento si la regresión lineal es realmente parte del aprendizaje automático. Pero, como veremos, usa datos para <em>aprender</em> de ellos y, para hacerlo, utiliza tanto una función de costo como un optimizador, siguiendo el esquema del <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>.</p>
 <p>Recordemos que resolver un problema de regresión consiste en predecir un valor numérico a partir de un conjunto de atributos. En el caso más sencillo —un solo predictor— esto es equivalente a encontrar una curva que pase lo más cerca posible de los puntos <span class="math inline">\((x,y)\)</span>. Cuando tenemos dos predictores, lo que buscamos es una superficie, y así sucesivamente (<a href="#fig-regresion-simple-multiple" class="quarto-xref">Figura&nbsp;<span>3.1</span></a>).</p>
 <div id="cell-fig-regresion-simple-multiple" class="cell" data-execution_count="1">
@@ -250,8 +255,8 @@ Figura&nbsp;3.1: Izquierda: regresión lineal con un solo atributo <span class="
 </div>
 </div>
 </div>
-<section id="regresión-lineal-simple" class="level3" data-number="3.1.1">
-<h3 data-number="3.1.1" class="anchored" data-anchor-id="regresión-lineal-simple"><span class="header-section-number">3.1.1</span> Regresión lineal simple</h3>
+<section id="regresión-lineal-simple" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="regresión-lineal-simple"><span class="header-section-number">3.1</span> Regresión lineal simple</h2>
 <p>Supongamos que solamente tenemos un atributo <span class="math inline">\(X\)</span>; entonces, proponemos que la relación <span class="math inline">\(f\)</span> entre ese atributo y la variable a predecir <span class="math inline">\(Y\)</span> tiene la siguiente forma:</p>
 <p><span class="math display">\[ f(X) = \beta_0 + \beta_1 X \]</span></p>
 <p>Entrenar una regresión lineal consiste en encontrar el <span class="math inline">\(\beta_0\)</span> y el <span class="math inline">\(\beta_1\)</span> que hagan que la curva —una recta en este caso— mejor se aproxime a los datos. A <span class="math inline">\(\beta_1\)</span> se lo suele conocer como pendiente y a <span class="math inline">\(\beta_0\)</span> como ordenada al origen, pero para nosotros serán <em>coeficientes</em> o <em>parámetros</em> de la regresión lineal.</p>
@@ -283,8 +288,8 @@ Figura&nbsp;3.2: Izquierda: datos, una recta elegida a mano (rojo) con sus resid
 </div>
 </div>
 </section>
-<section id="regresión-lineal-múltiple" class="level3" data-number="3.1.2">
-<h3 data-number="3.1.2" class="anchored" data-anchor-id="regresión-lineal-múltiple"><span class="header-section-number">3.1.2</span> Regresión lineal múltiple</h3>
+<section id="regresión-lineal-múltiple" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="regresión-lineal-múltiple"><span class="header-section-number">3.2</span> Regresión lineal múltiple</h2>
 <div class="fuente">
 <p>La complejidad matemática de esta sección es un poco mayor a la que venimos teniendo. Recomendamos repasar la notación introducida en el <a href="01-aprendizaje-automatico.html" class="quarto-xref"><span>Capítulo 1</span></a>.</p>
 </div>
@@ -312,8 +317,8 @@ Figura&nbsp;3.2: Izquierda: datos, una recta elegida a mano (rojo) con sus resid
 <p>Desde un punto de vista operativo, ya está. Obtuvimos un estimador de los coeficientes <span class="math inline">\(\hat{\beta}\)</span> y una <span class="math inline">\(\hat{f}(X) = X^T\hat{\beta}\)</span> que nos sirven para hacer predicciones, y para eso no hace falta prácticamente ninguna hipótesis sobre los datos, más allá de que <span class="math inline">\(\mathbf{X}\)</span> tenga rango completo por columnas. Los supuestos que suelen asociarse a la regresión lineal entran en juego cuando queremos hacer inferencia sobre los coeficientes.</p>
 <!-- La dificultad acá radica en que, cuando ya son más de dos atributos, no podemos visualizar, ya que necesitaríamos más de tres dimensiones.
 La regresión lineal suele ser el Benchmark de muchos problemas de regresión pero no por eso hay que minimizar su utilidad. Muchas relaciones en la naturaleza son lineales, al menos hasta cierto punto. -->
-<section id="descomposición-en-valores-singulares-svd" class="level4" data-number="3.1.2.1">
-<h4 data-number="3.1.2.1" class="anchored" data-anchor-id="descomposición-en-valores-singulares-svd"><span class="header-section-number">3.1.2.1</span> Descomposición en valores singulares (SVD)</h4>
+<section id="descomposición-en-valores-singulares-svd" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="descomposición-en-valores-singulares-svd"><span class="header-section-number">3.2.1</span> Descomposición en valores singulares (SVD)</h3>
 <p>Una forma particularmente útil de calcular el estimador de cuadrados mínimos <span class="math inline">\(\hat{\beta}\)</span> es usando la descomposición en valores singulares. A partir de la descomposición <span class="math inline">\(\mathbf{X} = U D V^T\)</span>, y reemplazando en el estimador, varias de las multiplicaciones de matrices se cancelan, y queda la forma sencilla</p>
 <p><span class="math display">\[\hat{\beta} = V D^{-1} U^T \mathbf{y}\]</span></p>
 <p>donde <span class="math inline">\(D^{-1}\)</span> es la matriz diagonal que contiene los inversos de los valores singulares.</p>
@@ -322,8 +327,8 @@ La regresión lineal suele ser el Benchmark de muchos problemas de regresión pe
 <p>Ésta sigue siendo una solución de cuadrados mínimos. Pero como había atributos colineales, había muchas soluciones de cuadrados mínimos —el sistema estaba <em>degenerado</em>— y lo que obtuvimos fue una en particular de esas soluciones, la de menor norma <span class="math inline">\(\|\beta\|\)</span>. La matriz <span class="math inline">\(V D^{-1} U^T\)</span>, con los valores singulares nulos recortados, se conoce como la <strong>pseudoinversa de Moore-Penrose</strong> de <span class="math inline">\(\mathbf{X}\)</span>.</p>
 <p>La solución de cuadrados mínimos a partir de la descomposición en valores singulares es la que utilizan muchas bibliotecas de cálculo numérico.</p>
 </section>
-<section id="descenso-por-gradiente" class="level4" data-number="3.1.2.2">
-<h4 data-number="3.1.2.2" class="anchored" data-anchor-id="descenso-por-gradiente"><span class="header-section-number">3.1.2.2</span> Descenso por gradiente</h4>
+<section id="descenso-por-gradiente" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="descenso-por-gradiente"><span class="header-section-number">3.2.2</span> Descenso por gradiente</h3>
 <p>La solución de cuadrados mínimos <span class="math inline">\(\hat{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}\)</span> o, con la descomposición, <span class="math inline">\(\hat{\beta} = V D^{-1} U^T \mathbf{y}\)</span>, es sumamente útil y la forma por defecto para obtener los parámetros de una regresión lineal. Pero existen circunstancias en las que obtener esas soluciones es muy costoso. Por ejemplo, cuando hay muchos atributos, o cuando <span class="math inline">\(\mathbf{X}\)</span> es tan grande que no entra en memoria. En estos casos, se pueden utilizar métodos de optimización para obtener los coeficientes <span class="math inline">\(\beta\)</span>. El descenso por gradiente es uno de los métodos más conocidos.</p>
 <p>La idea detrás del método es sencilla. Cualquier combinación aleatoria de los coeficientes <span class="math inline">\(\beta\)</span> tiene un costo <span class="math inline">\(RSS (\beta)\)</span>. Es muy poco probable que justo esa combinación sea el mínimo. Entonces, lo que se puede hacer es calcular el gradiente de la función de costo <span class="math inline">\(\frac{\partial RSS}{\partial \beta}\)</span> y hacer un paso en la dirección contraria. Esto nos dará un nuevo <span class="math inline">\(\beta\)</span> cuyo costo <span class="math inline">\(RSS\)</span> asociado debería ser menor. Podemos repetir este paso iterativamente hasta que se alcance algún criterio de parada del algoritmo. Entonces, el método consiste en un proceso iterativo, cuyos pasos son los siguientes:</p>
 <ol type="1">
@@ -375,7 +380,6 @@ Ahora que vimos algunos ejemplos de modelos y formas de entrenarlos, podemos cer
 A veces se escucha decir a algunas personas que para ajustar una regresión lineal primero hay que probar sus supuestos. -->
 
 
-</section>
 </section>
 </section>
 
@@ -782,8 +786,8 @@ A veces se escucha decir a algunas personas que para ajustar una regresión line
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./02-modelos-sencillos-arboles.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos - Parte 1">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span>
+      <a href="./02-modelos-sencillos-arboles.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos: árboles de decisión">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: árboles de decisión</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

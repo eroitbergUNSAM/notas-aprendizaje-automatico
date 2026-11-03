@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Modelos de ensamble – Otro texto más sobre aprendizaje automático</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./06-modelos-sencillos-regresion-logistica.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ac8c06e238fcfa0bde751453895f09d5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="estilos.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./07-modelos-de-ensamble.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Modelos de ensamble</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Otro texto más sobre aprendizaje automático</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-aprendizaje-automatico.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Aprendizaje automático</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-modelos-sencillos-arboles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: árboles de decisión</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-modelos-sencillos-regresion-lineal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión lineal</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-evaluacion-de-modelos.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Evaluación de modelos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-regularizacion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regularización</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-modelos-sencillos-regresion-logistica.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión logística</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-modelos-de-ensamble.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Modelos de ensamble</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Referencias</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#bagging" id="toc-bagging" class="nav-link active" data-scroll-target="#bagging"><span class="header-section-number">7.1</span> Bagging</a>
+  <ul class="collapse">
+  <li><a href="#pseudoprobabilidades" id="toc-pseudoprobabilidades" class="nav-link" data-scroll-target="#pseudoprobabilidades"><span class="header-section-number">7.1.1</span> Pseudoprobabilidades</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest"><span class="header-section-number">7.1.2</span> <em>Random forest</em></a></li>
+  <li><a href="#ensambles-para-regresión" id="toc-ensambles-para-regresión" class="nav-link" data-scroll-target="#ensambles-para-regresión"><span class="header-section-number">7.1.3</span> Ensambles para regresión</a></li>
+  </ul></li>
+  <li><a href="#boosting" id="toc-boosting" class="nav-link" data-scroll-target="#boosting"><span class="header-section-number">7.2</span> Boosting</a>
+  <ul class="collapse">
+  <li><a href="#adaboost" id="toc-adaboost" class="nav-link" data-scroll-target="#adaboost"><span class="header-section-number">7.2.1</span> AdaBoost</a></li>
+  <li><a href="#gradient-boosting" id="toc-gradient-boosting" class="nav-link" data-scroll-target="#gradient-boosting"><span class="header-section-number">7.2.2</span> <em>Gradient boosting</em></a></li>
+  <li><a href="#hiperparámetros" id="toc-hiperparámetros" class="nav-link" data-scroll-target="#hiperparámetros"><span class="header-section-number">7.2.3</span> Hiperparámetros</a></li>
+  <li><a href="#diferencias-con-bagging" id="toc-diferencias-con-bagging" class="nav-link" data-scroll-target="#diferencias-con-bagging"><span class="header-section-number">7.2.4</span> Diferencias con <em>bagging</em></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-ensambles" class="quarto-section-identifier"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Modelos de ensamble</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>En este capítulo presentamos los modelos de ensamble. Un ensamble es un conjunto de cosas, en general todas similares pero con pequeñas diferencias entre sí. Los modelos de ensamble, entonces, combinan modelos sencillos para obtener un modelo cuyo desempeño suele ser mejor que el de cada modelo individualmente. Hasta ahora, vimos tres tipos de modelos sencillos: árboles de decisión, regresión lineal y regresión logística. Si bien los modelos de ensamble se podrían basar en cualquiera de ellos, los árboles tienen una ventaja que los hace la opción preferida: su complejidad se puede manejar controlando su profundidad, que se convertirá en una característica sumamente importante para la creación de ensambles.</p>
+<p>Existen varias técnicas para obtener ensambles; las más utilizadas son <em>bagging</em> y <em>boosting</em>. Las dos sirven tanto para clasificación como para regresión. Vamos a presentarlas a partir de la clasificación y, en cada caso, indicar qué cambia en regresión.</p>
+<section id="bagging" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="bagging"><span class="header-section-number">7.1</span> Bagging</h2>
+<p>Una forma sencilla de generar un ensamble para clasificación es generar muchos modelos y luego hacerlos votar. En ese caso, la clasificación resultante es la que recibe más votos. Es decir, si nuestro ensamble consiste en 100 árboles de decisión para clasificación, de los cuales 90 predicen la clase A y 10 la clase B, la clasificación resultante es la clase A. Si los modelos predicen pseudoprobabilidades, también se puede hacer una votación ponderada, dándole más peso a aquellos árboles que están más seguros de la etiqueta predicha.</p>
+<p>Sin embargo, para que esta idea funcione, necesitamos que los árboles que votan sean diferentes entre sí. Si entrenamos repetidamente árboles con el mismo procedimiento sobre los mismos datos, van a ser todos idénticos, y votar no aporta nada. Entonces, la pregunta es cómo construir un conjunto de árboles diversos, todos con cierto poder predictivo, pero que no sean iguales.</p>
+<!-- Supongamos que tenemos un dataset y entrenamos un árbol de decisión sobre él. ¿Qué puede ocurrir? Según Steven Skienna:
+“Podemos crear una gran cantidad de árboles de decisión a partir de un set S. Si los seguimos refinando hasta que las hojas sean puras, cada uno de ellos va a poder clasificar a la perfección. Podríamos desarrollar cientos, incluso miles de árboles diferentes, que evalúen una lista de ítems q y que retornen una etiqueta posible. Al permitir que cada árbol brinde su propio voto, ganamos confianza en que la etiqueta más común va a ser la correcta. -->
+<p>Para lograrlo, se puede recurrir a una técnica estadística conocida como <em>bootstrap</em>. Una muestra <em>bootstrap</em> se obtiene sorteando al azar y <strong>con reemplazo</strong> <span class="math inline">\(N\)</span> instancias del conjunto de entrenamiento, que también tiene <span class="math inline">\(N\)</span> instancias. Como el sorteo es con reemplazo, algunas instancias aparecen repetidas y otras no aparecen: en promedio, cada muestra contiene alrededor del 63 % de las instancias distintas. Repitiendo el procedimiento obtenemos <span class="math inline">\(B\)</span> muestras, cuya distribución es parecida a la del conjunto original, pero no igual.</p>
+<p>En <em>bagging</em>, por cada muestra <em>bootstrap</em> entrenamos un modelo, por ejemplo, un árbol de decisión. Así, obtenemos <span class="math inline">\(B\)</span> modelos, <span class="math inline">\(\hat{f}^{*1}, \dots, \hat{f}^{*B}\)</span>, donde <span class="math inline">\(\hat{f}^{*b}\)</span> es el modelo entrenado sobre la muestra <span class="math inline">\(b\)</span>. Son parecidos, pero distintos. Cada modelo —un árbol de decisión, en este caso— vio solo una parte de las instancias, y no vio al resto.</p>
+<p>Este ensamble se usa para predecir de manera agregada, votando: para una instancia <span class="math inline">\(x\)</span>, la predicción del ensamble es la clase más votada entre <span class="math inline">\(\hat{f}^{*1}(x), \dots, \hat{f}^{*B}(x)\)</span>, es decir, la moda de las predicciones (<a href="#fig-bagging" class="quarto-xref">Figura&nbsp;<span>7.1</span></a>). Esta combinación de <em>bootstrap</em> y agregación (<em>aggregating</em>) es lo que se conoce como <strong><em>bagging</em></strong>, por <em>bootstrap aggregating</em>.</p>
+<p>El <em>bagging</em> se puede aplicar sobre cualquier tipo de modelo. Sin embargo, la mayor ganancia se obtiene cuando los modelos son muy flexibles y tienden a sobreajustarse a su muestra de entrenamiento, como los árboles profundos. Cada uno se equivoca de manera distinta, y al votar, esos errores tienden a compensarse.</p>
+<div class="cell" data-fig-width="7" data-fig-height="3.5" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-bagging" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bagging-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="336" viewbox="0.00 0.00 367.02 260.20" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256.2)">
+<title>bagging</title>
+<!-- datos -->
+<g id="node1" class="node">
+<title>datos</title>
+<path fill="#cfe0f3" stroke="#666666" stroke-width="1.1" d="M257.95,-252.2C257.95,-252.2 111.41,-252.2 111.41,-252.2 105.41,-252.2 99.41,-246.2 99.41,-240.2 99.41,-240.2 99.41,-228.2 99.41,-228.2 99.41,-222.2 105.41,-216.2 111.41,-216.2 111.41,-216.2 257.95,-216.2 257.95,-216.2 263.95,-216.2 269.95,-222.2 269.95,-228.2 269.95,-228.2 269.95,-240.2 269.95,-240.2 269.95,-246.2 263.95,-252.2 257.95,-252.2"></path>
+<text text-anchor="middle" x="184.68" y="-230.6" font-family="Helvetica,sans-Serif" font-size="12.00">Conjunto de entrenamiento</text>
+</g>
+<!-- muestra_1 -->
+<g id="node2" class="node">
+<title>muestra_1</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M67.53,-187.2C67.53,-187.2 11.82,-187.2 11.82,-187.2 5.82,-187.2 -0.18,-181.2 -0.18,-175.2 -0.18,-175.2 -0.18,-163.2 -0.18,-163.2 -0.18,-157.2 5.82,-151.2 11.82,-151.2 11.82,-151.2 67.53,-151.2 67.53,-151.2 73.53,-151.2 79.53,-157.2 79.53,-163.2 79.53,-163.2 79.53,-175.2 79.53,-175.2 79.53,-181.2 73.53,-187.2 67.53,-187.2"></path>
+<text text-anchor="middle" x="39.68" y="-165.6" font-family="Helvetica,sans-Serif" font-size="12.00">Muestra 1</text>
+</g>
+<!-- datos&#45;&gt;muestra_1 -->
+<g id="edge1" class="edge">
+<title>datos-&gt;muestra_1</title>
+<path fill="none" stroke="#666666" d="M145.44,-216.15C126.98,-208.13 104.85,-198.52 85.62,-190.16"></path>
+<polygon fill="#666666" stroke="#666666" points="86.34,-187.8 78.95,-187.26 84.39,-192.3 86.34,-187.8"></polygon>
+</g>
+<!-- muestra_2 -->
+<g id="node3" class="node">
+<title>muestra_2</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M168.53,-187.2C168.53,-187.2 112.82,-187.2 112.82,-187.2 106.82,-187.2 100.82,-181.2 100.82,-175.2 100.82,-175.2 100.82,-163.2 100.82,-163.2 100.82,-157.2 106.82,-151.2 112.82,-151.2 112.82,-151.2 168.53,-151.2 168.53,-151.2 174.53,-151.2 180.53,-157.2 180.53,-163.2 180.53,-163.2 180.53,-175.2 180.53,-175.2 180.53,-181.2 174.53,-187.2 168.53,-187.2"></path>
+<text text-anchor="middle" x="140.68" y="-165.6" font-family="Helvetica,sans-Serif" font-size="12.00">Muestra 2</text>
+</g>
+<!-- datos&#45;&gt;muestra_2 -->
+<g id="edge2" class="edge">
+<title>datos-&gt;muestra_2</title>
+<path fill="none" stroke="#666666" d="M172.65,-215.98C167.8,-209.04 162.13,-200.92 156.92,-193.46"></path>
+<polygon fill="#666666" stroke="#666666" points="158.7,-191.73 152.69,-187.39 154.69,-194.54 158.7,-191.73"></polygon>
+</g>
+<!-- muestra_b -->
+<g id="node4" class="node">
+<title>muestra_b</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M346.86,-187.2C346.86,-187.2 290.49,-187.2 290.49,-187.2 284.49,-187.2 278.49,-181.2 278.49,-175.2 278.49,-175.2 278.49,-163.2 278.49,-163.2 278.49,-157.2 284.49,-151.2 290.49,-151.2 290.49,-151.2 346.86,-151.2 346.86,-151.2 352.86,-151.2 358.86,-157.2 358.86,-163.2 358.86,-163.2 358.86,-175.2 358.86,-175.2 358.86,-181.2 352.86,-187.2 346.86,-187.2"></path>
+<text text-anchor="middle" x="318.68" y="-165.6" font-family="Helvetica,sans-Serif" font-size="12.00">Muestra B</text>
+</g>
+<!-- datos&#45;&gt;muestra_b -->
+<g id="edge4" class="edge">
+<title>datos-&gt;muestra_b</title>
+<path fill="none" stroke="#666666" d="M220.94,-216.15C237.92,-208.17 258.27,-198.6 275.99,-190.27"></path>
+<polygon fill="#666666" stroke="#666666" points="277.09,-192.46 282.39,-187.26 275.01,-188.02 277.09,-192.46"></polygon>
+</g>
+<!-- puntos_muestras -->
+<g id="node9" class="node">
+<title>puntos_muestras</title>
+<text text-anchor="middle" x="229.68" y="-165.6" font-family="Helvetica,sans-Serif" font-size="12.00">…</text>
+</g>
+<!-- datos&#45;&gt;puntos_muestras -->
+<!-- arbol_1 -->
+<g id="node5" class="node">
+<title>arbol_1</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M68.86,-122.2C68.86,-122.2 30.49,-122.2 30.49,-122.2 24.49,-122.2 18.49,-116.2 18.49,-110.2 18.49,-110.2 18.49,-98.2 18.49,-98.2 18.49,-92.2 24.49,-86.2 30.49,-86.2 30.49,-86.2 68.86,-86.2 68.86,-86.2 74.86,-86.2 80.86,-92.2 80.86,-98.2 80.86,-98.2 80.86,-110.2 80.86,-110.2 80.86,-116.2 74.86,-122.2 68.86,-122.2"></path>
+<text text-anchor="middle" x="49.68" y="-100.6" font-family="Helvetica,sans-Serif" font-size="12.00">Árbol 1</text>
+</g>
+<!-- muestra_1&#45;&gt;arbol_1 -->
+<g id="edge5" class="edge">
+<title>muestra_1-&gt;arbol_1</title>
+<path fill="none" stroke="#666666" d="M42.41,-150.98C43.47,-144.32 44.7,-136.57 45.84,-129.36"></path>
+<polygon fill="#666666" stroke="#666666" points="48.27,-129.69 46.95,-122.39 43.43,-128.92 48.27,-129.69"></polygon>
+</g>
+<!-- arbol_2 -->
+<g id="node6" class="node">
+<title>arbol_2</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M161.86,-122.2C161.86,-122.2 123.49,-122.2 123.49,-122.2 117.49,-122.2 111.49,-116.2 111.49,-110.2 111.49,-110.2 111.49,-98.2 111.49,-98.2 111.49,-92.2 117.49,-86.2 123.49,-86.2 123.49,-86.2 161.86,-86.2 161.86,-86.2 167.86,-86.2 173.86,-92.2 173.86,-98.2 173.86,-98.2 173.86,-110.2 173.86,-110.2 173.86,-116.2 167.86,-122.2 161.86,-122.2"></path>
+<text text-anchor="middle" x="142.68" y="-100.6" font-family="Helvetica,sans-Serif" font-size="12.00">Árbol 2</text>
+</g>
+<!-- muestra_2&#45;&gt;arbol_2 -->
+<g id="edge6" class="edge">
+<title>muestra_2-&gt;arbol_2</title>
+<path fill="none" stroke="#666666" d="M141.22,-150.98C141.43,-144.46 141.67,-136.89 141.9,-129.81"></path>
+<polygon fill="#666666" stroke="#666666" points="144.36,-129.47 142.13,-122.39 139.46,-129.31 144.36,-129.47"></polygon>
+</g>
+<!-- arbol_b -->
+<g id="node7" class="node">
+<title>arbol_b</title>
+<path fill="white" stroke="#666666" stroke-width="1.1" d="M333.69,-122.2C333.69,-122.2 293.66,-122.2 293.66,-122.2 287.66,-122.2 281.66,-116.2 281.66,-110.2 281.66,-110.2 281.66,-98.2 281.66,-98.2 281.66,-92.2 287.66,-86.2 293.66,-86.2 293.66,-86.2 333.69,-86.2 333.69,-86.2 339.69,-86.2 345.69,-92.2 345.69,-98.2 345.69,-98.2 345.69,-110.2 345.69,-110.2 345.69,-116.2 339.69,-122.2 333.69,-122.2"></path>
+<text text-anchor="middle" x="313.68" y="-100.6" font-family="Helvetica,sans-Serif" font-size="12.00">Árbol B</text>
+</g>
+<!-- muestra_b&#45;&gt;arbol_b -->
+<g id="edge8" class="edge">
+<title>muestra_b-&gt;arbol_b</title>
+<path fill="none" stroke="#666666" d="M317.31,-150.98C316.79,-144.46 316.19,-136.89 315.63,-129.81"></path>
+<polygon fill="#666666" stroke="#666666" points="318.04,-129.18 315.04,-122.39 313.15,-129.57 318.04,-129.18"></polygon>
+</g>
+<!-- votacion -->
+<g id="node8" class="node">
+<title>votacion</title>
+<path fill="#f7ddb8" stroke="#666666" stroke-width="1.1" d="M241.55,-57.3C241.55,-57.3 127.8,-57.3 127.8,-57.3 121.8,-57.3 115.8,-51.3 115.8,-45.3 115.8,-45.3 115.8,-11.9 115.8,-11.9 115.8,-5.9 121.8,0.1 127.8,0.1 127.8,0.1 241.55,0.1 241.55,0.1 247.55,0.1 253.55,-5.9 253.55,-11.9 253.55,-11.9 253.55,-45.3 253.55,-45.3 253.55,-51.3 247.55,-57.3 241.55,-57.3"></path>
+<text text-anchor="middle" x="184.68" y="-39.4" font-family="Helvetica,sans-Serif" font-size="12.00">Agregación</text>
+<text text-anchor="middle" x="184.68" y="-25" font-family="Helvetica,sans-Serif" font-size="12.00">moda (clasificación)</text>
+<text text-anchor="middle" x="184.68" y="-10.6" font-family="Helvetica,sans-Serif" font-size="12.00">promedio (regresión)</text>
+</g>
+<!-- arbol_1&#45;&gt;votacion -->
+<g id="edge9" class="edge">
+<title>arbol_1-&gt;votacion</title>
+<path fill="none" stroke="#666666" d="M80.99,-86.13C94.88,-78.56 111.67,-69.4 127.66,-60.68"></path>
+<polygon fill="#666666" stroke="#666666" points="129,-62.74 133.98,-57.24 126.66,-58.44 129,-62.74"></polygon>
+</g>
+<!-- arbol_2&#45;&gt;votacion -->
+<g id="edge10" class="edge">
+<title>arbol_2-&gt;votacion</title>
+<path fill="none" stroke="#666666" d="M152.42,-86.13C156.24,-79.43 160.77,-71.49 165.21,-63.71"></path>
+<polygon fill="#666666" stroke="#666666" points="167.56,-64.54 168.9,-57.24 163.31,-62.11 167.56,-64.54"></polygon>
+</g>
+<!-- arbol_b&#45;&gt;votacion -->
+<g id="edge12" class="edge">
+<title>arbol_b-&gt;votacion</title>
+<path fill="none" stroke="#666666" d="M283.76,-86.13C270.6,-78.62 254.72,-69.56 239.57,-60.92"></path>
+<polygon fill="#666666" stroke="#666666" points="240.42,-58.58 233.13,-57.24 237.99,-62.84 240.42,-58.58"></polygon>
+</g>
+<!-- puntos_arboles -->
+<g id="node10" class="node">
+<title>puntos_arboles</title>
+<text text-anchor="middle" x="226.68" y="-100.6" font-family="Helvetica,sans-Serif" font-size="12.00">…</text>
+</g>
+<!-- puntos_muestras&#45;&gt;puntos_arboles -->
+<!-- puntos_arboles&#45;&gt;votacion -->
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bagging-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;7.1: Esquema de <em>bagging</em>. A partir del conjunto de entrenamiento se obtienen <span class="math inline">\(B\)</span> muestras <em>bootstrap</em>. Sobre cada una se entrena un árbol, <span class="math inline">\(\hat{f}^{*b}\)</span>, y las predicciones se agregan: en clasificación, con la clase más votada (la moda); en regresión, con el promedio.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="pseudoprobabilidades" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="pseudoprobabilidades"><span class="header-section-number">7.1.1</span> Pseudoprobabilidades</h3>
+<p>Además de una clase, muchas veces queremos un valor que indique cuán segura es la predicción. En un árbol de decisión, ese valor es la proporción de instancias de cada clase en la hoja donde cae la instancia. En un ensamble, la forma más sencilla es usar la proporción de árboles que votan por cada clase <span class="math inline">\(k\)</span>:</p>
+<p><span class="math display">\[\hat{p}_k(x) = \frac{1}{B} \sum_{b=1}^{B} I\left(\hat{f}^{*b}(x) = k\right)\]</span></p>
+<p>donde <span class="math inline">\(I(\cdot)\)</span> vale 1 si se cumple la condición y 0 si no. Otra opción es promediar las proporciones de clase que da cada árbol en su hoja, que es la votación ponderada que mencionamos antes, y la opción por defecto en muchas implementaciones. En cualquier caso, el grado de consenso entre los árboles es informativo: no es lo mismo una clase que reciben 501 de 1000 árboles que una que reciben 947 <span class="citation" data-cites="skiena2017data">(<a href="references.html#ref-skiena2017data" role="doc-biblioref">Skiena 2017</a>)</span>.</p>
+<p>Estos valores se conocen como <strong>pseudoprobabilidades</strong>: sirven para ordenar las instancias según la confianza en la predicción, pero no son necesariamente probabilidades calibradas. Es decir, que el ensamble asigne 0.8 a una clase no implica que la predicción sea correcta el 80 % de las veces. Si se necesitan probabilidades, se pueden calibrar.</p>
+<!-- En el caso de árboles, lo que buscamos es un conjunto de árboles con mucha varianza pero poco sesgo, de forma tal que cuando los combinemos (los hagamos votar) obtengamos un modelo de baja varianza y bajo sesgo. -->
+</section>
+<section id="random-forest" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="random-forest"><span class="header-section-number">7.1.2</span> <em>Random forest</em></h3>
+<p>Como mencionamos al principio, los ensambles suelen construirse con árboles de decisión. Un conjunto de árboles de decisión se llama, predeciblemente, bosque (<em>forest</em>). Cuando creamos bosques con <em>bagging</em>, puede ocurrir el siguiente problema. Supongamos un conjunto de datos con 10 atributos, de los cuales dos son muy buenos predictores, otros cuatro son buenos y los cuatro restantes tienen un poder predictivo bajo. Si bien cada árbol ve una muestra <em>bootstrap</em> distinta, los dos mejores atributos van a quedar casi siempre cerca de la raíz. Así, los árboles se parecen mucho entre sí, y el ensamble no aprovecha toda su capacidad.</p>
+<p>La solución es volver a recurrir al azar, pero ahora sobre los atributos. Cada vez que un árbol tiene que hacer un corte, no evalúa todos los atributos, sino solo un subconjunto de <span class="math inline">\(m\)</span> atributos sorteados al azar, sin reemplazo, entre los <span class="math inline">\(p\)</span> disponibles. El sorteo se repite en cada nodo, así que distintos nodos de un mismo árbol pueden considerar atributos distintos. De esta forma, los mejores predictores no siempre están disponibles cerca de la raíz, y los árboles resultan más diferentes entre sí. Esta combinación de muestras <em>bootstrap</em> y sorteo de atributos en cada corte es lo que se conoce como <strong><em>random forest</em></strong>.</p>
+<p>La cantidad de atributos <span class="math inline">\(m\)</span> que se sortea en cada corte es un hiperparámetro de <em>random forest</em>. Valores habituales son <span class="math inline">\(m = \sqrt{p}\)</span> para clasificación y <span class="math inline">\(m = p/3\)</span> para regresión. Un <span class="math inline">\(m\)</span> chico hace que los árboles sean más distintos entre sí, pero cada uno más débil, porque muchas veces no tiene disponibles los mejores atributos. En el extremo, con <span class="math inline">\(m = p\)</span> no hay sorteo de atributos, y <em>random forest</em> se reduce a <em>bagging</em>. Los valores habituales son empíricos, así que conviene tomarlos como punto de partida y ajustarlos, por ejemplo, con validación cruzada (<a href="04-evaluacion-de-modelos.html" class="quarto-xref"><span>Capítulo 4</span></a>).</p>
+<p>Es interesante notar cómo se usa el azar: introduce variabilidad entre los modelos, pero de una manera controlada, de forma tal que el ensamble suele ser mejor que cada modelo individual.</p>
+<p>Los modelos de ensamble están entre los más utilizados en la práctica. En particular, <em>random forest</em> —propuesto por Leo Breiman en 2001 <span class="citation" data-cites="breiman2001random">(<a href="references.html#ref-breiman2001random" role="doc-biblioref">Breiman 2001</a>)</span> y desarrollado junto con Adele Cutler— tiene una larga historia de aplicaciones exitosas, aunque existen modelos más modernos que en algunos problemas lo superan, como los basados en <em>boosting</em>.</p>
+<section id="error-out-of-bag" class="level4" data-number="7.1.2.1">
+<h4 data-number="7.1.2.1" class="anchored" data-anchor-id="error-out-of-bag"><span class="header-section-number">7.1.2.1</span> Error <em>out-of-bag</em></h4>
+<p>Como cada árbol se entrena sobre una muestra <em>bootstrap</em>, alrededor de un tercio de las instancias queda afuera de cada árbol. Entonces, para cada instancia podemos obtener una predicción usando solo los árboles que no la vieron, y compararla con su etiqueta. El promedio de esos errores es el <strong>error <em>out-of-bag</em></strong> (OOB), una estimación del error en datos nuevos que no requiere separar un conjunto de validación. Sin embargo, si lo usamos para elegir hiperparámetros, se vuelve optimista, igual que la validación cruzada. Por eso, sigue siendo necesario reservar un conjunto de prueba (<a href="04-evaluacion-de-modelos.html" class="quarto-xref"><span>Capítulo 4</span></a>).</p>
+</section>
+<section id="importancia-de-atributos" class="level4" data-number="7.1.2.2">
+<h4 data-number="7.1.2.2" class="anchored" data-anchor-id="importancia-de-atributos"><span class="header-section-number">7.1.2.2</span> Importancia de atributos</h4>
+<p><em>Random forest</em> permite estimar cuán importante es cada atributo para el modelo. La forma más usada es la disminución media de la impureza (MDI, por sus siglas en inglés): para cada atributo, suma cuánto reduce la impureza Gini en todos los cortes en los que se usa, ponderado por la proporción de instancias en cada nodo, y promedia entre los árboles. Hay que usarla con cuidado: se calcula sobre el conjunto de entrenamiento y favorece a los atributos con muchos valores distintos, aunque no sean informativos. Una alternativa es la importancia por permutación, que mide cuánto empeora el desempeño en datos no usados para entrenar cuando se mezclan al azar los valores de un atributo.</p>
+</section>
+</section>
+<section id="ensambles-para-regresión" class="level3" data-number="7.1.3">
+<h3 data-number="7.1.3" class="anchored" data-anchor-id="ensambles-para-regresión"><span class="header-section-number">7.1.3</span> Ensambles para regresión</h3>
+<p>El <em>bagging</em> y el <em>random forest</em> se aplican a regresión con un único cambio: en lugar de votar, se promedian las predicciones de los árboles (<a href="#fig-bagging" class="quarto-xref">Figura&nbsp;<span>7.1</span></a>),</p>
+<p><span class="math display">\[\hat{f}_{bag}(x) = \frac{1}{B} \sum_{b=1}^{B} \hat{f}^{*b}(x)\]</span></p>
+<p>donde cada árbol de regresión predice el promedio de las instancias de su hoja (<a href="02-modelos-sencillos-arboles.html" class="quarto-xref"><span>Capítulo 2</span></a>).</p>
+<p>Como tenemos <span class="math inline">\(B\)</span> predicciones para cada instancia, además del promedio podemos calcular su desvío estándar:</p>
+<p><span class="math display">\[s(x) = \sqrt{\frac{1}{B - 1} \sum_{b=1}^{B} \left(\hat{f}^{*b}(x) - \hat{f}_{bag}(x)\right)^2}\]</span></p>
+<p>Un <span class="math inline">\(s(x)\)</span> grande indica que los árboles discrepan mucho entre sí para esa instancia, lo que suele ocurrir en zonas con pocos datos de entrenamiento. Por eso, sirve para identificar en qué instancias la predicción es menos confiable. Pero no es un intervalo de predicción: no incluye el ruido propio de <span class="math inline">\(Y\)</span>, así que no se puede leer como un rango en el que va a caer el valor observado.</p>
+</section>
+</section>
+<section id="boosting" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="boosting"><span class="header-section-number">7.2</span> Boosting</h2>
+<p>En el <em>bagging</em>, los modelos del ensamble se entrenan de manera independiente entre sí. El <strong><em>boosting</em></strong> sigue otra estrategia: entrena los modelos secuencialmente, y cada uno intenta corregir los errores de los anteriores. Los modelos que se combinan son sencillos, típicamente árboles poco profundos, y su desempeño individual suele ser apenas mejor que el de una predicción trivial. A este tipo de modelos se los conoce como <strong>modelos débiles</strong> (<em>weak learners</em>).</p>
+<p>Hay distintas formas de decidir qué tiene que corregir cada modelo nuevo. Vamos a ver las dos más importantes: AdaBoost, que se usa para clasificación, y el <em>gradient boosting</em>, que sirve tanto para clasificación como para regresión.</p>
+<section id="adaboost" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="adaboost"><span class="header-section-number">7.2.1</span> AdaBoost</h3>
+<p>AdaBoost, por <em>adaptive boosting</em> <span class="citation" data-cites="freund1997decision">(<a href="references.html#ref-freund1997decision" role="doc-biblioref">Freund y Schapire 1997</a>)</span>, fue la primera versión de <em>boosting</em> de uso extendido. Se usa para clasificación.</p>
+<p>Empecemos con una idea sencilla. Entrenamos un árbol de decisión de profundidad uno. Un modelo tan sencillo va a clasificar bien las instancias fáciles, probablemente las que están lejos de la frontera de decisión, pero va a fallar en muchas otras. Ahora, supongamos que sacamos del conjunto de entrenamiento las instancias que este árbol clasificó bien y nos quedamos solo con las que clasificó mal, que son las difíciles. Si entrenamos un segundo árbol de profundidad uno sobre ellas, ese árbol se va a especializar en lo que el primero no pudo resolver.</p>
+<p>En la práctica, AdaBoost no saca instancias, sino que le asigna un peso a cada una, que aumenta cuando el árbol anterior la clasifica mal. Así, cada nuevo árbol se entrena prestando más atención a las instancias que los anteriores no resolvieron. Al final, el ensamble combina todos los árboles en una votación ponderada: cada árbol tiene su propio peso, que depende de cuán bien clasificó durante el entrenamiento. Es importante notar que el peso de cada árbol es fijo: no cambia según la instancia que queremos predecir. Lo que cambia con la dificultad de cada instancia son los pesos de las instancias, y solo durante el entrenamiento (<a href="#fig-adaboost" class="quarto-xref">Figura&nbsp;<span>7.2</span></a>).</p>
+<div id="cell-fig-adaboost" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-adaboost" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-adaboost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07-modelos-de-ensamble_files/figure-html/fig-adaboost-output-1.png" width="948" height="276" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adaboost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;7.2: AdaBoost con tres árboles de profundidad uno, sobre datos simulados. En los tres primeros paneles, cada árbol hace un único corte (línea violeta) y el tamaño de cada punto es su peso al momento de entrenar ese árbol: las instancias que los árboles anteriores clasificaron mal van ganando peso. El último panel muestra el ensamble, que combina los tres cortes en una votación ponderada por el peso de cada árbol. La línea gris punteada es la frontera verdadera.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Esta estrategia tiene un costo. Como AdaBoost trabaja cada vez más duro para clasificar bien las instancias difíciles, esas instancias terminan teniendo mucha influencia en el modelo <span class="citation" data-cites="skiena2017data">(<a href="references.html#ref-skiena2017data" role="doc-biblioref">Skiena 2017</a>)</span>. Esto es particularmente grave cuando el conjunto de datos tiene instancias mal etiquetadas: el algoritmo aumenta una y otra vez el peso de instancias que, en realidad, no se pueden aprender. Como veremos en la formulación matemática, la causa de fondo es la función de costo que optimiza AdaBoost. Por eso, el problema se mitiga usando funciones de costo más robustas, como las del <em>gradient boosting</em>, y regularizando, por ejemplo, haciendo que cada árbol sume al ensamble solo una fracción de su predicción. Esa fracción es la tasa de aprendizaje, que retomamos en los hiperparámetros.</p>
+<section id="formulación-matemática" class="level4" data-number="7.2.1.1">
+<h4 data-number="7.2.1.1" class="anchored" data-anchor-id="formulación-matemática"><span class="header-section-number">7.2.1.1</span> Formulación matemática</h4>
+<div class="fuente">
+<p>Esta sección solamente es parte del programa de Aprendizaje Automático de UNSAM, y su complejidad matemática es un poco mayor a la que venimos teniendo. De todas maneras, su lectura es bienvenida si genera curiosidad.</p>
+</div>
+<p>Para escribir AdaBoost conviene codificar las clases como <span class="math inline">\(y_i \in \{-1, 1\}\)</span>, en lugar de 0 y 1, y llamar <span class="math inline">\(G_m(x)\)</span> al árbol de la iteración <span class="math inline">\(m\)</span>, que también predice <span class="math inline">\(-1\)</span> o <span class="math inline">\(1\)</span>. El algoritmo es el siguiente <span class="citation" data-cites="hastie2009elements">(<a href="references.html#ref-hastie2009elements" role="doc-biblioref"><span class="nocase">Hastie et&nbsp;al.</span> 2009</a>)</span>:</p>
+<ol type="1">
+<li>Inicializar los pesos de las instancias: <span class="math inline">\(w_i = 1/N\)</span>, para <span class="math inline">\(i = 1, \dots, N\)</span>.</li>
+<li>Para <span class="math inline">\(m = 1, \dots, M\)</span>:
+<ol type="1">
+<li>Entrenar un árbol <span class="math inline">\(G_m(x)\)</span> usando los pesos <span class="math inline">\(w_i\)</span>.</li>
+<li>Calcular su error ponderado: <span class="math inline">\(\text{err}_m = \frac{\sum_{i=1}^{N} w_i \, I(y_i \neq G_m(x_i))}{\sum_{i=1}^{N} w_i}\)</span>.</li>
+<li>Calcular el peso del árbol: <span class="math inline">\(\alpha_m = \log\left(\frac{1 - \text{err}_m}{\text{err}_m}\right)\)</span>.</li>
+<li>Actualizar los pesos de las instancias: <span class="math inline">\(w_i \leftarrow w_i \, e^{\alpha_m I(y_i \neq G_m(x_i))}\)</span>.</li>
+</ol></li>
+<li>Predecir con el signo de la suma ponderada: <span class="math inline">\(G(x) = \operatorname{sign}\left(\sum_{m=1}^{M} \alpha_m G_m(x)\right)\)</span>.</li>
+</ol>
+<p>Cuanto menor es el error de un árbol, mayor es su peso <span class="math inline">\(\alpha_m\)</span>. Un árbol que acierta la mitad de las veces, como el azar, tiene <span class="math inline">\(\alpha_m = 0\)</span> y no aporta nada. Los pesos de las instancias mal clasificadas se multiplican por <span class="math inline">\(e^{\alpha_m}\)</span>, y los de las bien clasificadas no cambian.</p>
+<p>Se puede mostrar que este algoritmo minimiza, árbol por árbol, la <strong>pérdida exponencial</strong> <span class="citation" data-cites="hastie2009elements">(<a href="references.html#ref-hastie2009elements" role="doc-biblioref"><span class="nocase">Hastie et&nbsp;al.</span> 2009</a>)</span>:</p>
+<p><span class="math display">\[L(y, F(x)) = e^{-y F(x)}\]</span></p>
+<p>donde <span class="math inline">\(F(x)\)</span> es, salvo un factor constante, la suma ponderada <span class="math inline">\(\sum_{m} \alpha_m G_m(x)\)</span>. El producto <span class="math inline">\(y F(x)\)</span> es positivo si la instancia está bien clasificada y negativo si no, y su valor absoluto crece cuanto más lejos de la frontera está la instancia. Si una instancia está muy mal clasificada, <span class="math inline">\(y F(x)\)</span> es muy negativo, y la pérdida crece exponencialmente. Por eso, unas pocas instancias mal etiquetadas pueden dominar el entrenamiento.</p>
+</section>
+</section>
+<section id="gradient-boosting" class="level3" data-number="7.2.2">
+<h3 data-number="7.2.2" class="anchored" data-anchor-id="gradient-boosting"><span class="header-section-number">7.2.2</span> <em>Gradient boosting</em></h3>
+<p>El <em>gradient boosting</em> <span class="citation" data-cites="friedman2001greedy">(<a href="references.html#ref-friedman2001greedy" role="doc-biblioref">Friedman 2001</a>)</span> generaliza la idea del <em>boosting</em> a cualquier función de costo que se pueda derivar, por lo que sirve tanto para regresión como para clasificación. En lugar de usar pesos sobre las instancias, cada árbol nuevo se entrena directamente sobre lo que el ensamble todavía hace mal.</p>
+<p>En regresión, la idea es muy intuitiva. El ensamble empieza prediciendo el promedio de <span class="math inline">\(y\)</span> para todas las instancias. Calculamos los residuos —la diferencia entre el valor observado y el predicho— y entrenamos un primer árbol para que prediga esos residuos. Sumando su predicción, corregimos parte del error. Después calculamos los nuevos residuos, entrenamos un segundo árbol, y así sucesivamente: cada árbol aprende lo que al ensamble todavía le falta explicar. Como cada árbol suma solo una fracción de su predicción, dada por la tasa de aprendizaje, el ensamble se acerca a los datos de a poco (<a href="#fig-gradient-boosting" class="quarto-xref">Figura&nbsp;<span>7.3</span></a>).</p>
+<div id="cell-fig-gradient-boosting" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-gradient-boosting" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gradient-boosting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07-modelos-de-ensamble_files/figure-html/fig-gradient-boosting-output-1.png" width="757" height="335" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gradient-boosting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;7.3: <em>Gradient boosting</em> en regresión, con árboles de profundidad uno sobre datos simulados. Izquierda: la predicción del ensamble después de distintas cantidades de árboles; cada árbol nuevo corrige una parte del error y el ensamble se acerca a los datos de a poco. Derecha: los residuos del ensamble después de tres árboles (puntos) y el cuarto árbol, entrenado para predecirlos (línea roja).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>En clasificación, la idea es la misma, con una diferencia. Como en la regresión logística (<a href="06-modelos-sencillos-regresion-logistica.html" class="quarto-xref"><span>Capítulo 6</span></a>), el ensamble no predice directamente una probabilidad, sino un valor real que la función sigmoide convierte en probabilidad. Los árboles se van sumando en ese valor real. Por eso, incluso en clasificación, cada árbol del ensamble es un árbol de regresión.</p>
+<section id="formulación-matemática-1" class="level4" data-number="7.2.2.1">
+<h4 data-number="7.2.2.1" class="anchored" data-anchor-id="formulación-matemática-1"><span class="header-section-number">7.2.2.1</span> Formulación matemática</h4>
+<div class="fuente">
+<p>Esta sección solamente es parte del programa de Aprendizaje Automático de UNSAM, y su complejidad matemática es un poco mayor a la que venimos teniendo. De todas maneras, su lectura es bienvenida si genera curiosidad.</p>
+</div>
+<p>Llamemos <span class="math inline">\(F_m(x)\)</span> al ensamble después de <span class="math inline">\(m\)</span> iteraciones. El ensamble se construye sumando árboles de a uno:</p>
+<p><span class="math display">\[F_m(x) = F_{m-1}(x) + \eta \, f_m(x)\]</span></p>
+<p>donde <span class="math inline">\(f_m\)</span> es el árbol nuevo y <span class="math inline">\(\eta\)</span> es la tasa de aprendizaje. Cada árbol nuevo se ajusta a los <strong>pseudo-residuos</strong>, que son el gradiente negativo de la función de costo <span class="math inline">\(L\)</span> respecto de las predicciones actuales del ensamble:</p>
+<p><span class="math display">\[r_i = -\left. \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right|_{F = F_{m-1}}\]</span></p>
+<p>La <a href="#tbl-pseudo-residuos" class="quarto-xref">Tabla&nbsp;<span>7.1</span></a> muestra cómo quedan en los dos casos.</p>
+<div id="tbl-pseudo-residuos" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pseudo-residuos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;7.1: Función de costo, pseudo-residuos y predicción final del <em>gradient boosting</em> en regresión y en clasificación binaria, con <span class="math inline">\(y_i \in \{0, 1\}\)</span>.
+</figcaption>
+<div aria-describedby="tbl-pseudo-residuos-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 28%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Regresión</th>
+<th>Clasificación binaria</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Función de costo</td>
+<td><span class="math inline">\(\frac{1}{2}(y_i - F(x_i))^2\)</span></td>
+<td>Entropía cruzada, con <span class="math inline">\(\hat{p}_i = \sigma(F(x_i))\)</span></td>
+</tr>
+<tr class="even">
+<td>Pseudo-residuos</td>
+<td><span class="math inline">\(y_i - F_{m-1}(x_i)\)</span></td>
+<td><span class="math inline">\(y_i - \hat{p}_i\)</span></td>
+</tr>
+<tr class="odd">
+<td>Predicción final</td>
+<td><span class="math inline">\(F_M(x)\)</span></td>
+<td><span class="math inline">\(\sigma(F_M(x))\)</span>, y la clase según el umbral de 0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>En regresión, los pseudo-residuos son exactamente los residuos. El factor <span class="math inline">\(\frac{1}{2}\)</span> del error cuadrático es solo por conveniencia: sin él aparece un 2, que se absorbe en la tasa de aprendizaje, como en el <a href="03-modelos-sencillos-regresion-lineal.html" class="quarto-xref"><span>Capítulo 3</span></a>. En clasificación, los pseudo-residuos son la misma expresión que aparece en el gradiente de la regresión logística.</p>
+<p>El algoritmo es el siguiente:</p>
+<ol type="1">
+<li>Inicializar <span class="math inline">\(F_0(x)\)</span> con una constante: el promedio de <span class="math inline">\(y\)</span> en regresión, o <span class="math inline">\(\log\left(\frac{\bar{p}}{1 - \bar{p}}\right)\)</span> en clasificación, donde <span class="math inline">\(\bar{p}\)</span> es la proporción de instancias de la clase positiva. En este último caso, <span class="math inline">\(\sigma(F_0(x)) = \bar{p}\)</span>.</li>
+<li>Para <span class="math inline">\(m = 1, \dots, M\)</span>:
+<ol type="1">
+<li>Calcular los pseudo-residuos <span class="math inline">\(r_i\)</span> de cada instancia.</li>
+<li>Entrenar un árbol de regresión <span class="math inline">\(f_m\)</span> sobre los pares <span class="math inline">\((x_i, r_i)\)</span>.</li>
+<li>Actualizar el ensamble: <span class="math inline">\(F_m(x) = F_{m-1}(x) + \eta \, f_m(x)\)</span>.</li>
+</ol></li>
+<li>Predecir con <span class="math inline">\(F_M(x)\)</span> en regresión, o con <span class="math inline">\(\sigma(F_M(x))\)</span> en clasificación.</li>
+</ol>
+<p>Simplificamos un detalle: en la versión completa del algoritmo, después de entrenar cada árbol se recalculan los valores de sus hojas para minimizar directamente la función de costo. Con el error cuadrático, eso no cambia nada.</p>
+<p>El nombre viene de que es un descenso por gradiente, como el del <a href="03-modelos-sencillos-regresion-lineal.html" class="quarto-xref"><span>Capítulo 3</span></a>, pero con una diferencia importante. Allí, en cada paso movíamos los parámetros <span class="math inline">\(\beta\)</span> en la dirección contraria al gradiente. Acá, en cambio, lo que movemos son las predicciones del ensamble, y cada árbol nuevo aproxima la dirección en la que conviene moverlas.</p>
+</section>
+<section id="xgboost-y-otras-implementaciones" class="level4" data-number="7.2.2.2">
+<h4 data-number="7.2.2.2" class="anchored" data-anchor-id="xgboost-y-otras-implementaciones"><span class="header-section-number">7.2.2.2</span> XGBoost y otras implementaciones</h4>
+<p>XGBoost (<em>eXtreme Gradient Boosting</em>) <span class="citation" data-cites="chen2016xgboost">(<a href="references.html#ref-chen2016xgboost" role="doc-biblioref">Chen y Guestrin 2016</a>)</span> es una implementación muy optimizada de <em>gradient boosting</em>. Entre otras cosas, agrega regularización a la función de costo, sortea instancias y atributos en cada iteración y paraleliza la construcción de cada árbol. Aunque los árboles se entrenan en secuencia, la búsqueda de los cortes dentro de cada árbol sí se puede repartir entre varios procesadores. Junto con otras implementaciones, como LightGBM y CatBoost, está entre los modelos con mejor desempeño en datos tabulares, y se usa tanto para clasificación como para regresión.</p>
+</section>
+</section>
+<section id="hiperparámetros" class="level3" data-number="7.2.3">
+<h3 data-number="7.2.3" class="anchored" data-anchor-id="hiperparámetros"><span class="header-section-number">7.2.3</span> Hiperparámetros</h3>
+<p>El <em>boosting</em> tiene tres hiperparámetros principales <span class="citation" data-cites="james2013introduction">(<a href="references.html#ref-james2013introduction" role="doc-biblioref"><span class="nocase">James et&nbsp;al.</span> 2013</a>)</span>:</p>
+<ol type="1">
+<li><strong>La cantidad de árboles.</strong> A diferencia del <em>bagging</em>, el <em>boosting</em> puede sobreajustar si se usan demasiados árboles, aunque ese sobreajuste suele aparecer lentamente. Por eso, conviene elegirla con validación cruzada (<a href="04-evaluacion-de-modelos.html" class="quarto-xref"><span>Capítulo 4</span></a>).</li>
+<li><strong>La tasa de aprendizaje</strong>, <span class="math inline">\(\eta\)</span> (o <em>shrinkage</em>). Cada árbol suma al ensamble solo una fracción <span class="math inline">\(\eta\)</span> de su predicción, de forma tal que el ensamble aprende más despacio. Valores típicos son 0.1, 0.01 o incluso 0.001. Existe un compromiso con la cantidad de árboles: cuanto más chica la tasa de aprendizaje, más árboles hacen falta.</li>
+<li><strong>La profundidad de los árboles.</strong> Los árboles son poco profundos. Muchas veces, árboles de profundidad uno funcionan bien, pero en <em>gradient boosting</em> son habituales árboles algo más grandes, de entre 4 y 8 hojas <span class="citation" data-cites="hastie2009elements">(<a href="references.html#ref-hastie2009elements" role="doc-biblioref"><span class="nocase">Hastie et&nbsp;al.</span> 2009</a>)</span>.</li>
+</ol>
+</section>
+<section id="diferencias-con-bagging" class="level3" data-number="7.2.4">
+<h3 data-number="7.2.4" class="anchored" data-anchor-id="diferencias-con-bagging"><span class="header-section-number">7.2.4</span> Diferencias con <em>bagging</em></h3>
+<p>Veamos cómo se compara el <em>boosting</em> con el <em>bagging</em>:</p>
+<ul>
+<li><strong>Entrenamiento.</strong> En <em>bagging</em>, los árboles se entrenan de manera independiente; en <em>boosting</em>, en secuencia, porque cada uno depende de los errores de los anteriores. Esto tiene una consecuencia computacional: en <em>bagging</em> podemos entrenar todos los árboles a la vez, en paralelo, mientras que en <em>boosting</em> cada árbol tiene que esperar a que termine el anterior.</li>
+<li><strong>Cómo se generan modelos distintos.</strong> El <em>bagging</em> entrena cada árbol sobre una muestra <em>bootstrap</em> distinta. En el <em>boosting</em>, cada árbol se entrena sobre lo que los anteriores hicieron mal: AdaBoost lo logra con pesos sobre las instancias, y el <em>gradient boosting</em>, ajustándose a los pseudo-residuos.</li>
+<li><strong>Profundidad de los árboles.</strong> En <em>bagging</em>, los árboles suelen ser profundos y sobreajustarse a su muestra; el ensamble compensa sus errores al votar. En <em>boosting</em>, los árboles son poco profundos; cada uno aporta una mejora pequeña y el ensamble mejora de a poco, árbol a árbol.</li>
+<li><strong>Combinación.</strong> En <em>bagging</em>, todos los árboles pesan lo mismo: se toma la moda en clasificación y el promedio en regresión. En <em>boosting</em>, la predicción es una suma de los árboles: ponderada por el peso de cada árbol en AdaBoost, y escalada por la tasa de aprendizaje en el <em>gradient boosting</em>.</li>
+</ul>
+<p>Y, al igual que el <em>bagging</em>, el <em>boosting</em> se puede aplicar sobre otros modelos, aunque los árboles son la opción más utilizada.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-breiman2001random" class="csl-entry" role="listitem">
+Breiman, Leo. 2001. <span>«Random forests»</span>. <em>Machine learning</em> 45 (1): 5-32.
+</div>
+<div id="ref-chen2016xgboost" class="csl-entry" role="listitem">
+Chen, Tianqi, y Carlos Guestrin. 2016. <span>«Xgboost: A scalable tree boosting system»</span>. <em>Proceedings of the 22nd acm sigkdd international conference on knowledge discovery and data mining</em>, 785-94.
+</div>
+<div id="ref-freund1997decision" class="csl-entry" role="listitem">
+Freund, Yoav, y Robert E Schapire. 1997. <span>«A decision-theoretic generalization of on-line learning and an application to boosting»</span>. <em>Journal of computer and system sciences</em> 55 (1): 119-39.
+</div>
+<div id="ref-friedman2001greedy" class="csl-entry" role="listitem">
+Friedman, Jerome H. 2001. <span>«Greedy function approximation: a gradient boosting machine»</span>. <em>Annals of statistics</em>, 1189-232.
+</div>
+<div id="ref-hastie2009elements" class="csl-entry" role="listitem">
+<span class="nocase">Hastie, Trevor, Robert Tibshirani, Jerome Friedman, et&nbsp;al.</span> 2009. <em>The Elements of Statistical Learning</em>. Springer.
+</div>
+<div id="ref-james2013introduction" class="csl-entry" role="listitem">
+<span class="nocase">James, Gareth, Daniela Witten, Trevor Hastie, Robert Tibshirani, et&nbsp;al.</span> 2013. <em>An Introduction to Statistical Learning</em>. Springer.
+</div>
+<div id="ref-skiena2017data" class="csl-entry" role="listitem">
+Skiena, Steven S. 2017. <em>The Data Science Design Manual</em>. Springer.
+</div>
+</div>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./06-modelos-sencillos-regresion-logistica.html" class="pagination-link" aria-label="Modelos sencillos, pero efectivos: regresión logística">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión logística</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link" aria-label="Referencias">
+        <span class="nav-page-text">Referencias</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es">CC BY-NC-SA 4.0</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

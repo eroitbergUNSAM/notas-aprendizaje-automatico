@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>6&nbsp; Modelos sencillos, pero efectivos - Parte 3 – Otro texto más sobre aprendizaje automático</title>
+<title>6&nbsp; Modelos sencillos, pero efectivos: regresión logística – Otro texto más sobre aprendizaje automático</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -36,7 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./07-modelos-de-ensamble.html" rel="next">
 <link href="./05-regularizacion.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -118,7 +118,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06-modelos-sencillos-regresion-logistica.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./06-modelos-sencillos-regresion-logistica.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión logística</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
@@ -158,13 +158,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./02-modelos-sencillos-arboles.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 1</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: árboles de decisión</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03-modelos-sencillos-regresion-lineal.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 2</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión lineal</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -182,7 +182,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./06-modelos-sencillos-regresion-logistica.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión logística</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-modelos-de-ensamble.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Modelos de ensamble</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -201,12 +207,16 @@ window.Quarto = {
     <h2 id="toc-title">Tabla de contenidos</h2>
    
   <ul>
-  <li><a href="#regresión-logística" id="toc-regresión-logística" class="nav-link active" data-scroll-target="#regresión-logística"><span class="header-section-number">6.1</span> Regresión logística</a>
+  <li><a href="#fronteras-de-decisión" id="toc-fronteras-de-decisión" class="nav-link active" data-scroll-target="#fronteras-de-decisión"><span class="header-section-number">6.1</span> Fronteras de decisión</a>
   <ul class="collapse">
-  <li><a href="#fronteras-de-decisión" id="toc-fronteras-de-decisión" class="nav-link" data-scroll-target="#fronteras-de-decisión"><span class="header-section-number">6.1.1</span> Fronteras de decisión</a></li>
-  <li><a href="#entrenamiento" id="toc-entrenamiento" class="nav-link" data-scroll-target="#entrenamiento"><span class="header-section-number">6.1.2</span> Entrenamiento</a></li>
-  <li><a href="#regularización" id="toc-regularización" class="nav-link" data-scroll-target="#regularización"><span class="header-section-number">6.1.3</span> Regularización</a></li>
+  <li><a href="#obtención-matemática-de-las-fronteras" id="toc-obtención-matemática-de-las-fronteras" class="nav-link" data-scroll-target="#obtención-matemática-de-las-fronteras"><span class="header-section-number">6.1.1</span> Obtención matemática de las fronteras</a></li>
   </ul></li>
+  <li><a href="#entrenamiento" id="toc-entrenamiento" class="nav-link" data-scroll-target="#entrenamiento"><span class="header-section-number">6.2</span> Entrenamiento</a>
+  <ul class="collapse">
+  <li><a href="#descenso-por-gradiente" id="toc-descenso-por-gradiente" class="nav-link" data-scroll-target="#descenso-por-gradiente"><span class="header-section-number">6.2.1</span> Descenso por gradiente</a></li>
+  <li><a href="#newton-raphson" id="toc-newton-raphson" class="nav-link" data-scroll-target="#newton-raphson"><span class="header-section-number">6.2.2</span> Newton-Raphson</a></li>
+  </ul></li>
+  <li><a href="#regularización" id="toc-regularización" class="nav-link" data-scroll-target="#regularización"><span class="header-section-number">6.3</span> Regularización</a></li>
   </ul>
 </nav>
     </div>
@@ -215,7 +225,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="sec-regresion-logistica" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos - Parte 3</span></span></h1>
+<h1 class="title"><span id="sec-regresion-logistica" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Modelos sencillos, pero efectivos: regresión logística</span></span></h1>
 </div>
 
 
@@ -233,8 +243,6 @@ window.Quarto = {
 
 
 <p>En este capítulo presentamos la regresión logística. Si bien es un poco menos conocida que la regresión lineal, ambas están íntimamente relacionadas desde lo conceptual, y su uso está ampliamente extendido.</p>
-<section id="regresión-logística" class="level2" data-number="6.1">
-<h2 data-number="6.1" class="anchored" data-anchor-id="regresión-logística"><span class="header-section-number">6.1</span> Regresión logística</h2>
 <p>La regresión logística es un modelo para clasificación, aunque el nombre pueda hacer creer otra cosa. En su versión más sencilla sirve para clasificación binaria, y, si bien se puede extender a problemas multiclase, aquí nos concentraremos en el caso binario.</p>
 <p>Empecemos por una idea sencilla. En el caso binario, con clases A y B, podríamos hacer el siguiente experimento:</p>
 <ol type="1">
@@ -259,8 +267,8 @@ window.Quarto = {
 <li>Ajustar una regresión logística para que modele <span class="math inline">\(P(Y = 1 \mid X)\)</span> en función de los predictores <span class="math inline">\(X\)</span>, es decir, <span class="math inline">\(P(Y = 1 \mid X) = \frac{1}{1+ e^{-X^T \beta}}\)</span>.</li>
 <li>Al momento de predecir para una instancia <span class="math inline">\(x\)</span>, calcular <span class="math inline">\(\hat{p} = \frac{1}{1+ e^{-x^T \hat{\beta}}}\)</span>, y asignar A si <span class="math inline">\(\hat{p} &lt; 0.5\)</span> y B si <span class="math inline">\(\hat{p} \geq 0.5\)</span>.</li>
 </ol>
-<section id="fronteras-de-decisión" class="level3" data-number="6.1.1">
-<h3 data-number="6.1.1" class="anchored" data-anchor-id="fronteras-de-decisión"><span class="header-section-number">6.1.1</span> Fronteras de decisión</h3>
+<section id="fronteras-de-decisión" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="fronteras-de-decisión"><span class="header-section-number">6.1</span> Fronteras de decisión</h2>
 <p>¿Qué tipo de frontera de decisión obtenemos con la regresión logística? Se puede mostrar que, en el caso de un solo predictor, obtenemos un valor umbral que hace de frontera. En el caso de dos predictores, una recta. Y, en el caso general, con <span class="math inline">\(p\)</span> predictores, obtenemos un hiperplano en ese espacio, es decir, una superficie plana de <span class="math inline">\(p-1\)</span> dimensiones (<a href="#fig-logistica-fronteras" class="quarto-xref">Figura&nbsp;<span>6.1</span></a>).</p>
 <div id="cell-fig-logistica-fronteras" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display">
@@ -276,8 +284,8 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 </div>
 </div>
 </div>
-<section id="obtención-matemática-de-las-fronteras" class="level4" data-number="6.1.1.1">
-<h4 data-number="6.1.1.1" class="anchored" data-anchor-id="obtención-matemática-de-las-fronteras"><span class="header-section-number">6.1.1.1</span> Obtención matemática de las fronteras</h4>
+<section id="obtención-matemática-de-las-fronteras" class="level3" data-number="6.1.1">
+<h3 data-number="6.1.1" class="anchored" data-anchor-id="obtención-matemática-de-las-fronteras"><span class="header-section-number">6.1.1</span> Obtención matemática de las fronteras</h3>
 <p>Para obtener la frontera, basta ver en qué valores de <span class="math inline">\(X\)</span> se obtiene justo el umbral de 0.5.</p>
 <p><span class="math display">\[P(Y = 1 \mid X) = \frac{1}{1+ e^{-X^T \beta}} = 0.5\]</span></p>
 <p>Como el numerador es 1, para que dé 0.5 el denominador tiene que ser 2.</p>
@@ -285,14 +293,14 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 <p>Entonces, <span class="math inline">\(e^{-X^T \beta} = 1\)</span>. Para que eso se cumpla, el exponente debe ser cero, <span class="math inline">\(X^T \beta = 0\)</span>, que es exactamente un hiperplano. Recomendamos convencerse despejando para el caso más sencillo de dos atributos, sin olvidar la ordenada al origen, <span class="math inline">\(\beta_0\)</span>. Esta cuenta también muestra qué hace cada coeficiente: <span class="math inline">\(\beta_1, \dots, \beta_p\)</span> determinan la orientación de la frontera, y <span class="math inline">\(\beta_0\)</span> la desplaza de forma paralela a sí misma. Sin este coeficiente, la frontera estaría obligada a pasar por el origen.</p>
 </section>
 </section>
-<section id="entrenamiento" class="level3" data-number="6.1.2">
-<h3 data-number="6.1.2" class="anchored" data-anchor-id="entrenamiento"><span class="header-section-number">6.1.2</span> Entrenamiento</h3>
+<section id="entrenamiento" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="entrenamiento"><span class="header-section-number">6.2</span> Entrenamiento</h2>
 <p>¿Cómo entrenamos una regresión logística? Es decir, ¿cómo obtenemos los coeficientes <span class="math inline">\(\beta\)</span>? Como siempre, necesitamos una función de costo a optimizar y un método para optimizarla. Pero este caso es un poco más complejo que el de la regresión lineal; ahí predecimos números que podemos comparar contra números, mientras que la regresión logística predice probabilidades que queremos comparar contra etiquetas<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Existe una función de costo que hace precisamente esto. No exploraremos sus orígenes en estas notas, pero hay más de una forma de llegar a ella. Se conoce como entropía cruzada, <em>log loss</em> y algunos nombres más. Toma la forma</p>
 <p><span class="math display">\[ J(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] \]</span></p>
 <p>donde <span class="math inline">\(\hat{p}_i = \frac{1}{1+ e^{-x_i^T \beta}}\)</span> es la probabilidad predicha para la instancia <span class="math inline">\(i\)</span> e <span class="math inline">\(y_i \in \{0, 1\}\)</span> es su etiqueta. Notar que esta expresión cubre los casos para ambas etiquetas.</p>
 <p><span class="math inline">\(J(\beta)\)</span> es convexa cuando <span class="math inline">\(\hat{p}_i\)</span> está dado por la regresión logística. Sin embargo, no tiene solución cerrada, ya que al tomar el gradiente e igualar a cero no obtenemos una expresión que pueda despejarse para obtener una solución. Se debe recurrir a métodos numéricos. Veremos dos métodos muy generales, descenso por gradiente y Newton-Raphson.</p>
-<section id="descenso-por-gradiente" class="level4" data-number="6.1.2.1">
-<h4 data-number="6.1.2.1" class="anchored" data-anchor-id="descenso-por-gradiente"><span class="header-section-number">6.1.2.1</span> Descenso por gradiente</h4>
+<section id="descenso-por-gradiente" class="level3" data-number="6.2.1">
+<h3 data-number="6.2.1" class="anchored" data-anchor-id="descenso-por-gradiente"><span class="header-section-number">6.2.1</span> Descenso por gradiente</h3>
 <p>Este caso es muy sencillo si ya conocemos el descenso por gradiente aplicado a la regresión lineal. El método es exactamente igual, lo único que cambia es el gradiente. Para obtenerlo, conviene notar que la función sigmoide cumple <span class="math inline">\(\sigma'(z) = \sigma(z)(1 - \sigma(z))\)</span>. Como <span class="math inline">\(\hat{p}_i = \sigma(x_i^T \beta)\)</span>, resulta que <span class="math inline">\(\frac{\partial \hat{p}_i}{\partial \beta} = \hat{p}_i (1 - \hat{p}_i) \, x_i\)</span>. Derivando <span class="math inline">\(J(\beta)\)</span>, ese factor se cancela con los denominadores que aparecen al derivar los logaritmos:</p>
 <p><span class="math display">\[\frac{\partial J}{\partial \beta} = -\sum_{i=1}^{N} \left[ \frac{y_i}{\hat{p}_i} - \frac{1 - y_i}{1 - \hat{p}_i} \right] \hat{p}_i (1 - \hat{p}_i) \, x_i = -\sum_{i=1}^{N} (y_i - \hat{p}_i) \, x_i\]</span></p>
 <p>o, de forma matricial,</p>
@@ -303,8 +311,8 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 <p>Al igual que en la regresión lineal, el descenso por gradiente también se puede hacer con una fracción de las instancias —un <em>mini-batch</em>— o de forma estocástica, usando una instancia por vez en cada actualización.</p>
 <!-- El gradiente también dice algo sobre la ordenada al origen. Como la primera columna de $\mathbf{X}$ son unos, igualar a cero la componente correspondiente a $\beta_0$ da $\sum_{i=1}^{N} (y_i - \hat{p}_i) = 0$. Es decir, en el óptimo sin regularizar, el promedio de las probabilidades predichas coincide con la proporción de instancias de la clase positiva en el conjunto de entrenamiento. -->
 </section>
-<section id="newton-raphson" class="level4" data-number="6.1.2.2">
-<h4 data-number="6.1.2.2" class="anchored" data-anchor-id="newton-raphson"><span class="header-section-number">6.1.2.2</span> Newton-Raphson</h4>
+<section id="newton-raphson" class="level3" data-number="6.2.2">
+<h3 data-number="6.2.2" class="anchored" data-anchor-id="newton-raphson"><span class="header-section-number">6.2.2</span> Newton-Raphson</h3>
 <div class="fuente">
 <p>Esta sección solamente es parte del programa de Aprendizaje Automático de UNSAM. De todas maneras, su lectura es bienvenida si genera curiosidad.</p>
 </div>
@@ -325,8 +333,8 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
 \frac{\partial^2 f}{\partial \theta_p \partial \theta_1} &amp; \frac{\partial^2 f}{\partial \theta_p \partial \theta_2} &amp; \ldots &amp; \frac{\partial^2 f}{\partial \theta_p^2}
 \end{bmatrix}\]</span></p>
-<section id="newton-raphson-para-la-regresión-logística" class="level5" data-number="6.1.2.2.1">
-<h5 data-number="6.1.2.2.1" class="anchored" data-anchor-id="newton-raphson-para-la-regresión-logística"><span class="header-section-number">6.1.2.2.1</span> Newton-Raphson para la regresión logística</h5>
+<section id="newton-raphson-para-la-regresión-logística" class="level4" data-number="6.2.2.1">
+<h4 data-number="6.2.2.1" class="anchored" data-anchor-id="newton-raphson-para-la-regresión-logística"><span class="header-section-number">6.2.2.1</span> Newton-Raphson para la regresión logística</h4>
 <p>En la regresión logística, buscamos el <span class="math inline">\(\beta\)</span> que anula el gradiente de <span class="math inline">\(J(\beta)\)</span>, que ya obtuvimos en la sección anterior:</p>
 <p><span class="math display">\[\frac{\partial J}{\partial \beta} = -\sum_{i=1}^{N} (y_i - \hat{p}_i) \, x_i = 0\]</span></p>
 <p>Este es un sistema de ecuaciones no lineales, que podemos resolver con Newton-Raphson. Para eso necesitamos el Hessiano, que se obtiene derivando nuevamente:</p>
@@ -343,8 +351,8 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 </section>
 </section>
 </section>
-<section id="regularización" class="level3" data-number="6.1.3">
-<h3 data-number="6.1.3" class="anchored" data-anchor-id="regularización"><span class="header-section-number">6.1.3</span> Regularización</h3>
+<section id="regularización" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="regularización"><span class="header-section-number">6.3</span> Regularización</h2>
 <p>Las penalizaciones L2 (Ridge) y L1 (Lasso) vistas en la regresión lineal se aplican de la misma manera en la regresión logística, y su efecto sobre los coeficientes es análogo. Las funciones de costo quedan</p>
 <p><span class="math display">\[J_{L2}(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] + \lambda \sum_{j=1}^{p} \beta_j^2\]</span></p>
 <p><span class="math display">\[J_{L1}(\beta) = -\sum_{i=1}^{N} \left[ y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i) \right] + \lambda \sum_{j=1}^{p} |\beta_j|\]</span></p>
@@ -352,7 +360,6 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
 <p>Así como en la regresión lineal, L1 selecciona variables, mientras que L2 reparte el peso entre atributos correlacionados. Además, en la regresión logística la regularización cumple un rol adicional: si las clases son linealmente separables, el costo sin regularizar no tiene un mínimo finito, ya que agrandar los coeficientes siempre lo reduce. La penalización evita que diverjan, y por ese motivo algunas bibliotecas la traen implementada por defecto.</p>
 
 
-</section>
 </section>
 <section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr>
@@ -770,8 +777,8 @@ Figura&nbsp;6.1: Frontera de decisión de la regresión logística (línea viole
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link" aria-label="Referencias">
-        <span class="nav-page-text">Referencias</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./07-modelos-de-ensamble.html" class="pagination-link" aria-label="Modelos de ensamble">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Modelos de ensamble</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
