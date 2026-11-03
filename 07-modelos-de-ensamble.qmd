@@ -1,0 +1,398 @@
+# Modelos de ensamble {#sec-ensambles}
+
+En este capítulo presentamos los modelos de ensamble. 
+Un ensamble es un conjunto de cosas, en general todas similares pero con pequeñas diferencias entre sí. Los modelos de ensamble, entonces, combinan modelos sencillos para obtener un modelo cuyo desempeño suele ser mejor que el de cada modelo individualmente. Hasta ahora, vimos tres tipos de modelos sencillos: árboles de decisión, regresión lineal y regresión logística. Si bien los modelos de ensamble se podrían basar en cualquiera de ellos, los árboles tienen una ventaja que los hace la opción preferida: su complejidad se puede manejar controlando su profundidad, que se convertirá en una característica sumamente importante para la creación de ensambles.
+
+Existen varias técnicas para obtener ensambles; las más utilizadas son *bagging* y *boosting*. Las dos sirven tanto para clasificación como para regresión. Vamos a presentarlas a partir de la clasificación y, en cada caso, indicar qué cambia en regresión.
+ 
+
+## Bagging
+
+Una forma sencilla de generar un ensamble para clasificación es generar muchos modelos y luego hacerlos votar. En ese caso, la clasificación resultante es la que recibe más votos. Es decir, si nuestro ensamble consiste en 100 árboles de decisión para clasificación, de los cuales 90 predicen la clase A y 10 la clase B, la clasificación resultante es la clase A. Si los modelos predicen pseudoprobabilidades, también se puede hacer una votación ponderada, dándole más peso a aquellos árboles que están más seguros de la etiqueta predicha.
+
+Sin embargo, para que esta idea funcione, necesitamos que los árboles que votan sean diferentes entre sí. Si entrenamos repetidamente árboles con el mismo procedimiento sobre los mismos datos, van a ser todos idénticos, y votar no aporta nada. Entonces, la pregunta es cómo construir un conjunto de árboles diversos, todos con cierto poder predictivo, pero que no sean iguales.
+
+<!-- Supongamos que tenemos un dataset y entrenamos un árbol de decisión sobre él. ¿Qué puede ocurrir? Según Steven Skienna:
+“Podemos crear una gran cantidad de árboles de decisión a partir de un set S. Si los seguimos refinando hasta que las hojas sean puras, cada uno de ellos va a poder clasificar a la perfección. Podríamos desarrollar cientos, incluso miles de árboles diferentes, que evalúen una lista de ítems q y que retornen una etiqueta posible. Al permitir que cada árbol brinde su propio voto, ganamos confianza en que la etiqueta más común va a ser la correcta. -->
+
+
+Para lograrlo, se puede recurrir a una técnica estadística conocida como *bootstrap*. Una muestra *bootstrap* se obtiene sorteando al azar y **con reemplazo** $N$ instancias del conjunto de entrenamiento, que también tiene $N$ instancias. Como el sorteo es con reemplazo, algunas instancias aparecen repetidas y otras no aparecen: en promedio, cada muestra contiene alrededor del 63 % de las instancias distintas. Repitiendo el procedimiento obtenemos $B$ muestras, cuya distribución es parecida a la del conjunto original, pero no igual.
+
+En *bagging*, por cada muestra *bootstrap* entrenamos un modelo, por ejemplo, un árbol de decisión. Así, obtenemos $B$ modelos, $\hat{f}^{*1}, \dots, \hat{f}^{*B}$, donde $\hat{f}^{*b}$ es el modelo entrenado sobre la muestra $b$. Son parecidos, pero distintos. Cada modelo —un árbol de decisión, en este caso— vio solo una parte de las instancias, y no vio al resto.
+
+Este ensamble se usa para predecir de manera agregada, votando: para una instancia $x$, la predicción del ensamble es la clase más votada entre $\hat{f}^{*1}(x), \dots, \hat{f}^{*B}(x)$, es decir, la moda de las predicciones (@fig-bagging). Esta combinación de *bootstrap* y agregación (*aggregating*) es lo que se conoce como ***bagging***, por *bootstrap aggregating*.
+
+El *bagging* se puede aplicar sobre cualquier tipo de modelo. Sin embargo, la mayor ganancia se obtiene cuando los modelos son muy flexibles y tienden a sobreajustarse a su muestra de entrenamiento, como los árboles profundos. Cada uno se equivoca de manera distinta, y al votar, esos errores tienden a compensarse.
+
+```{dot}
+//| label: fig-bagging
+//| fig-cap: "Esquema de *bagging*. A partir del conjunto de entrenamiento se obtienen $B$ muestras *bootstrap*. Sobre cada una se entrena un árbol, $\\hat{f}^{*b}$, y las predicciones se agregan: en clasificación, con la clase más votada (la moda); en regresión, con el promedio."
+//| fig-width: 7
+//| fig-height: 3.5
+
+digraph bagging {
+    graph [ordering=out, ranksep=0.4, nodesep=0.3, bgcolor="transparent"]
+    node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12,
+           fillcolor="white", color="#666666", penwidth=1.1, margin="0.18,0.10"]
+    edge  [color="#666666", arrowsize=0.7]
+
+    datos     [label="Conjunto de entrenamiento", fillcolor="#cfe0f3"]
+    muestra_1 [label="Muestra 1"]
+    muestra_2 [label="Muestra 2"]
+    muestra_b [label="Muestra B"]
+    arbol_1   [label="Árbol 1"]
+    arbol_2   [label="Árbol 2"]
+    arbol_b   [label="Árbol B"]
+    votacion  [label="Agregación\nmoda (clasificación)\npromedio (regresión)", fillcolor="#f7ddb8"]
+
+    // los puntos suspensivos indican que hay B muestras y B árboles; sus flechas son invisibles
+    puntos_muestras [label="…", shape=plaintext, style=""]
+    puntos_arboles  [label="…", shape=plaintext, style=""]
+
+    datos -> muestra_1
+    datos -> muestra_2
+    datos -> puntos_muestras [style=invis]
+    datos -> muestra_b
+
+    muestra_1 -> arbol_1
+    muestra_2 -> arbol_2
+    puntos_muestras -> puntos_arboles [style=invis]
+    muestra_b -> arbol_b
+
+    arbol_1 -> votacion
+    arbol_2 -> votacion
+    puntos_arboles -> votacion [style=invis]
+    arbol_b -> votacion
+}
+```
+
+### Pseudoprobabilidades
+
+Además de una clase, muchas veces queremos un valor que indique cuán segura es la predicción. En un árbol de decisión, ese valor es la proporción de instancias de cada clase en la hoja donde cae la instancia. En un ensamble, la forma más sencilla es usar la proporción de árboles que votan por cada clase $k$:
+
+$$\hat{p}_k(x) = \frac{1}{B} \sum_{b=1}^{B} I\left(\hat{f}^{*b}(x) = k\right)$$
+
+donde $I(\cdot)$ vale 1 si se cumple la condición y 0 si no. Otra opción es promediar las proporciones de clase que da cada árbol en su hoja, que es la votación ponderada que mencionamos antes, y la opción por defecto en muchas implementaciones. En cualquier caso, el grado de consenso entre los árboles es informativo: no es lo mismo una clase que reciben 501 de 1000 árboles que una que reciben 947 [@skiena2017data].
+
+Estos valores se conocen como **pseudoprobabilidades**: sirven para ordenar las instancias según la confianza en la predicción, pero no son necesariamente probabilidades calibradas. Es decir, que el ensamble asigne 0.8 a una clase no implica que la predicción sea correcta el 80 % de las veces. Si se necesitan probabilidades, se pueden calibrar.
+
+<!-- En el caso de árboles, lo que buscamos es un conjunto de árboles con mucha varianza pero poco sesgo, de forma tal que cuando los combinemos (los hagamos votar) obtengamos un modelo de baja varianza y bajo sesgo. -->
+
+### *Random forest*
+
+Como mencionamos al principio, los ensambles suelen construirse con árboles de decisión. Un conjunto de árboles de decisión se llama, predeciblemente, bosque (*forest*). Cuando creamos bosques con *bagging*, puede ocurrir el siguiente problema. Supongamos un conjunto de datos con 10 atributos, de los cuales dos son muy buenos predictores, otros cuatro son buenos y los cuatro restantes tienen un poder predictivo bajo. Si bien cada árbol ve una muestra *bootstrap* distinta, los dos mejores atributos van a quedar casi siempre cerca de la raíz. Así, los árboles se parecen mucho entre sí, y el ensamble no aprovecha toda su capacidad.
+
+La solución es volver a recurrir al azar, pero ahora sobre los atributos. Cada vez que un árbol tiene que hacer un corte, no evalúa todos los atributos, sino solo un subconjunto de $m$ atributos sorteados al azar, sin reemplazo, entre los $p$ disponibles. El sorteo se repite en cada nodo, así que distintos nodos de un mismo árbol pueden considerar atributos distintos. De esta forma, los mejores predictores no siempre están disponibles cerca de la raíz, y los árboles resultan más diferentes entre sí. Esta combinación de muestras *bootstrap* y sorteo de atributos en cada corte es lo que se conoce como ***random forest***.
+
+La cantidad de atributos $m$ que se sortea en cada corte es un hiperparámetro de *random forest*. Valores habituales son $m = \sqrt{p}$ para clasificación y $m = p/3$ para regresión. Un $m$ chico hace que los árboles sean más distintos entre sí, pero cada uno más débil, porque muchas veces no tiene disponibles los mejores atributos. En el extremo, con $m = p$ no hay sorteo de atributos, y *random forest* se reduce a *bagging*. Los valores habituales son empíricos, así que conviene tomarlos como punto de partida y ajustarlos, por ejemplo, con validación cruzada (@sec-evaluacion-de-modelos).
+
+Es interesante notar cómo se usa el azar: introduce variabilidad entre los modelos, pero de una manera controlada, de forma tal que el ensamble suele ser mejor que cada modelo individual.
+
+Los modelos de ensamble están entre los más utilizados en la práctica. En particular, *random forest* —propuesto por Leo Breiman en 2001 [@breiman2001random] y desarrollado junto con Adele Cutler— tiene una larga historia de aplicaciones exitosas, aunque existen modelos más modernos que en algunos problemas lo superan, como los basados en *boosting*.
+
+#### Error *out-of-bag*
+
+Como cada árbol se entrena sobre una muestra *bootstrap*, alrededor de un tercio de las instancias queda afuera de cada árbol. Entonces, para cada instancia podemos obtener una predicción usando solo los árboles que no la vieron, y compararla con su etiqueta. El promedio de esos errores es el **error *out-of-bag*** (OOB), una estimación del error en datos nuevos que no requiere separar un conjunto de validación. Sin embargo, si lo usamos para elegir hiperparámetros, se vuelve optimista, igual que la validación cruzada. Por eso, sigue siendo necesario reservar un conjunto de prueba (@sec-evaluacion-de-modelos).
+
+#### Importancia de atributos
+
+*Random forest* permite estimar cuán importante es cada atributo para el modelo. La forma más usada es la disminución media de la impureza (MDI, por sus siglas en inglés): para cada atributo, suma cuánto reduce la impureza Gini en todos los cortes en los que se usa, ponderado por la proporción de instancias en cada nodo, y promedia entre los árboles. Hay que usarla con cuidado: se calcula sobre el conjunto de entrenamiento y favorece a los atributos con muchos valores distintos, aunque no sean informativos. Una alternativa es la importancia por permutación, que mide cuánto empeora el desempeño en datos no usados para entrenar cuando se mezclan al azar los valores de un atributo.
+
+### Ensambles para regresión
+
+El *bagging* y el *random forest* se aplican a regresión con un único cambio: en lugar de votar, se promedian las predicciones de los árboles (@fig-bagging),
+
+$$\hat{f}_{bag}(x) = \frac{1}{B} \sum_{b=1}^{B} \hat{f}^{*b}(x)$$
+
+donde cada árbol de regresión predice el promedio de las instancias de su hoja (@sec-arboles-decision).
+
+Como tenemos $B$ predicciones para cada instancia, además del promedio podemos calcular su desvío estándar:
+
+$$s(x) = \sqrt{\frac{1}{B - 1} \sum_{b=1}^{B} \left(\hat{f}^{*b}(x) - \hat{f}_{bag}(x)\right)^2}$$
+
+Un $s(x)$ grande indica que los árboles discrepan mucho entre sí para esa instancia, lo que suele ocurrir en zonas con pocos datos de entrenamiento. Por eso, sirve para identificar en qué instancias la predicción es menos confiable. Pero no es un intervalo de predicción: no incluye el ruido propio de $Y$, así que no se puede leer como un rango en el que va a caer el valor observado.
+
+
+
+
+
+## Boosting
+
+En el *bagging*, los modelos del ensamble se entrenan de manera independiente entre sí. El ***boosting*** sigue otra estrategia: entrena los modelos secuencialmente, y cada uno intenta corregir los errores de los anteriores. Los modelos que se combinan son sencillos, típicamente árboles poco profundos, y su desempeño individual suele ser apenas mejor que el de una predicción trivial. A este tipo de modelos se los conoce como **modelos débiles** (*weak learners*).
+
+Hay distintas formas de decidir qué tiene que corregir cada modelo nuevo. Vamos a ver las dos más importantes: AdaBoost, que se usa para clasificación, y el *gradient boosting*, que sirve tanto para clasificación como para regresión.
+
+### AdaBoost
+
+AdaBoost, por *adaptive boosting* [@freund1997decision], fue la primera versión de *boosting* de uso extendido. Se usa para clasificación.
+
+Empecemos con una idea sencilla. Entrenamos un árbol de decisión de profundidad uno. Un modelo tan sencillo va a clasificar bien las instancias fáciles, probablemente las que están lejos de la frontera de decisión, pero va a fallar en muchas otras. Ahora, supongamos que sacamos del conjunto de entrenamiento las instancias que este árbol clasificó bien y nos quedamos solo con las que clasificó mal, que son las difíciles. Si entrenamos un segundo árbol de profundidad uno sobre ellas, ese árbol se va a especializar en lo que el primero no pudo resolver.
+
+En la práctica, AdaBoost no saca instancias, sino que le asigna un peso a cada una, que aumenta cuando el árbol anterior la clasifica mal. Así, cada nuevo árbol se entrena prestando más atención a las instancias que los anteriores no resolvieron. Al final, el ensamble combina todos los árboles en una votación ponderada: cada árbol tiene su propio peso, que depende de cuán bien clasificó durante el entrenamiento. Es importante notar que el peso de cada árbol es fijo: no cambia según la instancia que queremos predecir. Lo que cambia con la dificultad de cada instancia son los pesos de las instancias, y solo durante el entrenamiento (@fig-adaboost).
+
+```{python}
+#| label: fig-adaboost
+#| fig-cap: 'AdaBoost con tres árboles de profundidad uno, sobre datos simulados. En los tres primeros paneles, cada árbol hace un único corte (línea violeta) y el tamaño de cada punto es su peso al momento de entrenar ese árbol: las instancias que los árboles anteriores clasificaron mal van ganando peso. El último panel muestra el ensamble, que combina los tres cortes en una votación ponderada por el peso de cada árbol. La línea gris punteada es la frontera verdadera.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+generador = np.random.default_rng(3)
+color_clase_a, color_clase_b = "#3a76b8", "#d9822b"
+fondo_clase_a, fondo_clase_b = "#cfe0f3", "#f7ddb8"
+color_frontera = "#7b3294"
+
+cantidad_instancias = 30
+X = generador.uniform(0, 1, (cantidad_instancias, 2))
+# frontera diagonal: un árbol de profundidad uno, que corta sobre un solo atributo, no puede representarla
+y = np.where(X[:, 0] + X[:, 1] > 1, 1, -1)
+
+def predecir_arbol(X, atributo, umbral, signo):
+    return np.where(X[:, atributo] > umbral, signo, -signo)
+
+def entrenar_arbol(X, y, pesos):
+    # árbol de profundidad uno: prueba todos los cortes y se queda con el de menor error ponderado
+    mejor = None
+    for atributo in range(X.shape[1]):
+        valores = np.unique(X[:, atributo])
+        for umbral in (valores[:-1] + valores[1:]) / 2:
+            for signo in (1, -1):
+                mal_clasificadas = predecir_arbol(X, atributo, umbral, signo) != y
+                error = pesos[mal_clasificadas].sum() / pesos.sum()
+                if mejor is None or error < mejor[0]:
+                    mejor = (error, atributo, umbral, signo)
+    return mejor
+
+# AdaBoost, tal como en la formulación matemática
+cantidad_arboles = 3
+pesos = np.full(cantidad_instancias, 1 / cantidad_instancias)
+arboles, pesos_al_entrenar = [], []
+for _ in range(cantidad_arboles):
+    pesos_al_entrenar.append(pesos.copy())
+    error, atributo, umbral, signo = entrenar_arbol(X, y, pesos)
+    peso_arbol = np.log((1 - error) / error)
+    mal_clasificadas = predecir_arbol(X, atributo, umbral, signo) != y
+    pesos = pesos * np.exp(peso_arbol * mal_clasificadas)
+    arboles.append((peso_arbol, atributo, umbral, signo))
+
+x1_grilla, x2_grilla = np.meshgrid(np.linspace(0, 1, 200), np.linspace(0, 1, 200))
+puntos_grilla = np.column_stack([x1_grilla.ravel(), x2_grilla.ravel()])
+clase_a, clase_b = y == -1, y == 1
+
+fig, ejes = plt.subplots(1, cantidad_arboles + 1, figsize=(10, 2.8), sharex=True, sharey=True)
+
+for indice, (ax, (peso_arbol, atributo, umbral, signo)) in enumerate(zip(ejes, arboles)):
+    region = predecir_arbol(puntos_grilla, atributo, umbral, signo).reshape(x1_grilla.shape)
+    ax.contourf(x1_grilla, x2_grilla, region, levels=[-2, 0, 2], colors=[fondo_clase_a, fondo_clase_b])
+    if atributo == 0:
+        ax.axvline(umbral, color=color_frontera, linestyle="--", linewidth=2)
+    else:
+        ax.axhline(umbral, color=color_frontera, linestyle="--", linewidth=2)
+    # tamaño proporcional al peso de la instancia al entrenar este árbol
+    pesos = pesos_al_entrenar[indice]
+    tamanios = 10 + 150 * pesos / pesos.max()
+    ax.scatter(*X[clase_a].T, s=tamanios[clase_a], color=color_clase_a)
+    ax.scatter(*X[clase_b].T, s=tamanios[clase_b], color=color_clase_b)
+    ax.set_title(f"Árbol {indice + 1} (peso {peso_arbol:.2f})", fontsize=10)
+
+# --- ensamble: signo de la suma ponderada ---
+ax_ensamble = ejes[-1]
+suma_ponderada = sum(peso_arbol * predecir_arbol(puntos_grilla, atributo, umbral, signo)
+                     for peso_arbol, atributo, umbral, signo in arboles)
+region = np.sign(suma_ponderada).reshape(x1_grilla.shape)
+ax_ensamble.contourf(x1_grilla, x2_grilla, region, levels=[-2, 0, 2],
+                     colors=[fondo_clase_a, fondo_clase_b])
+ax_ensamble.plot([0, 1], [1, 0], color="#888888", linestyle="--", linewidth=1)
+ax_ensamble.scatter(*X[clase_a].T, s=18, color=color_clase_a)
+ax_ensamble.scatter(*X[clase_b].T, s=18, color=color_clase_b)
+ax_ensamble.set_title("Ensamble", fontsize=10)
+
+for ax in ejes:
+    ax.set(xlabel="$X_1$", xticks=[], yticks=[], xlim=(0, 1), ylim=(0, 1))
+    ax.set_aspect("equal")
+ejes[0].set_ylabel("$X_2$")
+
+fig.tight_layout()
+plt.show()
+```
+
+Esta estrategia tiene un costo. Como AdaBoost trabaja cada vez más duro para clasificar bien las instancias difíciles, esas instancias terminan teniendo mucha influencia en el modelo [@skiena2017data]. Esto es particularmente grave cuando el conjunto de datos tiene instancias mal etiquetadas: el algoritmo aumenta una y otra vez el peso de instancias que, en realidad, no se pueden aprender. Como veremos en la formulación matemática, la causa de fondo es la función de costo que optimiza AdaBoost. Por eso, el problema se mitiga usando funciones de costo más robustas, como las del *gradient boosting*, y regularizando, por ejemplo, haciendo que cada árbol sume al ensamble solo una fracción de su predicción. Esa fracción es la tasa de aprendizaje, que retomamos en los hiperparámetros.
+
+#### Formulación matemática
+
+::: {.fuente}
+Esta sección solamente es parte del programa de Aprendizaje Automático de UNSAM, y su complejidad matemática es un poco mayor a la que venimos teniendo. De todas maneras, su lectura es bienvenida si genera curiosidad.
+:::
+
+Para escribir AdaBoost conviene codificar las clases como $y_i \in \{-1, 1\}$, en lugar de 0 y 1, y llamar $G_m(x)$ al árbol de la iteración $m$, que también predice $-1$ o $1$. El algoritmo es el siguiente [@hastie2009elements]:
+
+1. Inicializar los pesos de las instancias: $w_i = 1/N$, para $i = 1, \dots, N$.
+1. Para $m = 1, \dots, M$:
+    1. Entrenar un árbol $G_m(x)$ usando los pesos $w_i$.
+    1. Calcular su error ponderado: $\text{err}_m = \frac{\sum_{i=1}^{N} w_i \, I(y_i \neq G_m(x_i))}{\sum_{i=1}^{N} w_i}$.
+    1. Calcular el peso del árbol: $\alpha_m = \log\left(\frac{1 - \text{err}_m}{\text{err}_m}\right)$.
+    1. Actualizar los pesos de las instancias: $w_i \leftarrow w_i \, e^{\alpha_m I(y_i \neq G_m(x_i))}$.
+1. Predecir con el signo de la suma ponderada: $G(x) = \operatorname{sign}\left(\sum_{m=1}^{M} \alpha_m G_m(x)\right)$.
+
+Cuanto menor es el error de un árbol, mayor es su peso $\alpha_m$. Un árbol que acierta la mitad de las veces, como el azar, tiene $\alpha_m = 0$ y no aporta nada. Los pesos de las instancias mal clasificadas se multiplican por $e^{\alpha_m}$, y los de las bien clasificadas no cambian.
+
+Se puede mostrar que este algoritmo minimiza, árbol por árbol, la **pérdida exponencial** [@hastie2009elements]:
+
+$$L(y, F(x)) = e^{-y F(x)}$$
+
+donde $F(x)$ es, salvo un factor constante, la suma ponderada $\sum_{m} \alpha_m G_m(x)$. El producto $y F(x)$ es positivo si la instancia está bien clasificada y negativo si no, y su valor absoluto crece cuanto más lejos de la frontera está la instancia. Si una instancia está muy mal clasificada, $y F(x)$ es muy negativo, y la pérdida crece exponencialmente. Por eso, unas pocas instancias mal etiquetadas pueden dominar el entrenamiento.
+
+### *Gradient boosting*
+
+El *gradient boosting* [@friedman2001greedy] generaliza la idea del *boosting* a cualquier función de costo que se pueda derivar, por lo que sirve tanto para regresión como para clasificación. En lugar de usar pesos sobre las instancias, cada árbol nuevo se entrena directamente sobre lo que el ensamble todavía hace mal.
+
+En regresión, la idea es muy intuitiva. El ensamble empieza prediciendo el promedio de $y$ para todas las instancias. Calculamos los residuos —la diferencia entre el valor observado y el predicho— y entrenamos un primer árbol para que prediga esos residuos. Sumando su predicción, corregimos parte del error. Después calculamos los nuevos residuos, entrenamos un segundo árbol, y así sucesivamente: cada árbol aprende lo que al ensamble todavía le falta explicar. Como cada árbol suma solo una fracción de su predicción, dada por la tasa de aprendizaje, el ensamble se acerca a los datos de a poco (@fig-gradient-boosting).
+
+```{python}
+#| label: fig-gradient-boosting
+#| fig-cap: '*Gradient boosting* en regresión, con árboles de profundidad uno sobre datos simulados. Izquierda: la predicción del ensamble después de distintas cantidades de árboles; cada árbol nuevo corrige una parte del error y el ensamble se acerca a los datos de a poco. Derecha: los residuos del ensamble después de tres árboles (puntos) y el cuarto árbol, entrenado para predecirlos (línea roja).'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+generador = np.random.default_rng(0)
+x = np.sort(generador.uniform(0, 10, 80))
+y = np.sin(x) + generador.normal(0, 0.3, x.size)
+
+def entrenar_arbol_regresion(x, residuos):
+    # árbol de profundidad uno: el corte que minimiza la suma de errores al cuadrado,
+    # prediciendo en cada lado el promedio de los residuos
+    mejor = None
+    for umbral in (x[:-1] + x[1:]) / 2:
+        izquierda, derecha = residuos[x <= umbral], residuos[x > umbral]
+        error = ((izquierda - izquierda.mean()) ** 2).sum() + ((derecha - derecha.mean()) ** 2).sum()
+        if mejor is None or error < mejor[0]:
+            mejor = (error, umbral, izquierda.mean(), derecha.mean())
+    return mejor[1:]
+
+def predecir_arbol(x, umbral, valor_izquierda, valor_derecha):
+    return np.where(x <= umbral, valor_izquierda, valor_derecha)
+
+tasa_aprendizaje = 0.3
+cantidad_arboles = 50
+x_grilla = np.linspace(0, 10, 400)
+
+# F_0: el promedio de y
+prediccion = np.full(x.size, y.mean())
+prediccion_grilla = np.full(x_grilla.size, y.mean())
+predicciones_guardadas = {}
+for m in range(1, cantidad_arboles + 1):
+    residuos = y - prediccion
+    arbol = entrenar_arbol_regresion(x, residuos)
+    if m == 4:
+        # guardamos el cuarto árbol y los residuos sobre los que se entrenó
+        residuos_tres_arboles, cuarto_arbol = residuos, arbol
+    prediccion = prediccion + tasa_aprendizaje * predecir_arbol(x, *arbol)
+    prediccion_grilla = prediccion_grilla + tasa_aprendizaje * predecir_arbol(x_grilla, *arbol)
+    predicciones_guardadas[m] = prediccion_grilla.copy()
+
+fig, (ax_ensamble, ax_residuos) = plt.subplots(1, 2, figsize=(8, 3.6))
+
+# --- predicción del ensamble ---
+iteraciones_mostradas = [1, 3, 10, cantidad_arboles]
+opacidades = np.linspace(0.3, 1, len(iteraciones_mostradas))
+ax_ensamble.scatter(x, y, s=12, color="#888888", zorder=3)
+for m, opacidad in zip(iteraciones_mostradas, opacidades):
+    ax_ensamble.plot(x_grilla, predicciones_guardadas[m], color="#3a76b8", alpha=opacidad,
+                     linewidth=1.5, label=f"{m} árboles" if m > 1 else "1 árbol")
+ax_ensamble.set(xlabel="$X$", ylabel="$Y$", xticks=[], yticks=[], title="Ensamble")
+ax_ensamble.legend(frameon=False, fontsize=8)
+
+# --- residuos y el árbol que los aprende ---
+ax_residuos.scatter(x, residuos_tres_arboles, s=12, color="#888888", zorder=3)
+ax_residuos.axhline(0, color="#888888", linewidth=0.8)
+ax_residuos.plot(x_grilla, predecir_arbol(x_grilla, *cuarto_arbol), color="#c44e52", linewidth=2)
+ax_residuos.set(xlabel="$X$", ylabel="Residuo", xticks=[], yticks=[],
+                title="Residuos después de 3 árboles")
+
+for ax in (ax_ensamble, ax_residuos):
+    ax.spines[["top", "right"]].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
+
+En clasificación, la idea es la misma, con una diferencia. Como en la regresión logística (@sec-regresion-logistica), el ensamble no predice directamente una probabilidad, sino un valor real que la función sigmoide convierte en probabilidad. Los árboles se van sumando en ese valor real. Por eso, incluso en clasificación, cada árbol del ensamble es un árbol de regresión.
+
+#### Formulación matemática
+
+::: {.fuente}
+Esta sección solamente es parte del programa de Aprendizaje Automático de UNSAM, y su complejidad matemática es un poco mayor a la que venimos teniendo. De todas maneras, su lectura es bienvenida si genera curiosidad.
+:::
+
+Llamemos $F_m(x)$ al ensamble después de $m$ iteraciones. El ensamble se construye sumando árboles de a uno:
+
+$$F_m(x) = F_{m-1}(x) + \eta \, f_m(x)$$
+
+donde $f_m$ es el árbol nuevo y $\eta$ es la tasa de aprendizaje. Cada árbol nuevo se ajusta a los **pseudo-residuos**, que son el gradiente negativo de la función de costo $L$ respecto de las predicciones actuales del ensamble:
+
+$$r_i = -\left. \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right|_{F = F_{m-1}}$$
+
+La @tbl-pseudo-residuos muestra cómo quedan en los dos casos.
+
+|                      | Regresión                         | Clasificación binaria                                          |
+|----------------------|-----------------------------------|----------------------------------------------------------------|
+| Función de costo     | $\frac{1}{2}(y_i - F(x_i))^2$     | Entropía cruzada, con $\hat{p}_i = \sigma(F(x_i))$             |
+| Pseudo-residuos      | $y_i - F_{m-1}(x_i)$              | $y_i - \hat{p}_i$                                              |
+| Predicción final     | $F_M(x)$                          | $\sigma(F_M(x))$, y la clase según el umbral de 0.5            |
+
+: Función de costo, pseudo-residuos y predicción final del *gradient boosting* en regresión y en clasificación binaria, con $y_i \in \{0, 1\}$. {#tbl-pseudo-residuos}
+
+En regresión, los pseudo-residuos son exactamente los residuos. El factor $\frac{1}{2}$ del error cuadrático es solo por conveniencia: sin él aparece un 2, que se absorbe en la tasa de aprendizaje, como en el @sec-regresion-lineal. En clasificación, los pseudo-residuos son la misma expresión que aparece en el gradiente de la regresión logística.
+
+El algoritmo es el siguiente:
+
+1. Inicializar $F_0(x)$ con una constante: el promedio de $y$ en regresión, o $\log\left(\frac{\bar{p}}{1 - \bar{p}}\right)$ en clasificación, donde $\bar{p}$ es la proporción de instancias de la clase positiva. En este último caso, $\sigma(F_0(x)) = \bar{p}$.
+1. Para $m = 1, \dots, M$:
+    1. Calcular los pseudo-residuos $r_i$ de cada instancia.
+    1. Entrenar un árbol de regresión $f_m$ sobre los pares $(x_i, r_i)$.
+    1. Actualizar el ensamble: $F_m(x) = F_{m-1}(x) + \eta \, f_m(x)$.
+1. Predecir con $F_M(x)$ en regresión, o con $\sigma(F_M(x))$ en clasificación.
+
+Simplificamos un detalle: en la versión completa del algoritmo, después de entrenar cada árbol se recalculan los valores de sus hojas para minimizar directamente la función de costo. Con el error cuadrático, eso no cambia nada.
+
+El nombre viene de que es un descenso por gradiente, como el del @sec-regresion-lineal, pero con una diferencia importante. Allí, en cada paso movíamos los parámetros $\beta$ en la dirección contraria al gradiente. Acá, en cambio, lo que movemos son las predicciones del ensamble, y cada árbol nuevo aproxima la dirección en la que conviene moverlas.
+
+#### XGBoost y otras implementaciones
+
+XGBoost (*eXtreme Gradient Boosting*) [@chen2016xgboost] es una implementación muy optimizada de *gradient boosting*. Entre otras cosas, agrega regularización a la función de costo, sortea instancias y atributos en cada iteración y paraleliza la construcción de cada árbol. Aunque los árboles se entrenan en secuencia, la búsqueda de los cortes dentro de cada árbol sí se puede repartir entre varios procesadores. Junto con otras implementaciones, como LightGBM y CatBoost, está entre los modelos con mejor desempeño en datos tabulares, y se usa tanto para clasificación como para regresión. 
+
+### Hiperparámetros
+
+El *boosting* tiene tres hiperparámetros principales [@james2013introduction]:
+
+1. **La cantidad de árboles.** A diferencia del *bagging*, el *boosting* puede sobreajustar si se usan demasiados árboles, aunque ese sobreajuste suele aparecer lentamente. Por eso, conviene elegirla con validación cruzada (@sec-evaluacion-de-modelos).
+1. **La tasa de aprendizaje**, $\eta$ (o *shrinkage*). Cada árbol suma al ensamble solo una fracción $\eta$ de su predicción, de forma tal que el ensamble aprende más despacio. Valores típicos son 0.1, 0.01 o incluso 0.001. Existe un compromiso con la cantidad de árboles: cuanto más chica la tasa de aprendizaje, más árboles hacen falta.
+1. **La profundidad de los árboles.** Los árboles son poco profundos. Muchas veces, árboles de profundidad uno funcionan bien, pero en *gradient boosting* son habituales árboles algo más grandes, de entre 4 y 8 hojas [@hastie2009elements].
+
+
+### Diferencias con *bagging*
+
+Veamos cómo se compara el *boosting* con el *bagging*:
+
+* **Entrenamiento.** En *bagging*, los árboles se entrenan de manera independiente; en *boosting*, en secuencia, porque cada uno depende de los errores de los anteriores. Esto tiene una consecuencia computacional: en *bagging* podemos entrenar todos los árboles a la vez, en paralelo, mientras que en *boosting* cada árbol tiene que esperar a que termine el anterior.
+* **Cómo se generan modelos distintos.** El *bagging* entrena cada árbol sobre una muestra *bootstrap* distinta. En el *boosting*, cada árbol se entrena sobre lo que los anteriores hicieron mal: AdaBoost lo logra con pesos sobre las instancias, y el *gradient boosting*, ajustándose a los pseudo-residuos.
+* **Profundidad de los árboles.** En *bagging*, los árboles suelen ser profundos y sobreajustarse a su muestra; el ensamble compensa sus errores al votar. En *boosting*, los árboles son poco profundos; cada uno aporta una mejora pequeña y el ensamble mejora de a poco, árbol a árbol.
+* **Combinación.** En *bagging*, todos los árboles pesan lo mismo: se toma la moda en clasificación y el promedio en regresión. En *boosting*, la predicción es una suma de los árboles: ponderada por el peso de cada árbol en AdaBoost, y escalada por la tasa de aprendizaje en el *gradient boosting*.
+
+Y, al igual que el *bagging*, el *boosting* se puede aplicar sobre otros modelos, aunque los árboles son la opción más utilizada.
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
