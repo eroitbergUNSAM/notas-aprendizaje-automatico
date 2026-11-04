@@ -23,6 +23,8 @@ book:
     - 05-regularizacion.qmd
     - 06-modelos-sencillos-regresion-logistica.qmd
     - 07-modelos-de-ensamble.qmd
+    - 08-optimizacion-de-hiperparametros.qmd
+
     - references.qmd
   
 format:

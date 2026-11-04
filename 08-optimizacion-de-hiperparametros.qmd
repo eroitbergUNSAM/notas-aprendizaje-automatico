@@ -1,0 +1,246 @@
+# Optimización de hiperparámetros {#sec-hiperparametros}
+
+En el @sec-evaluacion-de-modelos distinguimos entre los parámetros de un modelo, que se ajustan automáticamente durante el entrenamiento —por ejemplo, la ordenada al origen y la pendiente de una regresión lineal—, y los hiperparámetros, que elegimos antes de entrenar —por ejemplo, la profundidad de un árbol de decisión, el nivel de regularización o la cantidad de árboles de un ensamble—. Mientras que los parámetros definen cómo el modelo transforma los atributos en una predicción, los hiperparámetros determinan su estructura, en un sentido amplio: cuán flexible puede ser. Por ejemplo, una regresión lineal regularizada tiene la misma cantidad de parámetros que una sin regularizar, pero es menos flexible (@sec-regularizacion). Coloquialmente es común llamar parámetros a ambos, pero conviene tener claro qué rol cumple cada uno. En este capítulo vamos a ver cómo elegir los hiperparámetros.
+
+Elegir hiperparámetros es, a su vez, un problema de optimización: buscamos la combinación de valores que minimice una métrica de error, como el MSE o el MAE, o que maximice una métrica de desempeño, como la exactitud o el área bajo la curva ROC (AUC-ROC). Pero esa métrica no se puede evaluar sobre el conjunto de entrenamiento: ahí siempre gana el modelo más flexible, porque puede ajustarse cada vez mejor a los datos que ya vio. Lo que nos interesa es el desempeño en datos nuevos, así que la métrica se estima con validación cruzada sobre el conjunto de desarrollo, siguiendo el protocolo del @sec-evaluacion-de-modelos.
+
+Esto es particularmente importante al comparar modelos distintos sobre un mismo conjunto de datos: no sería justo comparar un modelo A con sus mejores hiperparámetros contra un modelo B que no se optimizó.
+
+Los modelos suelen tener muchos hiperparámetros. No todos tienen la misma importancia, y es común optimizar solamente los más importantes, dejando el resto en sus valores por defecto. En general, a medida que usamos los modelos desarrollamos una intuición de cuáles son los que predominan.
+
+Una herramienta para estudiar el efecto de un hiperparámetro es la **curva de validación** (@fig-curva-validacion). En el eje horizontal va el hiperparámetro, ordenado según la complejidad del modelo que produce. En el caso de los árboles, la complejidad está directamente asociada a su profundidad: un árbol poco profundo es simple, y se vuelve más complejo a medida que aumenta la profundidad. En el eje vertical va el desempeño, tanto en entrenamiento como en validación.
+
+
+```{python}
+#| label: fig-curva-validacion
+#| fig-cap: 'Curva de validación idealizada. El desempeño en entrenamiento mejora siempre con la complejidad del modelo, mientras que el de validación mejora hasta cierto punto y después empeora. Cada curva es el promedio sobre los *folds* de la validación cruzada, y las bandas muestran su dispersión. La línea punteada marca la complejidad con mejor desempeño en validación.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# curvas idealizadas: no salen de entrenar modelos, sino de funciones elegidas a mano
+complejidad = np.linspace(1, 10, 200)
+desempenio_entrenamiento = 1 - 0.5 * np.exp(-0.45 * (complejidad - 1))
+# la distancia con entrenamiento crece con la complejidad: es la señal del sobreajuste
+desempenio_validacion = desempenio_entrenamiento - 0.03 - 0.006 * (complejidad - 1) ** 2
+
+# dispersión entre folds: mayor en validación, y creciente con la complejidad
+desvio_entrenamiento = 0.01 + 0.002 * (complejidad - 1)
+desvio_validacion = 0.02 + 0.008 * (complejidad - 1)
+
+complejidad_optima = complejidad[np.argmax(desempenio_validacion)]
+
+fig, ax = plt.subplots(figsize=(6, 3.6))
+for desempenio, desvio, color, etiqueta in [
+        (desempenio_entrenamiento, desvio_entrenamiento, "#3a76b8", "Entrenamiento"),
+        (desempenio_validacion, desvio_validacion, "#d9822b", "Validación")]:
+    ax.plot(complejidad, desempenio, color=color, linewidth=2, label=etiqueta)
+    ax.fill_between(complejidad, desempenio - desvio, desempenio + desvio, color=color, alpha=0.2)
+
+ax.axvline(complejidad_optima, color="#888888", linestyle="--", linewidth=1)
+ax.text(1.2, 0.34, "Subajuste", fontsize=10, color="#555555")
+ax.text(8.2, 0.34, "Sobreajuste", fontsize=10, color="#555555")
+ax.set(xlabel="Complejidad del modelo (por ejemplo, profundidad del árbol)", ylabel="Desempeño",
+       xticks=[], yticks=[], ylim=(0.3, 1.05))
+ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(0, 0.92))
+ax.spines[["top", "right"]].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
+
+Esta curva está idealizada, pero rescata los aspectos más importantes. Los modelos simples tienen un desempeño bajo, tanto en entrenamiento como en validación: no alcanzan a captar los patrones de los datos, lo que se conoce como **subajuste**. Los modelos complejos, en cambio, tienen un desempeño muy alto en entrenamiento, pero peor en validación. Esa gran distancia entre ambos es la señal del **sobreajuste**. El mejor modelo está en el medio, donde el desempeño en validación es máximo. Las bandas recuerdan que cada punto de la curva es un promedio sobre los *folds* de la validación cruzada: si dos complejidades tienen desempeños parecidos y sus bandas se superponen, es difícil afirmar que una sea mejor que la otra (@sec-evaluacion-de-modelos).
+
+Esta herramienta, sin embargo, no sirve cuando tenemos muchos hiperparámetros. Hacer una curva de validación para cada uno informa sobre el efecto de cada uno individualmente, pero podría haber interacciones entre ellos que no estemos rescatando. Por eso, optimizar un conjunto de hiperparámetros es distinto de optimizar cada uno por separado, porque interactúan entre sí: el mejor valor de uno puede depender del valor de los otros. Por ejemplo, en el *boosting*, la mejor cantidad de árboles depende de la tasa de aprendizaje (@sec-ensambles). En las secciones siguientes vamos a ver tres estrategias (@fig-estrategias-busqueda):
+
+1. Búsqueda manual.
+1. Búsqueda en grilla (*grid search*).
+1. Búsqueda aleatoria (*random search*).
+
+```{python}
+#| label: fig-estrategias-busqueda
+#| fig-cap: 'Combinaciones de dos hiperparámetros que prueba cada estrategia. En la búsqueda manual, unas pocas, elegidas según el criterio de quien entrena el modelo. En la búsqueda en grilla, todas las combinaciones de un conjunto fijo de valores para cada hiperparámetro. En la búsqueda aleatoria, combinaciones sorteadas al azar dentro del rango de cada hiperparámetro.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+generador = np.random.default_rng(2)
+
+# elegidas "a mano": pocas y sin un patrón regular
+puntos_manual = np.array([[0.0, 0.4], [0.3, 0.68], [0.42, 0.0], [0.58, 0.6],
+                          [0.67, 0.29], [0.8, 0.8], [1.0, 0.4]])
+valores_grilla = np.linspace(0, 1, 11)
+puntos_grilla = np.array([(a, b) for a in valores_grilla for b in valores_grilla])
+puntos_aleatorios = generador.uniform(0, 1, (12, 2))
+
+fig, ejes = plt.subplots(1, 3, figsize=(9, 3.2), sharex=True, sharey=True)
+for ax, puntos, titulo in zip(ejes,
+                              [puntos_manual, puntos_grilla, puntos_aleatorios],
+                              ["Búsqueda manual", "Búsqueda en grilla", "Búsqueda aleatoria"]):
+    ax.scatter(puntos[:, 0], puntos[:, 1], s=18, color="#3a76b8", clip_on=False, zorder=3)
+    ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[], xlabel="Primer hiperparámetro")
+    ax.set_title(titulo, fontsize=11)
+    ax.set_aspect("equal")
+    ax.spines[["top", "right"]].set_visible(False)
+ejes[0].set_ylabel("Segundo hiperparámetro")
+
+fig.tight_layout()
+plt.show()
+```
+
+
+## Búsqueda manual
+
+En la búsqueda manual, elegimos los valores de algunos hiperparámetros según nuestro criterio o experiencia previa, entrenamos el modelo, estimamos su desempeño con validación cruzada y, según el resultado, probamos otros valores. Por ejemplo:
+
+1. Tenemos un modelo con un hiperparámetro $a$.
+1. Decidimos probar los valores $a = 1$ y $a = 2$.
+1. Estimamos el desempeño del modelo con cada valor.
+1. Nos quedamos con el valor de mejor desempeño, por ejemplo, en exactitud.
+
+Repetir este ciclo hasta obtener un desempeño satisfactorio suele ser tedioso y poco eficiente. Pero la búsqueda manual tiene una ventaja: es muy útil para ganar intuición sobre el comportamiento del modelo. Por eso, es común probar algunos valores a mano antes de pasar a algo más metódico.
+
+## Búsqueda en grilla
+
+La siguiente idea es probar con todas las combinaciones posibles. Elegimos los hiperparámetros que queremos explorar y, para cada uno, un conjunto de valores posibles. Luego armamos una grilla con todas las combinaciones y estimamos el desempeño en cada una. Esto se conoce como **búsqueda en grilla** (*grid search*). Por ejemplo:
+
+1. Tenemos un modelo con dos hiperparámetros, $a$ y $b$.
+1. Elegimos sus posibles valores: $a \in \{1, 3\}$ y $b \in \{2, 4\}$.
+1. Armamos las cuatro combinaciones posibles y estimamos el desempeño en cada una.
+1. Nos quedamos con la de mejor desempeño, por ejemplo, $a = 3$ y $b = 2$ (@fig-busqueda-grilla).
+
+```{dot}
+//| label: fig-busqueda-grilla
+//| fig-cap: "Búsqueda en grilla con dos hiperparámetros, $a \\in \\{1, 3\\}$ y $b \\in \\{2, 4\\}$. Cada combinación de valores define una configuración, cuyo desempeño se estima con validación cruzada sobre el conjunto de desarrollo. Nos quedamos con la configuración de mejor desempeño en validación (recuadro punteado)."
+//| fig-width: 7
+//| fig-height: 3.2
+
+digraph busqueda_grilla {
+    graph [rankdir=LR, nodesep=0.15, ranksep=0.5, bgcolor="transparent"]
+    node  [shape=plaintext, fontname="Helvetica", fontsize=12]
+    edge  [color="#666666", arrowsize=0.7]
+
+    valores [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" COLOR="#666666">
+        <TR><TD BORDER="0">a =</TD><TD BGCOLOR="#f7ddb8">1</TD><TD BGCOLOR="#f7ddb8">3</TD></TR>
+        <TR><TD BORDER="0">b =</TD><TD BGCOLOR="#cfe0f3">2</TD><TD BGCOLOR="#cfe0f3">4</TD></TR>
+      </TABLE>
+    >]
+
+    grilla [label="Búsqueda\nen grilla", shape=box, style="rounded,filled", fillcolor="#333333",
+            fontcolor="white", color="#333333", margin="0.18,0.12"]
+
+    // cada fila: valores de la combinación, configuración y su desempeño en validación
+    configuracion_1 [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" COLOR="#666666">
+        <TR><TD BGCOLOR="#f7ddb8">a = 1</TD><TD BGCOLOR="#cfe0f3">b = 2</TD>
+            <TD BGCOLOR="#eeeeee">Configuración 1</TD><TD BGCOLOR="#e3d5ee">Desempeño en validación 1</TD></TR>
+      </TABLE>
+    >]
+    configuracion_2 [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" COLOR="#666666">
+        <TR><TD BGCOLOR="#f7ddb8">a = 1</TD><TD BGCOLOR="#cfe0f3">b = 4</TD>
+            <TD BGCOLOR="#eeeeee">Configuración 2</TD><TD BGCOLOR="#e3d5ee">Desempeño en validación 2</TD></TR>
+      </TABLE>
+    >]
+    // la mejor configuración va dentro de un recuadro punteado
+    configuracion_3 [shape=box, style="dashed,rounded", color="#c44e52", penwidth=1.5, margin=0, label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" COLOR="#666666">
+        <TR><TD BGCOLOR="#f7ddb8">a = 3</TD><TD BGCOLOR="#cfe0f3">b = 2</TD>
+            <TD BGCOLOR="#eeeeee">Configuración 3</TD><TD BGCOLOR="#e3d5ee">Desempeño en validación 3</TD></TR>
+      </TABLE>
+    >]
+    configuracion_4 [label=<
+      <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" COLOR="#666666">
+        <TR><TD BGCOLOR="#f7ddb8">a = 3</TD><TD BGCOLOR="#cfe0f3">b = 4</TD>
+            <TD BGCOLOR="#eeeeee">Configuración 4</TD><TD BGCOLOR="#e3d5ee">Desempeño en validación 4</TD></TR>
+      </TABLE>
+    >]
+
+    valores -> grilla
+    grilla -> configuracion_1
+    grilla -> configuracion_2
+    grilla -> configuracion_3
+    grilla -> configuracion_4
+}
+```
+
+La búsqueda en grilla tiene un problema serio: su costo computacional crece muy rápido. En el ejemplo, dos hiperparámetros con dos valores cada uno dan cuatro combinaciones, pero esa situación es poco realista. Con cinco hiperparámetros y diez valores para cada uno, la grilla tiene $10^5 = 100\,000$ combinaciones, y cada una requiere entrenar el modelo $k$ veces, una por cada *fold* de la validación cruzada. Por eso, antes de una búsqueda en grilla se suele hacer una búsqueda manual, para acotar los hiperparámetros a optimizar y sus valores posibles. Sumado a la experiencia y al conocimiento del problema, esto reduce mucho la cantidad de combinaciones.
+
+## Búsqueda aleatoria
+
+¿Qué podemos hacer si tenemos muchos hiperparámetros y nos cuesta acotarlos? Una muy buena opción es la **búsqueda aleatoria** (*random search*). En lugar de armar una grilla, definimos un rango para cada hiperparámetro y sorteamos combinaciones al azar dentro de esos rangos. La cantidad de combinaciones la elegimos nosotros, según el tiempo de cómputo disponible. Por ejemplo:
+
+1. Tenemos un modelo con dos hiperparámetros, $a$ y $b$.
+1. Definimos sus rangos, respetando el tipo de cada uno: por ejemplo, $a$ entero entre 1 y 5, y $b$ entero entre 5 y 10.
+1. Sorteamos algunas combinaciones, por ejemplo, $(2, 6)$, $(3, 5)$ y $(5, 5)$, y estimamos el desempeño en cada una.
+1. Nos quedamos con la de mejor desempeño.
+
+La búsqueda aleatoria puede parecer una mala idea frente a la búsqueda en grilla, pero en la mayoría de los casos funciona mejor [@bergstra2012random]. La razón combina dos hechos. Primero, con la misma cantidad de combinaciones, la búsqueda aleatoria prueba más valores distintos de cada hiperparámetro: en una grilla de $3 \times 3$, cada hiperparámetro toma solo tres valores, mientras que nueve combinaciones al azar dan nueve valores distintos de cada uno. Segundo, en general, unos pocos hiperparámetros son mucho más importantes que el resto: la variación en el desempeño está dominada por ellos. Juntando las dos cosas, la búsqueda aleatoria explora mejor los hiperparámetros que importan (@fig-grilla-vs-aleatoria).
+
+```{python}
+#| label: fig-grilla-vs-aleatoria
+#| fig-cap: 'Búsqueda en grilla (izquierda) y búsqueda aleatoria (derecha), con nueve combinaciones cada una. Arriba, el desempeño en función del hiperparámetro importante; el otro casi no lo afecta. La grilla prueba solo tres valores distintos del hiperparámetro importante, y ninguno cae cerca del óptimo. La búsqueda aleatoria, con la misma cantidad de combinaciones, prueba nueve valores distintos. Adaptado de @bergstra2012random.'
+#| echo: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def desempenio_hiperparametro_importante(valor):
+    # óptimo entre dos valores de la grilla, para que la grilla no lo encuentre
+    return np.exp(-((valor - 0.65) / 0.1) ** 2)
+
+generador = np.random.default_rng(1)
+valores_grilla = np.array([1, 3, 5]) / 6
+puntos_grilla = np.array([(a, b) for a in valores_grilla for b in valores_grilla])
+puntos_aleatorios = generador.uniform(0, 1, (9, 2))
+valores_continuos = np.linspace(0, 1, 300)
+
+fig = plt.figure(figsize=(8, 4.2))
+grilla_paneles = fig.add_gridspec(2, 2, height_ratios=[1, 2.5], hspace=0.08, wspace=0.25)
+
+for columna, (puntos, titulo) in enumerate([(puntos_grilla, "Búsqueda en grilla"),
+                                            (puntos_aleatorios, "Búsqueda aleatoria")]):
+    ax_desempenio = fig.add_subplot(grilla_paneles[0, columna])
+    ax_puntos = fig.add_subplot(grilla_paneles[1, columna], sharex=ax_desempenio)
+
+    # arriba: qué valores del hiperparámetro importante llega a probar cada estrategia
+    ax_desempenio.plot(valores_continuos, desempenio_hiperparametro_importante(valores_continuos),
+                       color="#888888", linewidth=1.5)
+    ax_desempenio.scatter(puntos[:, 0], desempenio_hiperparametro_importante(puntos[:, 0]),
+                          s=30, color="#3a76b8", zorder=3)
+    ax_desempenio.set_title(titulo, fontsize=11)
+    ax_desempenio.axis("off")
+
+    ax_puntos.scatter(puntos[:, 0], puntos[:, 1], s=30, color="#3a76b8")
+    ax_puntos.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[],
+                  xlabel="Hiperparámetro importante")
+    ax_puntos.spines[["top", "right"]].set_visible(False)
+    if columna == 0:
+        ax_puntos.set_ylabel("Hiperparámetro\npoco importante")
+
+plt.show()
+```
+
+## Evaluación al optimizar hiperparámetros
+
+Al optimizar hiperparámetros, aplicamos el protocolo del @sec-evaluacion-de-modelos a gran escala: cada configuración que probamos se evalúa con validación cruzada sobre el conjunto de desarrollo, y elegimos la de mejor desempeño. El problema es la cantidad. Con cientos o miles de configuraciones, es muy probable que alguna tenga buen desempeño en la validación cruzada simplemente por azar, sin que generalice mejor que las demás. Por eso, el desempeño en validación cruzada de la configuración elegida es una estimación optimista: la elegimos, justamente, porque le fue bien en esos datos. Es en esta circunstancias en las que el sesgo de selección está más presente.
+
+Para obtener una estimación que no esté afectada por la selección, necesitamos datos que no hayan intervenido ni en el entrenamiento ni en la selección: el conjunto de prueba, que reservamos al principio y usamos una sola vez, con la configuración ya elegida y entrenada sobre todo el conjunto de desarrollo. Notar que la prueba no garantiza que la configuración elegida sea la mejor; lo que nos da es una estimación de su desempeño que no está inflada por haberla elegido.
+
+Una última observación: la optimización de hiperparámetros es una etapa importante, pero no conviene obsesionarse con ella. Suele ser relativamente sencillo obtener una mejora apreciable en un ciclo de trabajo corto, pero, pasado ese punto, cada mejora adicional es costosa. Muchas veces, ese esfuerzo rinde más si se invierte en entender mejor el problema, construir mejores atributos u obtener nuevos datos. Además, cuantas más configuraciones probamos, mayor es el riesgo de quedarnos con una que solo tuvo suerte.
+
+<!-- ## Resumen
+
+Para optimizar hiperparámetros necesitamos:
+
+1. Una métrica de evaluación, como la exactitud, el F-score, el MSE o el $R^2$ (@sec-evaluacion-de-modelos).
+1. Un modelo, de clasificación o de regresión.
+1. Un espacio de hiperparámetros, que depende del modelo.
+1. Un método para elegir qué combinaciones probar:
+    * Búsqueda manual: basada en la experiencia; tediosa y poco eficiente, pero útil para ganar intuición.
+    * Búsqueda en grilla: prueba todas las combinaciones de valores elegidos de antemano.
+    * Búsqueda aleatoria: sortea combinaciones dentro de rangos definidos.
+1. Un protocolo de evaluación: validación cruzada sobre el conjunto de desarrollo para elegir la configuración, y el conjunto de prueba para estimar su desempeño final. -->

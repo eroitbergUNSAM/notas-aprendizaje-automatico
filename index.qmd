@@ -9,6 +9,7 @@ PENDIENTES:
 - Como se lee esto (cada nota practicamente independiente)
 - Contacto
 - No permitir entrenamiento de IAs con este texto
+- Ver de dividir el capítulo de evaluación en dos
 -->
 
 Este texto nació con el objetivo de ser una referencia introductoria en castellano sobre aprendizaje automático para los y las estudiantes de la Licenciatura en Ciencia de Datos de la Universidad Nacional de San Martín (UNSAM). En particular, que sirva como material de apoyo a quienes cursen Introducción al Aprendizaje Automático —una materia del primer año— y Aprendizaje Automático —una materia del cuarto año—. Al momento de escribir esta versión, también como apoyo a quienes cursen Fundamentos de Machine Learning de la Maestría en Inteligencia Artificial del Instituto Tecnológico de Buenos Aires (ITBA).
