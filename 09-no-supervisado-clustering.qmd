@@ -1,0 +1,26 @@
+# Aprendizaje no supervisado: clustering {#sec-intro-no-supervisado-y-clustering}
+
+En el @sec-aprendizaje-automatico mencionamos el aprendizaje no supervisado, la otra gran rama del aprendizaje automático que exploraremos en estas notas. A diferencia del aprendizaje supervisado, busca obtener relaciones y patrones en los datos sin hacer uso de etiquetas. Las dos tareas más importantes dentro del aprendizaje no supervisado son *clustering* y reducción de dimensionalidad. En este primer capítulo sobre aprendizaje no supervisado veremos clustering.
+
+## Clustering
+
+Las técnicas de clustering, como su nombre lo indica, identifican grupos (*clusters*), donde los elementos de cada grupo se parecen más entre sí que con los elementos de los otros grupos. Hay muchas técnicas de clustering, y cada una tiene su propia forma de entender qué es "parecerse más entre sí" (similitud).
+
+<!-- No supervisado significa que no contamos o, más comúnmente, no utilizamos las etiquetas asociadas a nuestros datos.  Es común decir que sirve para encontrar patrones en los datos, sin intervención (supervisión) humana.  -->
+
+En Clustering, los datos se agrupan según características en común. ¿Qué quiere decir esto? ¡Veamos un ejemplo! 
+Imagina que contamos con un dataset de dos atributos y graficamos las instancias con gráfico de dispersión, obteniendo el gráfico de la izquierda que ves a continuación. Si tuvieras que elegir dos grupos dentro de estos datos, ¿cuáles elegirías? ¡Es una tarea bastante intuitiva! 
+Clustering consiste, precisamente, en elegir estos grupos (clusters). Una vez elegidos los grupos, puedes pintar los elementos que componen cada cluster de un color cada uno para diferenciarlos, obteniendo la figura de la derecha.
+
+¡No importa si tenemos o no etiquetas! Si no las tenemos, clustering nos ayudará a agrupar las instancias según su similaridad y nos puede ayudar en el proceso de generar etiquetas para esos datos. Si las tenemos, clustering nos puede ayudar a corroborar que esas etiquetas tienen sentido. Algunos usos de clustering son:
+
+Para desarrollar hipótesis. Clustering es una de las primeras cosas que hacen muchos Data Scientist al encarar un proceso de exploración de un dataset. Si los clusters están compactos y bien separados, debería haber una razón que lo explique y es el trabajo del data scientist descubrir cuál es. Una vez que etiquetes cada grupo, puedes estudiar cuáles son sus diferencias y similitudes. 
+
+Para separar los datos. Muchas veces contamos con datasets muy extensos, hasta con millones de instancias. En ocasiones puede ser una buena idea separar en clusters los datos, seleccionar el cluster que mejor representa las instancias que querés predecir y una vez hecho eso; entrenar tu modelo sobre ese cluster. 
+
+Para reducir el dataset. Con el objetivo de reducir nuestro dataset, una técnica frecuente es la de utilizar los centroides como representación de cada cluster. De esta manera podemos contar con un dataset robusto y confiable, pero mucho más chico y procesable para las computadoras. El centroide representa el centro de cada cluster, te va a quedar mucho más claro después de leer K-mean.
+
+Para detectar outliers: Clustering es un buen primer paso para encontrar outliers. Estos pueden aparecer de dos maneras: dispersos y sin cercanía a ningún cluster o pueden estar agrupados entre ellos. Para detectar el segundo caso, es una buena práctica prestarle atención a pequeños clusters, alejados de los demás. Si se da ese caso, es probable que se trate de outliers agrupados.
+
+Existen muchas formas de llevar a cabo esta tarea. La primera, siempre, es visualizar los datos y ver si reconocemos estructuras a simple vista. Pero ya sabemos que la mayoría de los datasets tienen muchas dimensiones, por lo que visualizar es difícil. Con reducción de dimensionalidad, podremos abordar ese problema. Pero, obviamente, existen muchas técnicas automáticas de clusterización. Aquí te presentamos dos muy utilizadas: k-means y DBSCAN.
+
